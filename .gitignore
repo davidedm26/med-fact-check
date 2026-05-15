@@ -1,3 +1,7 @@
 .env
 result/
 eval/
+requirements.txt
+
+src/__pycache__/
+src/prompts/__pycache__/
