@@ -19,24 +19,7 @@ import operator
 load_dotenv()
 
 
-def _message_text(message):
-    if hasattr(message, "content"):
-        return message.content
-    if isinstance(message, (tuple, list)) and len(message) > 1:
-        return message[1]
-    return str(message)
-
-class State(MessagesState): 
-    next: str 
-    predicates: Optional[List[Dict[str, str]]]
-    predicate_type_dict: Optional[List[Dict[str, str]]]
-    verifiable_subclaims: Optional[List[str]]
-    subclaim_results: Annotated[List[Dict[str, object]], operator.add]
-    retrieval_query: Optional[str]
-    retrieval_source: Optional[str]
-    downloaded_documents: Optional[List[Dict[str, object]]]
-    sparse_top_k_chunks: Optional[List[Dict[str, object]]]
-    dense_top_k_chunks: Optional[List[Dict[str, object]]]
+from state import State, _message_text
   
 class FactAgent:
     def __init__(self, dataset: str, model_name = None, temperature: float = 0.2):
@@ -169,222 +152,17 @@ class FactAgent:
     
     def _build_input_ingestion_graph(self):
         """Build the input ingestion subgraph."""
-
-        def claim_decomposition_node(state: State) -> Command[Literal["claim_classification"]]:
-            print("[claim_decomposition] start")
-            messages = [SystemMessage(content=claim_decomposition_prompt)] + state["messages"]
-            structured = self.decomposition_llm.invoke(messages)
-            print("[claim_decomposition] agent response received")
-
-            predicates = structured.get("predicates") if isinstance(structured, dict) else None
-            if predicates is None: # if the decomposition agent fails to produce valid output, we can default to treating the entire claim as a single predicate to avoid breaking the workflow. This is a simple fallback strategy to ensure robustness.
-                print("Decomposition agent failed to produce valid output. Defaulting to treating the entire claim as a single predicate.")
-                predicates = [{"predicate": _message_text(state["messages"][-1])}]  # Use the original claim as the only predicate if decomposition fails
-                
-            return Command(
-                update={
-                    "predicates": predicates,
-                    "messages": [
-                        HumanMessage(content=str(predicates), name="claim_decomposition")
-                    ] # Update the state with the subclaims extracted by the decomposer agent. We add a new message to the conversation with the content being the subclaims and the name "claim_decomposition" to indicate which agent produced this message.
-                },
-                goto="claim_classification",
-            )
-        
-        def claim_classification_node(state: State) -> Command[Literal["claim_filter"]]:
-            print("[claim_classification] start")
-            predicates = state.get("predicates") or []
-            messages = [
-                SystemMessage(content=claim_classification_prompt),
-                HumanMessage(content=json.dumps(predicates, ensure_ascii=False)),
-            ]
-            structured = self.classification_llm.invoke(messages)
-            print("[claim_classification] agent response received")
-            predicate_type_dict = (
-                structured.get("predicate_type_dict") if isinstance(structured, dict) else None
-            )
-            return Command(
-                update={
-                    "predicate_type_dict": predicate_type_dict,
-                    "messages": [
-                        HumanMessage(content=str(predicate_type_dict), name="claim_classification")
-                    ]
-                },
-                goto="claim_filter",
-            )
-
-        # The claim splitter node is not an LLM agent - it just filters the subclaims based on the classification results and prepares the final list of verifiable subclaims for the main workflow.
-
-        def claim_filter_node(state: State) -> Command[Literal["__end__"]]:
-            print("[claim_filter] start")
-            predicate_type_dict = state.get("predicate_type_dict") or []
-            verifiable_subclaims = [
-                item.get("predicate")
-                for item in predicate_type_dict
-                if isinstance(item, dict) and item.get("type") == "verifiable"
-            ]
-            print("[claim_filter] filter complete")
-            return Command(
-                update={
-                    "verifiable_subclaims": verifiable_subclaims,
-                    "messages": [
-                        HumanMessage(content=str(verifiable_subclaims), name="claim_filter")
-                    ]
-                },
-                goto=END,
-            )
-        
-        # The injestion graph is a sequential graph that runs the claim decomposition, classification, and filtering steps in order
-        input_ingester = StateGraph(State)
-        
-        input_ingester.add_node("claim_decomposition", claim_decomposition_node)
-        input_ingester.add_node("claim_classification", claim_classification_node)
-        input_ingester.add_node("claim_filter", claim_filter_node)
-
-        input_ingester.add_edge(START, "claim_decomposition")
-        input_ingester.add_edge("claim_decomposition", "claim_classification")
-        input_ingester.add_edge("claim_classification", "claim_filter")
-        
-        self.ingestion_graph = input_ingester.compile()
+        from agents.decomposer_team import build_decomposer_graph
+        self.ingestion_graph = build_decomposer_graph(self.decomposition_llm, self.classification_llm)
 
     def _build_retrieval_graph(self):
         """Build the retrieval subgraph."""
-
-        from prompts.retriever_agent_prompt import retriever_agent_prompt
-        def downloader_node(state: State):
-            print("[retrieval_downloader] start")
-            query = _message_text(state["messages"][-1])
-
-            # Use the M2 retriever agent prompt for the downloader node
-            compiled_prompt = retriever_agent_prompt.replace("{sub_claim_text}", query)
-            messages = [
-                SystemMessage(content=retrieval_downloader_prompt),
-                HumanMessage(content=compiled_prompt),
-            ]
-
-            print("[retrieval_downloader] invoking llm")
-            response = self.retrieval_downloader_llm.invoke(messages)
-            tool_calls = getattr(response, "tool_calls", None) or []
-            documents = None
-            selected_source = "literature"
-            normalized_query = query
-            sub_id = "sub_01" # In a real scenario, this would be dynamically generated
-
-            if tool_calls:
-                first_call = tool_calls[0]
-                tool_name = first_call.get("name")
-                tool_args = first_call.get("args", {})
-                if tool_name == download_documents.name:
-                    selected_source = tool_args.get("target_source", "literature")
-                    search_queries = tool_args.get("search_queries", [query])
-                    if search_queries:
-                         normalized_query = search_queries[0]
-
-                    # Use the tool object from the module
-                    print(f"[retrieval_downloader] invoking tool with args: {tool_args}")
-                    documents = download_documents.invoke(tool_args)
-
-            # Fallback if no tool call was made or it failed
-            if documents is None:
-                print("[retrieval_downloader] fallback: no valid tool call, using default")
-                tool_args = {"sub_id": sub_id, "search_queries": [query], "target_source": "literature"}
-                documents = download_documents.invoke(tool_args)
-
-            print(f"[retrieval_downloader] selected source: {selected_source}")
-            return {
-                "retrieval_query": normalized_query,
-                "retrieval_source": selected_source,
-                "downloaded_documents": documents,
-            }
-
-        from prompts.retrieve import sparse_retriever_prompt
-        def sparse_retriever_node(state: State):
-            print("[sparse_retriever] start")
-            query = state.get("retrieval_query") or _message_text(state["messages"][-1])
-            documents = state.get("downloaded_documents") or []
-
-            # Serialize documents to string for the tool
-            docs_json = json.dumps(documents)
-
-            messages = [
-                SystemMessage(content=sparse_retriever_prompt),
-                HumanMessage(content=query),
-            ]
-
-            print("[sparse_retriever] invoking llm")
-            response = self.sparse_retriever_llm.invoke(messages)
-            tool_calls = getattr(response, "tool_calls", None) or []
-            chunks = []
-
-            if tool_calls:
-                first_call = tool_calls[0]
-                if first_call.get("name") == sparse_retrieve_tool.name:
-                    tool_args = first_call.get("args", {})
-                    # Ensure documents are provided to the tool
-                    if "documents" not in tool_args:
-                        tool_args["documents"] = docs_json
-
-                    print(f"[sparse_retriever] invoking tool with query: {tool_args.get('query')}")
-                    chunks = sparse_retrieve_tool.invoke(tool_args)
-
-            if not chunks:
-                print("[sparse_retriever] fallback: no valid tool call, using default")
-                tool_args = {"query": query, "documents": docs_json, "top_k": 3}
-                chunks = sparse_retrieve_tool.invoke(tool_args)
-
-            print("[sparse_retriever] top chunks ready")
-            return {"sparse_top_k_chunks": chunks}
-
-        from prompts.retrieve import dense_retriever_prompt
-        def dense_retriever_node(state: State):
-            print("[dense_retriever] start")
-            query = state.get("retrieval_query") or _message_text(state["messages"][-1])
-            documents = state.get("downloaded_documents") or []
-
-            # Serialize documents to string for the tool
-            docs_json = json.dumps(documents)
-
-            messages = [
-                SystemMessage(content=dense_retriever_prompt),
-                HumanMessage(content=query),
-            ]
-
-            print("[dense_retriever] invoking llm")
-            response = self.dense_retriever_llm.invoke(messages)
-            tool_calls = getattr(response, "tool_calls", None) or []
-            chunks = []
-
-            if tool_calls:
-                first_call = tool_calls[0]
-                if first_call.get("name") == dense_retrieve_tool.name:
-                    tool_args = first_call.get("args", {})
-                    # Ensure documents are provided to the tool
-                    if "documents" not in tool_args:
-                        tool_args["documents"] = docs_json
-
-                    print(f"[dense_retriever] invoking tool with query: {tool_args.get('query')}")
-                    chunks = dense_retrieve_tool.invoke(tool_args)
-
-            if not chunks:
-                print("[dense_retriever] fallback: no valid tool call, using default")
-                tool_args = {"query": query, "documents": docs_json, "top_k": 3}
-                chunks = dense_retrieve_tool.invoke(tool_args)
-
-            print("[dense_retriever] top chunks ready")
-            return {"dense_top_k_chunks": chunks}
-
-        retrieval_builder = StateGraph(State)
-        retrieval_builder.add_node("download_documents", downloader_node)
-        retrieval_builder.add_node("sparse_retriever", sparse_retriever_node)
-        retrieval_builder.add_node("dense_retriever", dense_retriever_node)
-
-        retrieval_builder.add_edge(START, "download_documents")
-        retrieval_builder.add_edge("download_documents", "sparse_retriever")
-        retrieval_builder.add_edge("download_documents", "dense_retriever")
-        retrieval_builder.add_edge("sparse_retriever", END)
-        retrieval_builder.add_edge("dense_retriever", END)
-
-        self.retrieval_graph = retrieval_builder.compile()
+        from agents.retrieval_team import build_retrieval_graph
+        self.retrieval_graph = build_retrieval_graph(
+            self.retrieval_downloader_llm,
+            self.sparse_retriever_llm,
+            self.dense_retriever_llm
+        )
 
     def _build_main_graph(self):
         """Build the main workflow graph."""
