@@ -3,12 +3,12 @@ import logging
 import os
 from typing import List
 
-from src.tools.retrieve.connectors.europe_pmc_api import search_articles, fetch_full_text_xml
-from src.tools.retrieve.connectors.clinical_trials_api import search_trials
-from src.tools.retrieve.connectors.uniprot_api import search_protein
+from tools.retrieve.connectors.europe_pmc_api import search_articles, fetch_full_text_xml
+from tools.retrieve.connectors.clinical_trials_api import search_trials
+from tools.retrieve.connectors.uniprot_api import search_protein
 
 
-from src.tools.retrieve.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot
+from tools.retrieve.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
 

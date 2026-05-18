@@ -7,15 +7,9 @@ from dotenv import load_dotenv
 from llm_factory import get_llm_with_tools
 from prompts.decompose import *  
 from prompts.retrieve import retrieval_downloader_prompt
-from tools.retrieve.mock_retrieve import (
-    download_documents_for_source,
-    download_guidelines_documents,
-    download_news_documents,
-    download_pubmed_documents,
-    download_wikipedia_documents,
-    dense_retrieve_chunks,
-    sparse_retrieve_chunks,
-)
+from tools.retrieve.download_tool import download_documents
+from tools.retrieve.sparse_retrieve_tool import sparse_retrieve_tool
+from tools.retrieve.dense_retrieve_tool import dense_retrieve_tool
  
 from pydantic import BaseModel, Field  
  
@@ -123,10 +117,29 @@ class FactAgent:
         
         self.retrieval_downloader_llm = get_llm_with_tools(
             [
-                download_wikipedia_documents,
-                download_pubmed_documents,
-                download_news_documents,
-                download_guidelines_documents,
+                download_documents,
+            ],
+            provider=self.provider,
+            model_name=self.model_name,
+            temperature=self.temperature,
+            base_url=self.base_url,
+            api_key=self.api_key,
+        )
+
+        self.sparse_retriever_llm = get_llm_with_tools(
+            [
+                sparse_retrieve_tool,
+            ],
+            provider=self.provider,
+            model_name=self.model_name,
+            temperature=self.temperature,
+            base_url=self.base_url,
+            api_key=self.api_key,
+        )
+
+        self.dense_retriever_llm = get_llm_with_tools(
+            [
+                dense_retrieve_tool,
             ],
             provider=self.provider,
             model_name=self.model_name,
@@ -237,37 +250,45 @@ class FactAgent:
     def _build_retrieval_graph(self):
         """Build the retrieval subgraph."""
 
+        from prompts.retriever_agent_prompt import retriever_agent_prompt
         def downloader_node(state: State):
             print("[retrieval_downloader] start")
             query = _message_text(state["messages"][-1])
+
+            # Use the M2 retriever agent prompt for the downloader node
+            compiled_prompt = retriever_agent_prompt.replace("{sub_claim_text}", query)
             messages = [
                 SystemMessage(content=retrieval_downloader_prompt),
-                HumanMessage(content=query),
+                HumanMessage(content=compiled_prompt),
             ]
+
+            print("[retrieval_downloader] invoking llm")
             response = self.retrieval_downloader_llm.invoke(messages)
             tool_calls = getattr(response, "tool_calls", None) or []
             documents = None
-            selected_source = "pubmed"
+            selected_source = "literature"
             normalized_query = query
-
-            tool_map = {
-                download_wikipedia_documents.name: ("wikipedia", download_wikipedia_documents),
-                download_pubmed_documents.name: ("pubmed", download_pubmed_documents),
-                download_news_documents.name: ("news", download_news_documents),
-                download_guidelines_documents.name: ("guidelines", download_guidelines_documents),
-            }
+            sub_id = "sub_01" # In a real scenario, this would be dynamically generated
 
             if tool_calls:
                 first_call = tool_calls[0]
                 tool_name = first_call.get("name")
                 tool_args = first_call.get("args", {})
-                if tool_name in tool_map:
-                    selected_source, tool_object = tool_map[tool_name]
-                    normalized_query = tool_args.get("query") or query
-                    documents = tool_object.invoke(tool_args)
+                if tool_name == download_documents.name:
+                    selected_source = tool_args.get("target_source", "literature")
+                    search_queries = tool_args.get("search_queries", [query])
+                    if search_queries:
+                         normalized_query = search_queries[0]
 
+                    # Use the tool object from the module
+                    print(f"[retrieval_downloader] invoking tool with args: {tool_args}")
+                    documents = download_documents.invoke(tool_args)
+
+            # Fallback if no tool call was made or it failed
             if documents is None:
-                documents = download_documents_for_source(selected_source, normalized_query, limit=4)
+                print("[retrieval_downloader] fallback: no valid tool call, using default")
+                tool_args = {"sub_id": sub_id, "search_queries": [query], "target_source": "literature"}
+                documents = download_documents.invoke(tool_args)
 
             print(f"[retrieval_downloader] selected source: {selected_source}")
             return {
@@ -276,19 +297,79 @@ class FactAgent:
                 "downloaded_documents": documents,
             }
 
+        from prompts.retrieve import sparse_retriever_prompt
         def sparse_retriever_node(state: State):
             print("[sparse_retriever] start")
             query = state.get("retrieval_query") or _message_text(state["messages"][-1])
             documents = state.get("downloaded_documents") or []
-            chunks = sparse_retrieve_chunks(documents, query, top_k=3)
+
+            # Serialize documents to string for the tool
+            docs_json = json.dumps(documents)
+
+            messages = [
+                SystemMessage(content=sparse_retriever_prompt),
+                HumanMessage(content=query),
+            ]
+
+            print("[sparse_retriever] invoking llm")
+            response = self.sparse_retriever_llm.invoke(messages)
+            tool_calls = getattr(response, "tool_calls", None) or []
+            chunks = []
+
+            if tool_calls:
+                first_call = tool_calls[0]
+                if first_call.get("name") == sparse_retrieve_tool.name:
+                    tool_args = first_call.get("args", {})
+                    # Ensure documents are provided to the tool
+                    if "documents" not in tool_args:
+                        tool_args["documents"] = docs_json
+
+                    print(f"[sparse_retriever] invoking tool with query: {tool_args.get('query')}")
+                    chunks = sparse_retrieve_tool.invoke(tool_args)
+
+            if not chunks:
+                print("[sparse_retriever] fallback: no valid tool call, using default")
+                tool_args = {"query": query, "documents": docs_json, "top_k": 3}
+                chunks = sparse_retrieve_tool.invoke(tool_args)
+
             print("[sparse_retriever] top chunks ready")
             return {"sparse_top_k_chunks": chunks}
 
+        from prompts.retrieve import dense_retriever_prompt
         def dense_retriever_node(state: State):
             print("[dense_retriever] start")
             query = state.get("retrieval_query") or _message_text(state["messages"][-1])
             documents = state.get("downloaded_documents") or []
-            chunks = dense_retrieve_chunks(documents, query, top_k=3)
+
+            # Serialize documents to string for the tool
+            docs_json = json.dumps(documents)
+
+            messages = [
+                SystemMessage(content=dense_retriever_prompt),
+                HumanMessage(content=query),
+            ]
+
+            print("[dense_retriever] invoking llm")
+            response = self.dense_retriever_llm.invoke(messages)
+            tool_calls = getattr(response, "tool_calls", None) or []
+            chunks = []
+
+            if tool_calls:
+                first_call = tool_calls[0]
+                if first_call.get("name") == dense_retrieve_tool.name:
+                    tool_args = first_call.get("args", {})
+                    # Ensure documents are provided to the tool
+                    if "documents" not in tool_args:
+                        tool_args["documents"] = docs_json
+
+                    print(f"[dense_retriever] invoking tool with query: {tool_args.get('query')}")
+                    chunks = dense_retrieve_tool.invoke(tool_args)
+
+            if not chunks:
+                print("[dense_retriever] fallback: no valid tool call, using default")
+                tool_args = {"query": query, "documents": docs_json, "top_k": 3}
+                chunks = dense_retrieve_tool.invoke(tool_args)
+
             print("[dense_retriever] top chunks ready")
             return {"dense_top_k_chunks": chunks}
 

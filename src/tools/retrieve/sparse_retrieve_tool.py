@@ -1,6 +1,8 @@
+import json
 import logging
 import re
-from typing import List, Dict
+from typing import List, Dict, Optional
+from langchain_core.tools import tool
 from rank_bm25 import BM25Okapi
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
@@ -32,3 +34,26 @@ def extract_relevant_paragraphs(query: str, paragraphs_with_metadata: List[Dict]
     
     logging.info(f"[BM25] Extracted {len(top_results)} most relevant paragraphs for query '{query}'.")
     return top_results
+
+@tool
+def sparse_retrieve_tool(query: str, documents: Optional[str] = None, top_k: int = 3) -> List[Dict]:
+    """Retrieves the most relevant paragraphs from a list of documents using BM25 sparse retrieval.
+
+    Args:
+        query: The search query to match against the documents.
+        documents: A JSON string containing a list of dictionaries, each with 'text' and 'metadata' keys representing the documents to search.
+        top_k: The number of top relevant paragraphs to return.
+
+    Returns:
+        A list of the most relevant document dictionaries.
+    """
+    if not documents:
+        return []
+
+    try:
+        docs_list = json.loads(documents)
+    except Exception as e:
+        logging.error(f"[sparse_retrieve_tool] Failed to parse documents JSON: {e}")
+        return []
+
+    return extract_relevant_paragraphs(query, docs_list, top_k)
