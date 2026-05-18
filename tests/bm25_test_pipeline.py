@@ -50,40 +50,22 @@ mock_decomposer_json = {
     ]
 }
 
+"""
 
-"""
-mock_decomposer_json = {
-    "original_claim": "Pfizer ha interrotto gli studi sul Nirmatrelvir per inefficacia, mentre è ampiamente dimostrato che dosi massicce di Acido Ascorbico azzerano i decessi nei pazienti ricoverati bloccando fisicamente il recettore umano ACE2.",
-    "sub_claims": [
-        {
-            "sub_id": "sc_01",
-            "text": "La sperimentazione sul farmaco Nirmatrelvir è stata interrotta anticipatamente a causa della sua inefficacia sui pazienti."
-        },
-        {
-            "sub_id": "sc_02",
-            "text": "La somministrazione di Acido Ascorbico azzera il rischio di mortalità nei pazienti ospedalizzati per COVID-19."
-        },
-        {
-            "sub_id": "sc_03",
-            "text": "L'Acido Ascorbico impedisce l'infezione virale legandosi e bloccando fisicamente il recettore cellulare ACE2."
-        }
-    ]
-}
-"""
 mock_decomposer_json = {
     "original_claim": "mRNA vaccines alter human DNA and have been linked to a surge in myocarditis deaths in athletes",
     "sub_claims": [
         {
             "sub_id": "sc_01",
-            "text": "I vaccini a mRNA alterano il DNA umano."
+            "text": "mRNA vaccines alter human DNA."
         },
         {
             "sub_id": "sc_02",
-            "text": "I vaccini a mRNA sono collegati a un'ondata di morti per miocardite negli atleti."
+            "text": "mRNA vaccines are linked to a surge in myocarditis deaths in athletes."
         }
     ]
 }
-"""
+
 
 
 def run_test_pipeline():
