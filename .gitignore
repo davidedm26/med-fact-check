@@ -1,8 +1,11 @@
 .env
+.venv/
 result/
 eval/
-requirements.txt
 
 src/__pycache__/
 src/prompts/__pycache__/
 **/__pycache__/
+# Python cache
+__pycache__/
+*.py[cod]
