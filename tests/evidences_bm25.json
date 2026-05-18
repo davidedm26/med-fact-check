@@ -1,0 +1,243 @@
+{
+  "original_claim": "Pfizer ha interrotto gli studi sul Nirmatrelvir per inefficacia, mentre è ampiamente dimostrato che dosi massicce di Acido Ascorbico azzerano i decessi nei pazienti ricoverati bloccando fisicamente il recettore umano ACE2.",
+  "evidences": [
+    {
+      "sub_id": "sc_01",
+      "target_source": "clinical_trials",
+      "queries_used": [
+        "Nirmatrelvir trial efficacy failure",
+        "Paxlovid study stopped early",
+        "Nirmatrelvir patient outcome failure"
+      ],
+      "retrieved_texts": [
+        {
+          "text_content": "Summary: REMAP-CAP is a randomised, embedded, multifactorial, adaptive platform trial for community-acquired pneumonia.\n\nThe purpose of this study is to evaluate the effect of a range of interventions to improve outcome of patients admitted to intensive care with community-acquired pneumonia.\n\nIn addition, REMAP-CAP provides and adaptive research platform for evaluation of multiple treatment modalities in the event of a respiratory pandemic such as COVID-19.\n\nREMAP-COVID is a sub-platform of REMAP-CAP that evaluates treatments specific to COVID-19 in the United States of America. | Eligibility: REMAP-CAP PLATFORM INCLUSION CRITERIA:\n\n1. Adult patient admitted to an ICU for severe CAP within 48 hours of hospital admission with:\n\n   1. symptoms or signs or both that are consistent with lower respiratory tract infection AND\n   2. Radiological evidence of new onset consolidation (in patients with pre-existing radiological changes, evidence of new infiltrate)\n2. Up to 48 hours after ICU admission, receiving organ support with one or more of:\n\n   1. Non-invasive or Invasive ventilatory support;\n   2. Receiving infusion of vasopressor or inotropes or both\n\nPLATFORM EXCLUSION CRITERIA:\n\n1. Healthcare-associated pneumonia:\n\n   1. Prior to this illness, is known to have been an inpatient in any healthcare facility within the last 30 days\n   2. Resident of a nursing home or long term care facility\n2. Death is deemed to be imminent and inevitable during the next 24 hours AND one or more of the patient, substitute decision maker or attending physician are not committed to full active treatment\n3. Previous participation in this REMAP within the last 90 days\n\nREMAP-COVID PLATFORM INCLUSION CRITERIA\n\n1\\. Adult patients (≥ 18 years) admitted to hospital with acute illness due to suspected or proven pandemic infection.\n\nREMAP-COVID PLATFORM EXCLUSION CRITERIA\n\n1. Death is deemed to be imminent and inevitable during the next 24 hours AND one or more of the patient, substitute decision maker or attending physician are not committed to full active treatment\n2. Patient is expected to be discharged from hospital today or tomorrow\n3. More than 14 days have elapsed while admitted to hospital with symptoms of an acute illness due to suspected or proven pandemic infection.\n4. Previous participation in this REMAP within the last 90 days\n\nDOMAIN-SPECIFIC ELIGIBLE CRITERIA:\n\nEach domain may have additional eligibility criteria. Refer to the study website for more information (www.remapcap.org).",
+          "source_metadata": {
+            "id": "NCT02735707",
+            "title": "Randomized, Embedded, Multifactorial Adaptive Platform Trial for Community- Acquired Pneumonia",
+            "type": "Clinical Trial",
+            "date": "2016-04-11",
+            "url": "https://clinicaltrials.gov/study/NCT02735707",
+            "extra_info": {
+              "phase": "PHASE3",
+              "status": "RECRUITING"
+            }
+          }
+        },
+        {
+          "text_content": "Summary: To evaluate the safety and efficacy of extended remdesivir infusion, targeting on immunocompromised individuals who had positive SARS-CoV-2 PCR despite an oral antiviral agent prescription. | Eligibility: Inclusion Criteria:\n\n* Age ≥ 18 years\n* Receive B-cell depletion therapy or bendamustine within 6months\n* Laboratory confirmed SARS-CoV-2 infection\n* Symptoms onset within 72 hours\n* NIAID ordinal score 0-5 upon enrollment\n\nExclusion Criteria:\n\n* Prior use of any anti-SARS-CoV-2 agents within 2 weeks. Remdesivir or NMV/r initiated within 24 hours is acceptable\n* Life expectancy \\&amp;lt; 1 month\n* Previous adverse effect related to remdesivir or NMV/r\n* Concurrent use medicine with drug-drug interaction with NMV/r\n* Patients receiving intubation and mechanical ventilation\n* eGFR \\&amp;lt; 30\n* Child pugh score Class C\n* Any other condition that in the opinion of the investigator would jeopardize the safety or rights of a subject participating in the trial or would render the subject unable to comply with the protocol.",
+          "source_metadata": {
+            "id": "NCT06610643",
+            "title": "Extended Remdesivir Infusion Combined With Nirmatrelvir/Ritonavir for Persistent SARS-CoV-2 Infection in Immunocompromised Patients",
+            "type": "Clinical Trial",
+            "date": "2024-09-21",
+            "url": "https://clinicaltrials.gov/study/NCT06610643",
+            "extra_info": {
+              "phase": "NA",
+              "status": "NOT_YET_RECRUITING"
+            }
+          }
+        },
+        {
+          "text_content": "Summary: An International Multi-Centre Randomised Adaptive Platform Clinical Trial to Assess the Clinical, Virological and Immunological Outcomes in Patients with SARS-CoV-2 Infection (COVID-19). | Eligibility: Inclusion Criteria:\n\nA.Core Platform (all participants must meet the following):\n\n1\\. Adult (as defined by local jurisdiction) patient admitted to hospital with acute illness and suspected or proven SARS-CoV-2 infection.\n\nB. Antiviral II Domain (all participants in the Antiviral II domain must meet the following):\n\n1\\. SARS-CoV-2 infection has been confirmed by positive rapid antigen test OR polymerase chain reaction test within the last 7 days\n\nExclusion Criteria:\n\nA. Core platform exclusions (all participants must not meet the following):\n\n1. Death is deemed to be imminent and inevitable during the next 24 hours AND one or more of the patient, substitute decision maker or attending physician are not committed to full active treatment\n2. Patient is expected to be discharged from hospital today or tomorrow\n3. More than 14 days have elapsed while admitted to hospital with symptoms of an acute illness due to proven SARS-CoV-2 infection\n4. Previous participation in this trial, or another trial that is analysed within the same statistical model as this trial, within the last 90 days\n\nB. Antiviral II Domain exclusions (patients at sites participating in the Antiviral II Domain must not meet the following):\n\n1. Severe renal impairment, defined as eGFR\\<30ml/min or receipt of renal replacement therapy\n2. Severe hepatic impairment, defined as proven or suspected cirrhosis with Child Pugh class of C, OR acute hepatitis, defined as AST or ALT\\>5 times the upper limit of normal in the testing laboratory.\n3. The patient has received, at the time of eligibility assessment, \\>24h of an antiviral agent intended to have activity against SARS-CoV-2, within the past 7 days\n4. The patient is known to be pregnant or breastfeeding\n5. The treating clinician believes that participation in the domain would not be in the best interests of the patient\n\nB.1. Antiviral II Domain Non-Immune Suppressed Stratum-specific Exclusion Criteria (all non-immune suppressed patients at sites participating in the Antiviral II Domain must not meet the following):\n\n1\\. Onset of COVID-related symptoms was more than 7 days (i.e., 168 hours) ago\n\nB2. Antiviral II domain Intervention-specific Exclusion Criteria (All patients at sites participating in the Antiviral II Domain will be excluded from the below interventions if they meet the following):\n\nWill be excluded from receiving Remdesivir if:\n\n1. No venous access is available and none can be created\n2. Known hypersensitivity to remdesivir or its excipients\n\nWill be excluded from receiving Nirmatrelvir/ritonavir if:\n\n1. The patient is unable to take, tolerate or absorb oral or enteral medications\n2. Known hypersensitivity to any of nirmatrelvir, ritonavir or its excipients\n3. Receipt of a concomitant drug with a high-risk interaction with nirmatrelvir-ritonavir which cannot be ceased or substituted.\n\nWill be excluded from receiving no antiviral agent if:\n\n1. The patient is in the Immune Suppressed Stratum\n2. The patient is receiving or has received supplemental oxygen on the calendar day of eligibility assessment.\n3. The patient is considered by the treating clinician to be at very high risk for progression to severe COVID-19",
+          "source_metadata": {
+            "id": "NCT04483960",
+            "title": "Australasian COVID-19 Trial (ASCOT) ADAptive Platform Trial",
+            "type": "Clinical Trial",
+            "date": "2020-07-28",
+            "url": "https://clinicaltrials.gov/study/NCT04483960",
+            "extra_info": {
+              "phase": "PHASE3",
+              "status": "ACTIVE_NOT_RECRUITING"
+            }
+          }
+        },
+        {
+          "text_content": "Summary: The DEFEND trial will be the world's first clinical trial to study the effectiveness of Paxlovid or Veklury in the prevention of cardiovascular post-acute sequelae of SARS-CoV-2 among hospitalized adults. Additionally, this pilot study will inform the design and conduct of a future full-scale multi-centre trial by testing the feasibility and accuracy of this study design. | Eligibility: Inclusion Criteria:\n\n* ≥18 years old\n* Positive PCR test for SARS-CoV-2 within 5 days of admission to hospital\n* Normoxic (not receiving supplemental oxygen)\n* Able to provide informed written consent (or, if patient is unable, have substitute decision maker available)\n\nExclusion Criteria:\n\n* Absolute contraindications to Paxlovid or Veklury (any of the following): Severe allergy to Paxlovid or Veklury (e.g. anaphylaxis), co-administration with drugs highly dependent on CYP3A for clearance, co-administration with potent CYP3A inducers\n* Exposure to Paxlovid or Veklury within previous 14 days;\n* Receiving supplemental oxygen;\n* Known positive SARS-CoV-2 PCR or rapid antigen test 5-90 days prior to admission;\n* Limited life expectancy estimated to be ≤3 months;\n* Pregnant and breastfeeding women",
+          "source_metadata": {
+            "id": "NCT06792214",
+            "title": "Antiviral Strategies in the Prevention of Long-term Cardiovascular Outcomes Following COVID-19: The paxloviD/Remdesivir Effectiveness For the prEvention of loNg coviD Clinical Trial",
+            "type": "Clinical Trial",
+            "date": "2025-01-03",
+            "url": "https://clinicaltrials.gov/study/NCT06792214",
+            "extra_info": {
+              "phase": "PHASE4",
+              "status": "RECRUITING"
+            }
+          }
+        },
+        {
+          "text_content": "Summary: The purpose of this study is to understand how COVID-19 affects people's ability to work and to calculate the costs associated with loss of work.\n\nThe study compares two groups of participants who are confirmed to have mild-to moderated COVID-19 and who have high chances of the disease becoming severe.\n\nThe two groups are:\n\nPeople who took the antiviral medication nirmatrelvir-ritonavir (also called Paxlovid) People who were eligible to receive antiviral medication but did not receive any.\n\nThe participants will be selected from various health databases in the US between June 2021 and December 2022.\n\nThe main goals are:\n\nTo look at the characteristics of both groups of participants with COVID-19. To measure how much work these participants missed, including days off and sick leave, and the costs associated with this work loss.\n\nTo compare work loss and costs between the two groups of participants, considering differences in their clinical and demographic characteristics.\n\nThe study will evaluate at least 30 days of data from participants after they are confirmed to have COVID-19 | Eligibility: Inclusion Criteria:\n\n* \\>1 non-diagnostic2 outpatient medical claim in the MarketScan Commercial or Medicare Database with the International Classification of Diseases, 10th Revision (ICD-10) diagnosis code for COVID-19 (U071) between December 16, 2021 (5 days prior to the date of emergency use authorization of NMV/r) and December 1, 2022 (30 days prior to the end of available HPM data); the date of the earliest qualifying claim is the index date.\n* Primary beneficiary on their insurance policy (i.e., eligible for inclusion in the MarketScan HPM Database)\n* \\>6 months of continuous enrollment with medical and pharmacy benefits in the MarketScan Commercial or Medicare Database before the index date (baseline period)\n* \\>30 days of continuous enrollment with medical and pharmacy benefits in the MarketScan Commercial or Medicare Database after and including the index date (minimum follow-up period)\n* Treated cohort ONLY: ≥1 claim for Paxlovid within 5 days of index (index date and next 4 days)\n\nExclusion Criteria:\n\n* Evidence of death on the index date or the following day\n* Any inpatient admission on the index date or the following day\n* ≥1 inpatient claim with a COVID-19 diagnosis in any position on the claim during the 30 days before the index date\n* \\>1 non-diagnostic claim with a diagnosis code for stage 4 or stage 5 chronic kidney disease, end stage renal disease, or a procedure code for dialysis, during the baseline period or on the index date",
+          "source_metadata": {
+            "id": "NCT07072793",
+            "title": "A US Study to Look at Loss of Work and Healthcare Costs for People Affected With Mild-to-moderate COVID 19 Who Have High Chances of the Disease Becoming Severe",
+            "type": "Clinical Trial",
+            "date": "2024-10-31",
+            "url": "https://clinicaltrials.gov/study/NCT07072793",
+            "extra_info": {
+              "phase": "Phase not specified",
+              "status": "COMPLETED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sub_id": "sc_02",
+      "target_source": "literature",
+      "queries_used": [
+        "Vitamin C COVID-19 mortality",
+        "Ascorbic acid hospitalized survival rate",
+        "High dose Vitamin C death risk"
+      ],
+      "retrieved_texts": [
+        {
+          "text_content": "COVID-19 patients tend to have low or very low levels of vitamin C, further highlighting its importance A preliminary study involving 22 patients found that most critically ill patients with COVID-19 in intensive care units (ICU) had vitamin C deficiency (average serum vitamin C level: 22.2 umol/L), and vitamin C deficiency was positively associated with COVID-19 mortality risk [ 3 ]. Another study involving 18 critically ill patients with COVID-19 in ICU showed that 94.4% of those patients had undetectable levels of vitamin C, with one patient having very low levels [ 4 ]. In March 2020, the Australian Therapeutic Goods Administration (TGA) stated that there was ‘no evidence to support intravenous high-dose vitamin C in the management of COVID-19 [ 5 ]. However, subsequent studies have suggested that intravenous administration (IV) of high-dose vitamin C may improve symptoms and outcomes in patients with severe or critical COVID-19, possibly by reversing the low vitamin C levels observed in these patients [ 6 ].",
+          "source_metadata": {
+            "id": "41174501",
+            "title": "Efficacy of vitamin C in COVID-19 management: a systematic review and meta-analysis.",
+            "type": "Scientific Literature",
+            "date": "2025-10-31",
+            "url": "https://doi.org/10.1186/s12879-025-11891-6",
+            "extra_info": {
+              "doi": "10.1186/s12879-025-11891-6"
+            }
+          }
+        },
+        {
+          "text_content": "Several clinical studies are currently testing the effect of vitamin C. A prospective single-arm trial evaluates high-dose vitamin C in combination with metformin in metastatic CRC with progression-free survival as the primary outcome [ 100 ]. Another randomized control study will compare the objective response rate, progression-free survival and overall survival of metastatic CRC patients expressing high levels of Glut3 treated with vitamin C in combination with adebrelimab and FOLFOX +/− bevacizumab versus treatment with FOLFOX +/− bevacizumab alone [ 101 ]. High expression of Glut3 is thought to increase the uptake of vitamin C and thus increase its efficacy. Vitamin C is further being tested preoperatively. A study is evaluating the safety and efficacy of high-dose vitamin C with mFOLFOX6 in locally advanced rectal cancer patients [ 102 ]. A phase Ib study has been designed to evaluate safety and effectiveness of botensilimab and balstilimab combined with a fasting-mimicking diet and high-dose vitamin C in patients with advanced CRC harboring KRAS mutations [ 103 ].",
+          "source_metadata": {
+            "id": "",
+            "title": "Vitamin C in the Treatment of Colorectal Cancer: Between Hope and Despair",
+            "type": "Scientific Literature",
+            "date": "2026-02-01",
+            "url": "",
+            "extra_info": {
+              "doi": ""
+            }
+          }
+        },
+        {
+          "text_content": "Vitamin C (ascorbic acid), owing to its antioxidant and immunomodulatory properties, as well as its role in supporting endogenous catecholamine synthesis, has been widely investigated as a potential adjunctive therapy in sepsis. Initial enthusiasm—fueled by protocols such as HAT (high-dose vitamin C, hydrocortisone, and thiamine) and encouraging findings from early observational studies—has gradually shifted toward more cautious interpretation, as results from large, controlled trials have yielded inconsistent outcomes.",
+          "source_metadata": {
+            "id": "41228403",
+            "title": "The Role of Vitamins in Sepsis: A Narrative Review.",
+            "type": "Scientific Literature",
+            "date": "2025-10-23",
+            "url": "https://doi.org/10.3390/nu17213330",
+            "extra_info": {
+              "doi": "10.3390/nu17213330"
+            }
+          }
+        },
+        {
+          "text_content": "Beyond existing radiation safety measures, clinical trials are needed to evaluate more the prophylactic role of ascorbic acid, including optimal dosage, timing, and intake frequency. Research should also determine whether vitamin C is most effective when administered before, after, or both before and after radiation exposure, as well as establish appropriate supplementation schedules for HCWs at high occupational risk.",
+          "source_metadata": {
+            "id": "42022613",
+            "title": "Radioprotective Effect of Ascorbic Acid: A Need for Prophylactic Supplementation Pre- and Post-Radiation Exposure Among Patients and Healthcare Workers-A Perspective Article.",
+            "type": "Scientific Literature",
+            "date": "2026-03-19",
+            "url": "https://doi.org/10.1002/hsr2.71996",
+            "extra_info": {
+              "doi": "10.1002/hsr2.71996"
+            }
+          }
+        },
+        {
+          "text_content": "Five studies evaluated the effect of vitamin C administration on short-term mortality rate among COVID-19 patients [ 12 , 24 , 29 , 33 ]. The results showed that a pooled RR of 0.92 (95% CI: 0.72 to 1.17, P = 0.415), indicating no statistically significant difference in the short-term mortality rate. The heterogeneity among these studies was moderate (I 2 = 53.09%) (Fig. 5 a).",
+          "source_metadata": {
+            "id": "41174501",
+            "title": "Efficacy of vitamin C in COVID-19 management: a systematic review and meta-analysis.",
+            "type": "Scientific Literature",
+            "date": "2025-10-31",
+            "url": "https://doi.org/10.1186/s12879-025-11891-6",
+            "extra_info": {
+              "doi": "10.1186/s12879-025-11891-6"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sub_id": "sc_03",
+      "target_source": "knowledge_base",
+      "queries_used": [
+        "Ascorbic acid ACE2 binding",
+        "Vitamin C receptor interaction",
+        "ACE2 cellular receptor ligands"
+      ],
+      "retrieved_texts": [
+        {
+          "text_content": "Nuclear receptor for calcitriol, the active form of vitamin D3 which mediates the action of this vitamin on cells. Enters the nucleus upon vitamin D3 binding where it forms heterodimers with the retinoid X receptor/RXR. The VDR-RXR heterodimers bind to specific response elements on DNA and activate the transcription of vitamin D3-responsive target genes. Recruited to promoters via its interaction with BAZ1B/WSTF which mediates the interaction with acetylated histones, an essential step for VDR-promoter association. Plays a central role in calcium homeostasis",
+          "source_metadata": {
+            "id": "Q9PTN2",
+            "title": "Vitamin D3 receptor A",
+            "type": "Protein Knowledge",
+            "date": "N/A",
+            "url": "https://www.uniprot.org/uniprotkb/Q9PTN2/entry",
+            "extra_info": {
+              "organism": "Danio rerio",
+              "gene": "vdra"
+            }
+          }
+        },
+        {
+          "text_content": "Integrin alpha-5/beta-1 (ITGA5:ITGB1) is a receptor for fibronectin and fibrinogen. It recognizes the sequence R-G-D in its ligands. ITGA5:ITGB1 binds to PLA2G2A via a site (site 2) which is distinct from the classical ligand-binding site (site 1) and this induces integrin conformational changes and enhanced ligand binding to site 1. ITGA5:ITGB1 acts as a receptor for fibrillin-1 (FBN1) and mediates R-G-D-dependent cell adhesion to FBN1. ITGA5:ITGB1 acts as a receptor for fibronectin (FN1) and mediates R-G-D-dependent cell adhesion to FN1 (By similarity). ITGA5:ITGB1 is a receptor for IL1B and binding is essential for IL1B signaling. ITGA5:ITGB3 is a receptor for soluble CD40LG and is required for CD40/CD40LG signaling (By similarity)",
+          "source_metadata": {
+            "id": "Q27977",
+            "title": "Integrin alpha-5",
+            "type": "Protein Knowledge",
+            "date": "N/A",
+            "url": "https://www.uniprot.org/uniprotkb/Q27977/entry",
+            "extra_info": {
+              "organism": "Bos taurus",
+              "gene": "ITGA5"
+            }
+          }
+        },
+        {
+          "text_content": "Nuclear receptor for calcitriol, the active form of vitamin D3 which mediates the action of this vitamin on cells (PubMed:17227670). Enters the nucleus upon vitamin D3 binding where it forms heterodimers with the retinoid X receptor/RXR (By similarity). The VDR-RXR heterodimers bind to specific response elements on DNA and activate the transcription of vitamin D3-responsive target genes (By similarity). Plays a central role in calcium homeostasis (PubMed:17227670). Also functions as a receptor for the secondary bile acid lithocholic acid (LCA) and its metabolites (By similarity)",
+          "source_metadata": {
+            "id": "P13053",
+            "title": "Vitamin D3 receptor",
+            "type": "Protein Knowledge",
+            "date": "N/A",
+            "url": "https://www.uniprot.org/uniprotkb/P13053/entry",
+            "extra_info": {
+              "organism": "Rattus norvegicus",
+              "gene": "Vdr"
+            }
+          }
+        },
+        {
+          "text_content": "Integrin alpha-5/beta-1 (ITGA5:ITGB1) is a receptor for fibronectin and fibrinogen. It recognizes the sequence R-G-D in its ligands. ITGA5:ITGB1 binds to PLA2G2A via a site (site 2) which is distinct from the classical ligand-binding site (site 1) and this induces integrin conformational changes and enhanced ligand binding to site 1 (PubMed:18635536, PubMed:25398877). ITGA5:ITGB1 acts as a receptor for fibrillin-1 (FBN1) and mediates R-G-D-dependent cell adhesion to FBN1 (PubMed:12807887, PubMed:17158881). ITGA5:ITGB1 acts as a receptor for fibronectin (FN1) and mediates R-G-D-dependent cell adhesion to FN1 (PubMed:33962943). ITGA5:ITGB1 is a receptor for IL1B and binding is essential for IL1B signaling (PubMed:29030430). ITGA5:ITGB3 is a receptor for soluble CD40LG and is required for CD40/CD40LG signaling (PubMed:31331973)",
+          "source_metadata": {
+            "id": "P08648",
+            "title": "Integrin alpha-5",
+            "type": "Protein Knowledge",
+            "date": "N/A",
+            "url": "https://www.uniprot.org/uniprotkb/P08648/entry",
+            "extra_info": {
+              "organism": "Homo sapiens",
+              "gene": "ITGA5"
+            }
+          }
+        },
+        {
+          "text_content": "Nuclear receptor for calcitriol, the active form of vitamin D3 which mediates the action of this vitamin on cells (PubMed:10678179, PubMed:15728261, PubMed:16913708, PubMed:28698609, PubMed:37478846). Enters the nucleus upon vitamin D3 binding where it forms heterodimers with the retinoid X receptor/RXR (PubMed:28698609). The VDR-RXR heterodimers bind to specific response elements on DNA and activate the transcription of vitamin D3-responsive target genes (PubMed:28698609). Plays a central role in calcium homeostasis (By similarity). Also functions as a receptor for the secondary bile acid lithocholic acid (LCA) and its metabolites (PubMed:12016314, PubMed:32354638)",
+          "source_metadata": {
+            "id": "P11473",
+            "title": "Vitamin D3 receptor",
+            "type": "Protein Knowledge",
+            "date": "N/A",
+            "url": "https://www.uniprot.org/uniprotkb/P11473/entry",
+            "extra_info": {
+              "organism": "Homo sapiens",
+              "gene": "VDR"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

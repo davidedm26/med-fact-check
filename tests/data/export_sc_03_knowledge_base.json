@@ -1,0 +1,142 @@
+[
+  {
+    "text": "Nuclear receptor for calcitriol, the active form of vitamin D3 which mediates the action of this vitamin on cells (PubMed:10678179, PubMed:15728261, PubMed:16913708, PubMed:28698609, PubMed:37478846). Enters the nucleus upon vitamin D3 binding where it forms heterodimers with the retinoid X receptor/RXR (PubMed:28698609). The VDR-RXR heterodimers bind to specific response elements on DNA and activate the transcription of vitamin D3-responsive target genes (PubMed:28698609). Plays a central role in calcium homeostasis (By similarity). Also functions as a receptor for the secondary bile acid lithocholic acid (LCA) and its metabolites (PubMed:12016314, PubMed:32354638)",
+    "metadata": {
+      "id": "P11473",
+      "title": "Vitamin D3 receptor",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P11473/entry",
+      "extra_info": {
+        "organism": "Homo sapiens",
+        "gene": "VDR"
+      }
+    }
+  },
+  {
+    "text": "Involved in the active translocation of vitamin B12 (cyanocobalamin) across the outer membrane to the periplasmic space (PubMed:4579869). It derives its energy for transport by interacting with the trans-periplasmic membrane protein TonB",
+    "metadata": {
+      "id": "P06129",
+      "title": "Vitamin B12 transporter BtuB",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P06129/entry",
+      "extra_info": {
+        "organism": "Escherichia coli (strain K12)",
+        "gene": "btuB"
+      }
+    }
+  },
+  {
+    "text": "Nuclear receptor for calcitriol, the active form of vitamin D3 which mediates the action of this vitamin on cells (PubMed:17227670). Enters the nucleus upon vitamin D3 binding where it forms heterodimers with the retinoid X receptor/RXR (By similarity). The VDR-RXR heterodimers bind to specific response elements on DNA and activate the transcription of vitamin D3-responsive target genes (By similarity). Plays a central role in calcium homeostasis (PubMed:17227670). Also functions as a receptor for the secondary bile acid lithocholic acid (LCA) and its metabolites (By similarity)",
+    "metadata": {
+      "id": "P13053",
+      "title": "Vitamin D3 receptor",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P13053/entry",
+      "extra_info": {
+        "organism": "Rattus norvegicus",
+        "gene": "Vdr"
+      }
+    }
+  },
+  {
+    "text": "Nuclear receptor for calcitriol, the active form of vitamin D3 which mediates the action of this vitamin on cells. Enters the nucleus upon vitamin D3 binding where it forms heterodimers with the retinoid X receptor/RXR. The VDR-RXR heterodimers bind to specific response elements on DNA and activate the transcription of vitamin D3-responsive target genes. Recruited to promoters via its interaction with BAZ1B/WSTF which mediates the interaction with acetylated histones, an essential step for VDR-promoter association. Plays a central role in calcium homeostasis",
+    "metadata": {
+      "id": "Q9PTN2",
+      "title": "Vitamin D3 receptor A",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/Q9PTN2/entry",
+      "extra_info": {
+        "organism": "Danio rerio",
+        "gene": "vdra"
+      }
+    }
+  },
+  {
+    "text": "Orphan nuclear receptor that can act as a repressor or activator of transcription. An important repressor of nuclear receptor signaling pathways such as retinoic acid receptor, retinoid X, vitamin D3 receptor, thyroid hormone receptor and estrogen receptor pathways. May regulate gene expression during the late phase of spermatogenesis. Together with NR2C1, forms the core of the DRED (direct repeat erythroid-definitive) complex that represses embryonic and fetal globin transcription including that of GATA1. Binds to hormone response elements (HREs) consisting of two 5'-AGGTCA-3' half site direct repeat consensus sequences. Plays a fundamental role in early embryonic development and embryonic stem cells. Required for normal spermatogenesis and cerebellum development. Appears to be important for neurodevelopmentally regulated behavior (By similarity). Activates transcriptional activity of LHCG. Antagonist of PPARA-mediated transactivation",
+    "metadata": {
+      "id": "P49116",
+      "title": "Nuclear receptor subfamily 2 group C member 2",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P49116/entry",
+      "extra_info": {
+        "organism": "Homo sapiens",
+        "gene": "NR2C2"
+      }
+    }
+  },
+  {
+    "text": "Integrins alpha-1/beta-1, alpha-2/beta-1, alpha-10/beta-1 and alpha-11/beta-1 are receptors for collagen. Integrins alpha-1/beta-1 and alpha-2/beta-2 recognize the proline-hydroxylated sequence G-F-P-G-E-R in collagen. Integrins alpha-2/beta-1, alpha-3/beta-1, alpha-4/beta-1, alpha-5/beta-1, alpha-8/beta-1, alpha-10/beta-1, alpha-11/beta-1 and alpha-V/beta-1 are receptors for fibronectin. Alpha-4/beta-1 recognizes one or more domains within the alternatively spliced CS-1 and CS-5 regions of fibronectin. Integrin alpha-5/beta-1 is a receptor for fibrinogen. Integrin alpha-1/beta-1, alpha-2/beta-1, alpha-6/beta-1 and alpha-7/beta-1 are receptors for lamimin. Integrin alpha-6/beta-1 (ITGA6:ITGB1) is present in oocytes and is involved in sperm-egg fusion (By similarity). Integrin alpha-4/beta-1 is a receptor for VCAM1. It recognizes the sequence Q-I-D-S in VCAM1. Integrin alpha-9/beta-1 is a receptor for VCAM1, cytotactin and osteopontin. It recognizes the sequence A-E-I-D-G-I-E-L in cytotactin. Integrin alpha-3/beta-1 is a receptor for epiligrin, thrombospondin and CSPG4. Alpha-3/beta-1 may mediate with LGALS3 the stimulation by CSPG4 of endothelial cells migration. Integrin alpha-V/beta-1 is a receptor for vitronectin. Beta-1 integrins recognize the sequence R-G-D in a wide array of ligands. When associated with alpha-7 integrin, regulates cell adhesion and laminin matrix deposition. Involved in promoting endothelial cell motility and angiogenesis. Involved in osteoblast compaction through the fibronectin fibrillogenesis cell-mediated matrix assembly process and the formation of mineralized bone nodules. May be involved in up-regulation of the activity of kinases such as PKC via binding to KRT1. Together with KRT1 and RACK1, serves as a platform for SRC activation or inactivation. Plays a mechanistic adhesive role during telophase, required for the successful completion of cytokinesis. Integrin alpha-3/beta-1 provides a docking site for FAP (seprase) at invadopodia plasma membranes in a collagen-dependent manner and hence may participate in the adhesion, formation of invadopodia and matrix degradation processes, promoting cell invasion. ITGA4:ITGB1 binds to fractalkine (CX3CL1) and may act as its coreceptor in CX3CR1-dependent fractalkine signaling (PubMed:23125415, PubMed:24789099). ITGA4:ITGB1 and ITGA5:ITGB1 bind to PLA2G2A via a site (site 2) which is distinct from the classical ligand-binding site (site 1) and this induces integrin conformational changes and enhanced ligand binding to site 1 (PubMed:18635536, PubMed:25398877). ITGA5:ITGB1 acts as a receptor for fibrillin-1 (FBN1) and mediates R-G-D-dependent cell adhesion to FBN1 (PubMed:12807887, PubMed:17158881). ITGA5:ITGB1 acts as a receptor for fibronectin FN1 and mediates R-G-D-dependent cell adhesion to FN1 (PubMed:33962943). ITGA5:ITGB1 is a receptor for IL1B and binding is essential for IL1B signaling (PubMed:29030430). ITGA5:ITGB3 is a receptor for soluble CD40LG and is required for CD40/CD40LG signaling (PubMed:31331973). Plays an important role in myoblast differentiation and fusion during skeletal myogenesis (By similarity). ITGA9:ITGB1 may play a crucial role in SVEP1/polydom-mediated myoblast cell adhesion (By similarity). Integrins ITGA9:ITGB1 and ITGA4:ITGB1 repress PRKCA-mediated L-type voltage-gated channel Ca(2+) influx and ROCK-mediated calcium sensitivity in vascular smooth muscle cells via their interaction with SVEP1, thereby inhibit vasocontraction (PubMed:35802072)",
+    "metadata": {
+      "id": "P05556",
+      "title": "Integrin beta-1",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P05556/entry",
+      "extra_info": {
+        "organism": "Homo sapiens",
+        "gene": "ITGB1"
+      }
+    }
+  },
+  {
+    "text": "Integrin alpha-5/beta-1 (ITGA5:ITGB1) is a receptor for fibronectin and fibrinogen. It recognizes the sequence R-G-D in its ligands. ITGA5:ITGB1 binds to PLA2G2A via a site (site 2) which is distinct from the classical ligand-binding site (site 1) and this induces integrin conformational changes and enhanced ligand binding to site 1 (PubMed:18635536, PubMed:25398877). ITGA5:ITGB1 acts as a receptor for fibrillin-1 (FBN1) and mediates R-G-D-dependent cell adhesion to FBN1 (PubMed:12807887, PubMed:17158881). ITGA5:ITGB1 acts as a receptor for fibronectin (FN1) and mediates R-G-D-dependent cell adhesion to FN1 (PubMed:33962943). ITGA5:ITGB1 is a receptor for IL1B and binding is essential for IL1B signaling (PubMed:29030430). ITGA5:ITGB3 is a receptor for soluble CD40LG and is required for CD40/CD40LG signaling (PubMed:31331973)",
+    "metadata": {
+      "id": "P08648",
+      "title": "Integrin alpha-5",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P08648/entry",
+      "extra_info": {
+        "organism": "Homo sapiens",
+        "gene": "ITGA5"
+      }
+    }
+  },
+  {
+    "text": "Integrins alpha-1/beta-1, alpha-2/beta-1, alpha-10/beta-1 and alpha-11/beta-1 are receptors for collagen. Integrins alpha-1/beta-1 and alpha-2/beta-2 recognize the proline-hydroxylated sequence G-F-P-G-E-R in collagen. Integrins alpha-2/beta-1, alpha-3/beta-1, alpha-4/beta-1, alpha-5/beta-1, alpha-8/beta-1, alpha-10/beta-1, alpha-11/beta-1 and alpha-V/beta-1 are receptors for fibronectin. Alpha-4/beta-1 recognizes one or more domains within the alternatively spliced CS-1 and CS-5 regions of fibronectin. Integrin alpha-5/beta-1 is a receptor for fibrinogen. Integrin alpha-1/beta-1, alpha-2/beta-1, alpha-6/beta-1 and alpha-7/beta-1 are receptors for lamimin. Integrin alpha-6/beta-1 (ITGA6:ITGB1) is present in oocytes and is involved in sperm-egg fusion. Integrin alpha-4/beta-1 is a receptor for VCAM1 and recognizes the sequence Q-I-D-S in VCAM1. Integrin alpha-9/beta-1 is a receptor for VCAM1, cytotactin and osteopontin. It recognizes the sequence A-E-I-D-G-I-E-L in cytotactin. Integrin alpha-3/beta-1 is a receptor for epiligrin, thrombospondin and CSPG4. Integrin alpha-3/beta-1 provides a docking site for FAP (seprase) at invadopodia plasma membranes in a collagen-dependent manner and hence may participate in the adhesion, formation of invadopodia and matrix degradation processes, promoting cell invasion. Alpha-3/beta-1 may mediate with LGALS3 the stimulation by CSPG4 of endothelial cells migration. Integrin alpha-V/beta-1 is a receptor for vitronectin. Beta-1 integrins recognize the sequence R-G-D in a wide array of ligands. When associated with alpha-7/beta-1 integrin, regulates cell adhesion and laminin matrix deposition. Involved in promoting endothelial cell motility and angiogenesis. Involved in osteoblast compaction through the fibronectin fibrillogenesis cell-mediated matrix assembly process and the formation of mineralized bone nodules. May be involved in up-regulation of the activity of kinases such as PKC via binding to KRT1. Together with KRT1 and RACK1, serves as a platform for SRC activation or inactivation. Plays a mechanistic adhesive role during telophase, required for the successful completion of cytokinesis (By similarity). ITGA4:ITGB1 binds to fractalkine (CX3CL1) and may act as its coreceptor in CX3CR1-dependent fractalkine signaling. ITGA4:ITGB1 and ITGA5:ITGB1 bind to PLA2G2A via a site (site 2) which is distinct from the classical ligand-binding site (site 1) and this induces integrin conformational changes and enhanced ligand binding to site 1. ITGA5:ITGB1 acts as a receptor for fibrillin-1 (FBN1) and mediates R-G-D-dependent cell adhesion to FBN1. ITGA5:ITGB1 acts as a receptor for fibronectin FN1 and mediates R-G-D-dependent cell adhesion to FN1 (By similarity). ITGA5:ITGB1 is a receptor for IL1B and binding is essential for IL1B signaling (By similarity). ITGA5:ITGB3 is a receptor for soluble CD40LG and is required for CD40/CD40LG signaling (By similarity). Plays an important role in myoblast differentiation and fusion during skeletal myogenesis (By similarity). ITGA9:ITGB1 may play a crucial role in SVEP1/polydom-mediated myoblast cell adhesion (By similarity). Integrins ITGA9:ITGB1 and ITGA4:ITGB1 repress PRKCA-mediated L-type voltage-gated channel Ca(2+) influx and ROCK-mediated calcium sensitivity in vascular smooth muscle cells via their interaction with SVEP1, thereby inhibit vasocontraction (By similarity)",
+    "metadata": {
+      "id": "P53712",
+      "title": "Integrin beta-1",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P53712/entry",
+      "extra_info": {
+        "organism": "Bos taurus",
+        "gene": "ITGB1"
+      }
+    }
+  },
+  {
+    "text": "Multifunctional redox sensitive protein with various roles in different cellular compartments. In the nucleus is one of the major chromatin-associated non-histone proteins and acts as a DNA chaperone involved in replication, transcription, chromatin remodeling, V(D)J recombination, DNA repair and genome stability (PubMed:33147444). Proposed to be an universal biosensor for nucleic acids. Promotes host inflammatory response to sterile and infectious signals and is involved in the coordination and integration of innate and adaptive immune responses. In the cytoplasm functions as a sensor and/or chaperone for immunogenic nucleic acids implicating the activation of TLR9-mediated immune responses, and mediates autophagy. Acts as a danger-associated molecular pattern (DAMP) molecule that amplifies immune responses during tissue injury (PubMed:27362237). Released to the extracellular environment can bind DNA, nucleosomes, IL-1 beta, CXCL12, AGER isoform 2/sRAGE, lipopolysaccharide (LPS) and lipoteichoic acid (LTA), and activates cells through engagement of multiple surface receptors (PubMed:34743181). In the extracellular compartment fully reduced HMGB1 (released by necrosis) acts as a chemokine, disulfide HMGB1 (actively secreted) as a cytokine, and sulfonyl HMGB1 (released from apoptotic cells) promotes immunological tolerance (PubMed:23446148, PubMed:23519706, PubMed:23994764, PubMed:25048472). Has proangiogdenic activity (By similarity). May be involved in platelet activation (By similarity). Binds to phosphatidylserine and phosphatidylethanolamide (By similarity). Bound to RAGE mediates signaling for neuronal outgrowth (By similarity). May play a role in accumulation of expanded polyglutamine (polyQ) proteins such as huntingtin (HTT) or TBP (PubMed:23303669, PubMed:25549101)",
+    "metadata": {
+      "id": "P09429",
+      "title": "High mobility group protein B1",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/P09429/entry",
+      "extra_info": {
+        "organism": "Homo sapiens",
+        "gene": "HMGB1"
+      }
+    }
+  },
+  {
+    "text": "Integrin alpha-5/beta-1 (ITGA5:ITGB1) is a receptor for fibronectin and fibrinogen. It recognizes the sequence R-G-D in its ligands. ITGA5:ITGB1 binds to PLA2G2A via a site (site 2) which is distinct from the classical ligand-binding site (site 1) and this induces integrin conformational changes and enhanced ligand binding to site 1. ITGA5:ITGB1 acts as a receptor for fibrillin-1 (FBN1) and mediates R-G-D-dependent cell adhesion to FBN1. ITGA5:ITGB1 acts as a receptor for fibronectin (FN1) and mediates R-G-D-dependent cell adhesion to FN1 (By similarity). ITGA5:ITGB1 is a receptor for IL1B and binding is essential for IL1B signaling. ITGA5:ITGB3 is a receptor for soluble CD40LG and is required for CD40/CD40LG signaling (By similarity)",
+    "metadata": {
+      "id": "Q27977",
+      "title": "Integrin alpha-5",
+      "type": "Protein Knowledge",
+      "date": "N/A",
+      "url": "https://www.uniprot.org/uniprotkb/Q27977/entry",
+      "extra_info": {
+        "organism": "Bos taurus",
+        "gene": "ITGA5"
+      }
+    }
+  }
+]
