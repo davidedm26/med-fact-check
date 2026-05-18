@@ -1,6 +1,6 @@
 from typing import List, Dict
 from langchain_core.tools import tool
-from tools.retrieve.ingestion import IngestionNode
+from tools.retrieve.core.ingestion import IngestionNode
 
 @tool
 def download_documents(sub_id: str, search_queries: List[str], target_source: str) -> List[dict]:

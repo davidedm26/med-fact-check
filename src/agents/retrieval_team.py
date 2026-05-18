@@ -5,9 +5,9 @@ from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, Tool
 from state import State, _message_text
 from prompts.retriever_agent_prompt import retriever_agent_prompt
 from prompts.retrieve import unified_retriever_prompt
-from tools.retrieve.download_tool import download_documents
-from tools.retrieve.sparse_retrieve_tool import sparse_retrieve_tool
-from tools.retrieve.dense_retrieve_tool import dense_retrieve_tool
+from tools.retrieve.download import download_documents
+from tools.retrieve.sparse import sparse_retrieve_tool
+from tools.retrieve.dense import dense_retrieve_tool
 
 def build_retrieval_graph(retriever_llm):
     """Build the unified retrieval subgraph."""

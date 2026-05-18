@@ -6,10 +6,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv       
 from llm_factory import get_llm_with_tools
 from prompts.decompose import *  
-from prompts.retrieve import retrieval_downloader_prompt
-from tools.retrieve.download_tool import download_documents
-from tools.retrieve.sparse_retrieve_tool import sparse_retrieve_tool
-from tools.retrieve.dense_retrieve_tool import dense_retrieve_tool
+from tools.retrieve.download import download_documents
+from tools.retrieve.sparse import sparse_retrieve_tool
+from tools.retrieve.dense import dense_retrieve_tool
  
 from pydantic import BaseModel, Field  
  
