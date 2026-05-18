@@ -98,30 +98,10 @@ class FactAgent:
             claim_classification, method="function_calling"
         )
         
-        self.retrieval_downloader_llm = get_llm_with_tools(
+        self.retriever_llm = get_llm_with_tools(
             [
                 download_documents,
-            ],
-            provider=self.provider,
-            model_name=self.model_name,
-            temperature=self.temperature,
-            base_url=self.base_url,
-            api_key=self.api_key,
-        )
-
-        self.sparse_retriever_llm = get_llm_with_tools(
-            [
                 sparse_retrieve_tool,
-            ],
-            provider=self.provider,
-            model_name=self.model_name,
-            temperature=self.temperature,
-            base_url=self.base_url,
-            api_key=self.api_key,
-        )
-
-        self.dense_retriever_llm = get_llm_with_tools(
-            [
                 dense_retrieve_tool,
             ],
             provider=self.provider,
@@ -158,11 +138,7 @@ class FactAgent:
     def _build_retrieval_graph(self):
         """Build the retrieval subgraph."""
         from agents.retrieval_team import build_retrieval_graph
-        self.retrieval_graph = build_retrieval_graph(
-            self.retrieval_downloader_llm,
-            self.sparse_retriever_llm,
-            self.dense_retriever_llm
-        )
+        self.retrieval_graph = build_retrieval_graph(self.retriever_llm)
 
     def _build_main_graph(self):
         """Build the main workflow graph."""
