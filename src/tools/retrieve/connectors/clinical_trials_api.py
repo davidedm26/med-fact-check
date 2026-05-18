@@ -89,7 +89,7 @@ if __name__ == "__main__":
     test_query = "Nirmatrelvir COVID-19" 
     trial_results = search_trials(test_query, limit=2)
     
-    for i, trial in enumerate(risultati_trial):
+    for i, trial in enumerate(trial_results):
         print(f"\n[{i+1}] {trial['title']}")
         print(f"    Trial ID: {trial['nct_id']}")
         print(f"    Status:   {trial['status']} (Phase: {trial['phase']})")

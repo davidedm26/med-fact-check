@@ -4,7 +4,7 @@ import os
 from typing import List
 
 from src.tools.retrieve.connectors.europe_pmc_api import search_articles, fetch_full_text_xml
-from src.tools.retrieve.connectors.clinical_trails_api import search_trials
+from src.tools.retrieve.connectors.clinical_trials_api import search_trials
 from src.tools.retrieve.connectors.uniprot_api import search_protein
 
 
