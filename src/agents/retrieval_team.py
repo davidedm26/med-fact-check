@@ -3,8 +3,7 @@ from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
 
 from state import State, _message_text
-from prompts.retriever_agent_prompt import retriever_agent_prompt
-from prompts.retrieve import unified_retriever_prompt
+from prompts.retrieve import retriever_agent_prompt, unified_retriever_prompt
 from tools.retrieve.download import download_documents
 from tools.retrieve.sparse import sparse_retrieve_tool
 from tools.retrieve.dense import dense_retrieve_tool
