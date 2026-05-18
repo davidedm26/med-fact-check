@@ -2,13 +2,13 @@
 claim_decomposition = { 
     "name": "claim_decomposition",
     "description": "Splits an input claim into multiple subclaims.",
-    "strict": True,
+    "strict": True, # Enforce that the output strictly adheres to the defined schema, with no extra fields or missing required fields
     "parameters": {
         "type": "object",
         "properties": {
             "predicates": {
                 "type": "array",
-                "minItems": 1,
+                "minItems": 1, # Ensure at least one predicate is returned for claims with factual content
                 "items": {
                     "type": "object",
                     "properties": {
@@ -29,13 +29,13 @@ claim_decomposition = {
                             "description": "A concise query to verify the predicate."
                         }
                     },
-                    "additionalProperties": False,
+                    "additionalProperties": False, # Ensure no extra fields are included in each predicate object
                     "required": ["relation", "subject", "object", "search_query"]
                 },
                 "description": "The structured predicates derived from the input claim."
             }
         },
-        "additionalProperties": False,
+        "additionalProperties": False, # Ensure no extra fields are included in the main object
         "required": ["predicates"]
     }
 }
@@ -203,7 +203,8 @@ Non-verifiable: "Parasite deserved to win the Academy Award for Best Picture."
 Please analyze the following predicates and classify each one as either VERIFIABLE or NON-VERIFIABLE. Return only structured predicate classifications.
 """
 
-# Claim splitting response schema
+# Claim splitting response schema (Deprecated)
+"""
 claim_splitting = {
     "name": "claim_splitting",
     "description": "Verifiable subclaims only",
@@ -224,3 +225,4 @@ claim_splitting = {
 
 # Claim splitting prompt
 claim_splitter_prompt = "Filter out the non-verifiable claims. If there is no verifiable fact, return NON-SUPPORTED."
+"""

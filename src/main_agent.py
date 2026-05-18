@@ -1,23 +1,48 @@
-from typing import Dict, List, Literal, Optional
+from typing import Annotated, Dict, List, Literal, Optional
 from langgraph.graph import StateGraph, MessagesState, START, END
 
-from langgraph.types import Command
+from langgraph.types import Command, Send
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv       
 from llm_factory import get_llm_with_tools
 from prompts.decompose import *  
+from prompts.retrieve import retrieval_downloader_prompt
+from tools.retrieve.mock_retrieve import (
+    download_documents_for_source,
+    download_guidelines_documents,
+    download_news_documents,
+    download_pubmed_documents,
+    download_wikipedia_documents,
+    dense_retrieve_chunks,
+    sparse_retrieve_chunks,
+)
  
 from pydantic import BaseModel, Field  
  
 import os
 import json 
+import operator
 load_dotenv()
+
+
+def _message_text(message):
+    if hasattr(message, "content"):
+        return message.content
+    if isinstance(message, (tuple, list)) and len(message) > 1:
+        return message[1]
+    return str(message)
 
 class State(MessagesState): 
     next: str 
     predicates: Optional[List[Dict[str, str]]]
     predicate_type_dict: Optional[List[Dict[str, str]]]
     verifiable_subclaims: Optional[List[str]]
+    subclaim_results: Annotated[List[Dict[str, object]], operator.add]
+    retrieval_query: Optional[str]
+    retrieval_source: Optional[str]
+    downloaded_documents: Optional[List[Dict[str, object]]]
+    sparse_top_k_chunks: Optional[List[Dict[str, object]]]
+    dense_top_k_chunks: Optional[List[Dict[str, object]]]
   
 class FactAgent:
     def __init__(self, dataset: str, model_name = None, temperature: float = 0.2):
@@ -30,26 +55,19 @@ class FactAgent:
             temperature: The temperature for the model (default: 0.2)
         """
         self.dataset = dataset 
-        provider = os.getenv("LLM_PROVIDER")
-        api_key = os.getenv("LLM_API_KEY")
-        base_url = os.getenv("LLM_PROVIDER_BASE_URL")
+        self.provider = os.getenv("LLM_PROVIDER")
+        self.api_key = os.getenv("LLM_API_KEY")
+        self.base_url = os.getenv("LLM_PROVIDER_BASE_URL")
+        self.model_name = model_name
+        self.temperature = temperature
 
         self.llm = get_llm_with_tools(
             [], # No tools for now, but we can add them later as needed
-            provider=provider,
-            model_name=model_name,
-            temperature=temperature,
-            base_url=base_url,
-            api_key=api_key,
-        )
-        self.llm_no_tools = get_llm_with_tools(
-            [],
-            provider=provider,
-            model_name=model_name,
-            temperature=temperature,
-            base_url=base_url,
-            api_key=api_key,
-            allow_tools=False, 
+            provider=self.provider,
+            model_name=self.model_name,
+            temperature=self.temperature,
+            base_url=self.base_url,
+            api_key=self.api_key,
         )
         self._setup_agents()
         self._build_graphs()
@@ -96,14 +114,25 @@ class FactAgent:
     def _setup_agents(self):
         """Setup all the individual agents."""
         # Input ingestion agents (no tool strategy)
-        self.decomposition_llm = self.llm_no_tools.with_structured_output(
+        self.decomposition_llm = self.llm.with_structured_output(
             claim_decomposition, method="function_calling"
         )
-        self.classification_llm = self.llm_no_tools.with_structured_output(
+        self.classification_llm = self.llm.with_structured_output(
             claim_classification, method="function_calling"
         )
-        self.splitter_llm = self.llm_no_tools.with_structured_output(
-            claim_splitting, method="function_calling"
+        
+        self.retrieval_downloader_llm = get_llm_with_tools(
+            [
+                download_wikipedia_documents,
+                download_pubmed_documents,
+                download_news_documents,
+                download_guidelines_documents,
+            ],
+            provider=self.provider,
+            model_name=self.model_name,
+            temperature=self.temperature,
+            base_url=self.base_url,
+            api_key=self.api_key,
         )
         """
         # Main workflow agents
@@ -133,7 +162,12 @@ class FactAgent:
             messages = [SystemMessage(content=claim_decomposition_prompt)] + state["messages"]
             structured = self.decomposition_llm.invoke(messages)
             print("[claim_decomposition] agent response received")
+
             predicates = structured.get("predicates") if isinstance(structured, dict) else None
+            if predicates is None: # if the decomposition agent fails to produce valid output, we can default to treating the entire claim as a single predicate to avoid breaking the workflow. This is a simple fallback strategy to ensure robustness.
+                print("Decomposition agent failed to produce valid output. Defaulting to treating the entire claim as a single predicate.")
+                predicates = [{"predicate": _message_text(state["messages"][-1])}]  # Use the original claim as the only predicate if decomposition fails
+                
             return Command(
                 update={
                     "predicates": predicates,
@@ -144,7 +178,7 @@ class FactAgent:
                 goto="claim_classification",
             )
         
-        def claim_classification_node(state: State) -> Command[Literal["claim_splitter"]]:
+        def claim_classification_node(state: State) -> Command[Literal["claim_filter"]]:
             print("[claim_classification] start")
             predicates = state.get("predicates") or []
             messages = [
@@ -163,18 +197,20 @@ class FactAgent:
                         HumanMessage(content=str(predicate_type_dict), name="claim_classification")
                     ]
                 },
-                goto="claim_splitter",
+                goto="claim_filter",
             )
 
-        def claim_splitter_node(state: State) -> Command[Literal["__end__"]]:
-            print("[claim_splitter] start")
+        # The claim splitter node is not an LLM agent - it just filters the subclaims based on the classification results and prepares the final list of verifiable subclaims for the main workflow.
+
+        def claim_filter_node(state: State) -> Command[Literal["__end__"]]:
+            print("[claim_filter] start")
             predicate_type_dict = state.get("predicate_type_dict") or []
             verifiable_subclaims = [
                 item.get("predicate")
                 for item in predicate_type_dict
                 if isinstance(item, dict) and item.get("type") == "verifiable"
             ]
-            print("[claim_splitter] filter complete")
+            print("[claim_filter] filter complete")
             return Command(
                 update={
                     "verifiable_subclaims": verifiable_subclaims,
@@ -185,76 +221,142 @@ class FactAgent:
                 goto=END,
             )
         
+        # The injestion graph is a sequential graph that runs the claim decomposition, classification, and filtering steps in order
         input_ingester = StateGraph(State)
+        
         input_ingester.add_node("claim_decomposition", claim_decomposition_node)
         input_ingester.add_node("claim_classification", claim_classification_node)
-        input_ingester.add_node("claim_splitter", claim_splitter_node)
+        input_ingester.add_node("claim_filter", claim_filter_node)
+
         input_ingester.add_edge(START, "claim_decomposition")
         input_ingester.add_edge("claim_decomposition", "claim_classification")
-        input_ingester.add_edge("claim_classification", "claim_splitter")
+        input_ingester.add_edge("claim_classification", "claim_filter")
         
         self.ingestion_graph = input_ingester.compile()
 
+    def _build_retrieval_graph(self):
+        """Build the retrieval subgraph."""
+
+        def downloader_node(state: State):
+            print("[retrieval_downloader] start")
+            query = _message_text(state["messages"][-1])
+            messages = [
+                SystemMessage(content=retrieval_downloader_prompt),
+                HumanMessage(content=query),
+            ]
+            response = self.retrieval_downloader_llm.invoke(messages)
+            tool_calls = getattr(response, "tool_calls", None) or []
+            documents = None
+            selected_source = "pubmed"
+            normalized_query = query
+
+            tool_map = {
+                download_wikipedia_documents.name: ("wikipedia", download_wikipedia_documents),
+                download_pubmed_documents.name: ("pubmed", download_pubmed_documents),
+                download_news_documents.name: ("news", download_news_documents),
+                download_guidelines_documents.name: ("guidelines", download_guidelines_documents),
+            }
+
+            if tool_calls:
+                first_call = tool_calls[0]
+                tool_name = first_call.get("name")
+                tool_args = first_call.get("args", {})
+                if tool_name in tool_map:
+                    selected_source, tool_object = tool_map[tool_name]
+                    normalized_query = tool_args.get("query") or query
+                    documents = tool_object.invoke(tool_args)
+
+            if documents is None:
+                documents = download_documents_for_source(selected_source, normalized_query, limit=4)
+
+            print(f"[retrieval_downloader] selected source: {selected_source}")
+            return {
+                "retrieval_query": normalized_query,
+                "retrieval_source": selected_source,
+                "downloaded_documents": documents,
+            }
+
+        def sparse_retriever_node(state: State):
+            print("[sparse_retriever] start")
+            query = state.get("retrieval_query") or _message_text(state["messages"][-1])
+            documents = state.get("downloaded_documents") or []
+            chunks = sparse_retrieve_chunks(documents, query, top_k=3)
+            print("[sparse_retriever] top chunks ready")
+            return {"sparse_top_k_chunks": chunks}
+
+        def dense_retriever_node(state: State):
+            print("[dense_retriever] start")
+            query = state.get("retrieval_query") or _message_text(state["messages"][-1])
+            documents = state.get("downloaded_documents") or []
+            chunks = dense_retrieve_chunks(documents, query, top_k=3)
+            print("[dense_retriever] top chunks ready")
+            return {"dense_top_k_chunks": chunks}
+
+        retrieval_builder = StateGraph(State)
+        retrieval_builder.add_node("download_documents", downloader_node)
+        retrieval_builder.add_node("sparse_retriever", sparse_retriever_node)
+        retrieval_builder.add_node("dense_retriever", dense_retriever_node)
+
+        retrieval_builder.add_edge(START, "download_documents")
+        retrieval_builder.add_edge("download_documents", "sparse_retriever")
+        retrieval_builder.add_edge("download_documents", "dense_retriever")
+        retrieval_builder.add_edge("sparse_retriever", END)
+        retrieval_builder.add_edge("dense_retriever", END)
+
+        self.retrieval_graph = retrieval_builder.compile()
 
     def _build_main_graph(self):
         """Build the main workflow graph."""
-        def call_input_ingestion_team(state: State) -> Command[Literal["supervisor"]]:
-            response = self.ingestion_graph.invoke({"messages": state["messages"][-1]})
-            return Command(
-                update={
-                    "messages": [
-                        HumanMessage(
-                            content=response["messages"][-1].content, name="input_ingestor"
-                        )
-                    ]
-                },
-                goto="supervisor",
-            )
 
-        def query_generation_node(state: State) -> Command[Literal["supervisor"]]:
-            result = self.query_generation_agent.invoke(state)
-            return Command(
-                update={
-                    "messages": [
-                        HumanMessage(content=str(result["structured_response"]["subclaim_with_questions"]), name="query_generator")
-                    ]
-                },
-                goto="supervisor",
-            )
+        def input_ingestor_node(state: State):
+            response = self.ingestion_graph.invoke({"messages": [state["messages"][-1]]})
+            verifiable_subclaims = response.get("verifiable_subclaims") or []
+            return {
+                "verifiable_subclaims": verifiable_subclaims,
+                "messages": [
+                    HumanMessage(content=str(verifiable_subclaims), name="input_ingestor")
+                ],
+            }
 
-        def evidence_seeking_node(state: State) -> Command[Literal["supervisor"]]:
-            result = self.evidence_seeking_agent.invoke(state)
-            return Command(
-                update={
-                    "messages": [
-                        HumanMessage(content=str(result["structured_response"]["subclaims_with_query_evidence"]), name="evidence_seeker")
-                    ]
-                },
-                goto="supervisor",
-            )
+        def route_subclaims(state: State):
+            subclaims = state.get("verifiable_subclaims") or []
+            if not subclaims:
+                return END
+            return [
+                Send(
+                    "retrieve_subclaim",
+                    {
+                        "subclaim": subclaim,
+                        "messages": [HumanMessage(content=subclaim, name="subclaim")],
+                    },
+                )
+                for subclaim in subclaims
+            ]
 
-        def verdict_prediction_node(state: State) -> Command[Literal["supervisor"]]:
-            result = self.verdict_prediction_agent.invoke(state)
-            return Command(
-                update={
-                    "messages": [
-                        HumanMessage(content=str(result["structured_response"]["result"]), name="verdict_predictor")
-                    ]
-                },
-                goto="supervisor",
-            )
+        def retrieve_subclaim_node(state: State):
+            subclaim = state.get("subclaim") or _message_text(state["messages"][-1])
+            response = self.retrieval_graph.invoke({"messages": [("user", subclaim)]})
+            retrieval_summary = {
+                "subclaim": subclaim,
+                "source": response.get("retrieval_source"),
+                "query": response.get("retrieval_query"),
+                "sparse_top_k_chunks": response.get("sparse_top_k_chunks", []),
+                "dense_top_k_chunks": response.get("dense_top_k_chunks", []),
+            }
+            return {
+                "subclaim_results": [retrieval_summary],
+                "messages": [
+                    HumanMessage(content=str(retrieval_summary), name="retrieve_subclaim")
+                ],
+            }
 
-        orchestrator = self._make_supervisor_node(["input_ingestor", "query_generator", "evidence_seeker", "verdict_predictor"])
-        
-        super_builder = StateGraph(State)
-        super_builder.add_node("supervisor", orchestrator)
-        super_builder.add_node("input_ingestor", call_input_ingestion_team)
-        super_builder.add_node("query_generator", query_generation_node)
-        super_builder.add_node("evidence_seeker", evidence_seeking_node)
-        super_builder.add_node("verdict_predictor", verdict_prediction_node)
-        super_builder.add_edge(START, "supervisor")
-        
-        self.super_graph = super_builder.compile()
+        main_builder = StateGraph(State)
+        main_builder.add_node("input_ingestor", input_ingestor_node)
+        main_builder.add_node("retrieve_subclaim", retrieve_subclaim_node)
+        main_builder.add_edge(START, "input_ingestor")
+        main_builder.add_conditional_edges("input_ingestor", route_subclaims)
+
+        self.super_graph = main_builder.compile()
     
     def process_claim(self, claim: str, recursion_limit: int = 150, verbose: bool = False):
         """
@@ -272,7 +374,7 @@ class FactAgent:
         
         results = []
         print("[process_claim] starting graph stream")
-        for step in self.ingestion_graph.stream(
+        for step in self.super_graph.stream(
             {"messages": messages},
             {"recursion_limit": recursion_limit}
         ):
@@ -284,42 +386,15 @@ class FactAgent:
         
         return results
     
-    
-    def process_multiple_claims(self, claims: list[str], recursion_limit: int = 150, verbose: bool = False):
-        """
-        Process multiple claims through the fact-checking pipeline.
-        
-        Args:
-            claims: List of claims to fact-check
-            recursion_limit: Maximum number of recursions allowed (default: 150)
-            verbose: Whether to print intermediate steps (default: False)
-        
-        Returns:
-            list: Results for each claim
-        """
-        results = []
-        for i, claim in enumerate(claims):
-            if verbose:
-                print(f"\n=== Processing Claim {i+1}/{len(claims)} ===")
-                print(f"Claim: {claim}")
-                print("=" * 50)
-            
-            result = self.process_claim(claim, recursion_limit, verbose)
-            result = json.loads(result)
-            results.append({
-                "claim": claim,
-                "label": result["label"],
-                "explanation": result["explanation"]
-            })
-        
-        return results
+
 
 
 if __name__ == "__main__":
     agent = FactAgent(dataset="covid19_claims")  
-    claim = "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis."
+    #claim = "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis."
     #claim = "The continuous use of a wearable AI-powered glucose monitoring system improves long-term metabolic health outcomes in adults with Type 2 Diabetes by improving daily glucose stability, increasing adherence to treatment plans, and reducing diabetes-related complications."
-    claim = "il fumo causa cancro, forse è meglio non fumare"
+    #claim = "il fumo causa cancro, forse è meglio non fumare"
+    claim = "The use of corticosteroids in the treatment of severe COVID-19 cases reduces mortality rates by mitigating the hyperinflammatory response, but it may increase the risk of secondary infections and should be used with caution in patients with a history of immunosuppression."
     result = agent.process_claim(claim, verbose=True, recursion_limit=10)  # Set a reasonable recursion limit for testing
     print("\nFinal Result:")
     print(result)

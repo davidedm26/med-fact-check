@@ -5,3 +5,4 @@ requirements.txt
 
 src/__pycache__/
 src/prompts/__pycache__/
+**/__pycache__/
