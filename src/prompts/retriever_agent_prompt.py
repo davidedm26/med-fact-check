@@ -43,6 +43,7 @@ Follow these guidelines:
 2. **Synonyms and Terminology**: Incorporate medical synonyms to overcome vocabulary mismatches (e.g., "Vitamin C" -> "Ascorbic Acid").
 3. **Vary Specificity**: Create one highly specific query, one broader query, and one from a different perspective.
 4. **Length Constraint**: Keep each query concise, maximum 5 words in English.
+5. **Language Constraint**: All generated `search_queries` MUST be strictly in ENGLISH, even if the sub-claim to analyze is written in Italian or any other language.
 
 Routing Rules for `target_source`:
 - `clinical_trials`: Choose this ONLY for human patient studies, clinical phases (1-4), recruitment status, or trial interruptions.
