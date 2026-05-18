@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import modular components
-from src.agents.query_generation_agent import RetrieverAgent
+from src.agents.retriever_agent import RetrieverAgent
 from src.tools.retrieve.ingestion import IngestionNode
 from src.tools.retrieve.bm25_search import extract_relevant_paragraphs
 
