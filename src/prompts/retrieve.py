@@ -17,6 +17,22 @@ You have access to the following tools:
 
 Call exactly one download tool first, then use `sparse_retrieve_tool` and `dense_retrieve_tool` to filter the data if needed. Do not invent evidence.
 """
+
+retrieval_strategy_router_prompt = """
+You are a routing agent for medical evidence retrieval.
+
+Choose the retrieval strategy that best fits the query:
+- `sparse`: use when the query has exact biomedical terms, names, IDs, dosages, trial labels, or other literal keywords.
+- `dense`: use when the query is semantic, paraphrased, broad, or likely to need conceptual matching.
+
+Default to `dense` when uncertain.
+
+Return ONLY valid JSON with this schema:
+{
+    "retrieval_strategy": "sparse" | "dense",
+    "reasoning": "short explanation"
+}
+"""
 # Schema for Retriever Agent Response (Tool Calling Format)
 retriever_agent_schema = {
     "name": "retriever_agent",

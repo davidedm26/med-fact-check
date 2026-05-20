@@ -20,3 +20,8 @@ whois>=0.9.20                  # Per analizzare l'età dei domini (usato dal Mem
 
 # --- Struttura Dati (BM25) ---
 rank_bm25>=0.2.2
+
+# --- Dense Retrieval ---
+numpy>=1.26.0
+torch>=2.2.0
+transformers>=4.41.0

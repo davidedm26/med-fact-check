@@ -4,12 +4,17 @@ from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from state import State, _message_text
-from prompts.retrieve import retriever_agent_prompt, unified_retriever_prompt
+from prompts.retrieve import (
+    retriever_agent_prompt,
+    unified_retriever_prompt,
+    retrieval_strategy_router_prompt,
+)
 from tools.retrieve.download import (
     download_from_clinical_trials,
     download_from_kb,
     download_from_literature,
 )
+from tools.retrieve.dense import dense_retrieve_tool
 from tools.retrieve.sparse import sparse_retrieve_tool
 
 def build_retrieval_graph(retriever_llm):
@@ -17,6 +22,7 @@ def build_retrieval_graph(retriever_llm):
 
     RETRIEVAL_STRATEGY_TO_NODE = {
         "sparse": "sparse_retriever",
+        "dense": "dense_retriever",
     }
 
     def _select_download_tool(tool_name: str):
@@ -97,8 +103,31 @@ def build_retrieval_graph(retriever_llm):
     def retrieval_strategy_router_node(state: State):
         print("[retrieval_strategy_router] start")
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
-        retrieval_strategy = "sparse"
-        print(f"[retrieval_strategy_router] selected {retrieval_strategy}")
+        messages = [
+            SystemMessage(content=retrieval_strategy_router_prompt),
+            HumanMessage(content=f"Query: {query}"),
+        ]
+
+        retrieval_strategy = "dense"
+        reasoning = "fallback to dense"
+        try:
+            response = retriever_llm.invoke(messages)
+            raw_content = getattr(response, "content", response)
+            if isinstance(raw_content, str):
+                parsed_content = json.loads(raw_content)
+            elif isinstance(raw_content, dict):
+                parsed_content = raw_content
+            else:
+                parsed_content = json.loads(str(raw_content))
+
+            candidate_strategy = str(parsed_content.get("retrieval_strategy", "sparse")).strip().lower()
+            if candidate_strategy in RETRIEVAL_STRATEGY_TO_NODE:
+                retrieval_strategy = candidate_strategy
+            reasoning = str(parsed_content.get("reasoning", reasoning))
+        except Exception as exc:
+            print(f"[retrieval_strategy_router] fallback to dense due to: {exc}")
+
+        print(f"[retrieval_strategy_router] selected {retrieval_strategy} ({reasoning})")
         return {
             "retrieval_strategy": retrieval_strategy,
             "messages": [
@@ -106,6 +135,7 @@ def build_retrieval_graph(retriever_llm):
                     content=str({
                         "retrieval_query": query,
                         "retrieval_strategy": retrieval_strategy,
+                        "reasoning": reasoning,
                     }),
                     name="retrieval_strategy_router",
                 )
@@ -135,19 +165,44 @@ def build_retrieval_graph(retriever_llm):
             ],
         }
 
+    def dense_retriever_node(state: State):
+        print("[dense_retriever] start")
+        query = state.get("retrieval_query") or _message_text(state["messages"][-1])
+        documents = state.get("downloaded_documents") or []
+        docs_json = json.dumps(documents)
+        dense_chunks = dense_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": 3})
+        print("[dense_retriever] complete")
+        return {
+            "retrieval_strategy": "dense",
+            "sparse_top_k_chunks": [],
+            "dense_top_k_chunks": dense_chunks,
+            "messages": [
+                HumanMessage(
+                    content=str({
+                        "retrieval_query": query,
+                        "retrieval_strategy": "dense",
+                        "dense_top_k_chunks_count": len(dense_chunks),
+                    }),
+                    name="dense_retriever",
+                )
+            ],
+        }
+
     retrieval_builder = StateGraph(State)
     retrieval_builder.add_node("downloader_agent", downloader_agent_node)
     retrieval_builder.add_node("retrieval_strategy_router", retrieval_strategy_router_node)
     retrieval_builder.add_node("sparse_retriever", sparse_retriever_node)
+    retrieval_builder.add_node("dense_retriever", dense_retriever_node)
 
     retrieval_builder.add_edge(START, "downloader_agent")
     retrieval_builder.add_edge("downloader_agent", "retrieval_strategy_router")
 
     def route_retrieval_strategy(state: State):
-        strategy = state.get("retrieval_strategy") or "sparse"
-        return RETRIEVAL_STRATEGY_TO_NODE.get(strategy, "sparse_retriever")
+        strategy = state.get("retrieval_strategy") or "dense"
+        return RETRIEVAL_STRATEGY_TO_NODE.get(strategy, "dense_retriever")
 
     retrieval_builder.add_conditional_edges("retrieval_strategy_router", route_retrieval_strategy)
     retrieval_builder.add_edge("sparse_retriever", END)
+    retrieval_builder.add_edge("dense_retriever", END)
 
     return retrieval_builder.compile()
