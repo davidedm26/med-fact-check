@@ -4,9 +4,14 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.types import Command, Send
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv       
-from llm_factory import get_llm_with_tools
+from llm_factory import get_llm_with_tools 
 from prompts.decompose import *  
-from tools.retrieve.download import download_documents
+from tools.retrieve.download import (
+    download_documents,
+    download_from_clinical_trials,
+    download_from_kb,
+    download_from_literature,
+)
 from tools.retrieve.sparse import sparse_retrieve_tool
 from tools.retrieve.dense import dense_retrieve_tool
  
@@ -57,7 +62,6 @@ class FactAgent:
             " respond with the worker to act next. Each worker will perform a"
             " task and respond with their results and status. When finished,"
             " respond with FINISH."
-            " If a message with name 'claim_filter' is already present, respond with FINISH."
         )
 
         class Router(BaseModel):
@@ -73,7 +77,7 @@ class FactAgent:
                 {"role": "system", "content": system_prompt},
             ] + state["messages"]
             print("[supervisor] invoking llm")
-            response = self.llm.with_structured_output(Router, method="function_calling").invoke(messages) # Use JSON mode to avoid tool-calling for router output.
+            response = self.llm.with_structured_output(Router, method="function_calling").invoke(messages)
             print("[supervisor] llm response received")
             # Check if the response is valid and extract the router choice
             goto = response.next # Extract the router choice from the response
@@ -99,6 +103,9 @@ class FactAgent:
         
         self.retriever_llm = get_llm_with_tools(
             [
+                download_from_literature,
+                download_from_clinical_trials,
+                download_from_kb,
                 download_documents,
                 sparse_retrieve_tool,
                 dense_retrieve_tool,
@@ -109,23 +116,13 @@ class FactAgent:
             base_url=self.base_url,
             api_key=self.api_key,
         )
-        """
-        # Main workflow agents
-        self.query_generation_agent = create_agent(
-            self.llm, tools=[], system_prompt=claim_decomposition_prompt, response_format=query_generation
-        )
-        self.evidence_seeking_agent = create_agent(
-            self.llm, tools=[search_retrieve_news], system_prompt=evidence_seeking_prompt, response_format=evidence_seeking
-        )
-        self.verdict_prediction_agent = create_agent(
-            self.llm, tools=[], system_prompt=verdict_prediction_prompt, response_format=verdict_prediction
-        )
-        """
     
     def _build_graphs(self):
         """Build the state graphs for the workflow."""
         # Input ingestion subgraph
         self._build_input_ingestion_graph()
+        # Retrieval subgraph
+        self._build_retrieval_graph()
         # Main workflow graph
         self._build_main_graph()
     
@@ -152,25 +149,37 @@ class FactAgent:
                 ],
             }
 
-        def route_subclaims(state: State):
+        # This function routes to the retrieval node for each subclaim if there are any verifiable subclaims, otherwise it ends the workflow.
+        def route_subclaims(state: State): 
             subclaims = state.get("verifiable_subclaims") or []
             if not subclaims:
                 return END
+
+            def _subclaim_query(subclaim):
+                if isinstance(subclaim, dict):
+                    return subclaim.get("search_query") or " ".join(
+                        str(subclaim.get(field, "")) for field in ("relation", "subject", "object")
+                    ).strip()
+                return _message_text(subclaim)
+
             return [
                 Send(
                     "retrieve_subclaim",
                     {
-                        "subclaim": subclaim,
-                        "messages": [HumanMessage(content=subclaim, name="subclaim")],
+                        "subclaim_id": f"sub_{index + 1:02d}",
+                        "subclaim": _subclaim_query(subclaim),
+                        "messages": [HumanMessage(content=_subclaim_query(subclaim), name="subclaim")],
                     },
                 )
-                for subclaim in subclaims
+                for index, subclaim in enumerate(subclaims) # Each subclaim will be sent to the retrieval node one at a time (check on this)
             ]
 
         def retrieve_subclaim_node(state: State):
             subclaim = state.get("subclaim") or _message_text(state["messages"][-1])
+            subclaim_id = state.get("subclaim_id") or "sub_01"
             response = self.retrieval_graph.invoke({"messages": [("user", subclaim)]})
             retrieval_summary = {
+                "subclaim_id": subclaim_id,
                 "subclaim": subclaim,
                 "source": response.get("retrieval_source"),
                 "query": response.get("retrieval_query"),
@@ -188,7 +197,7 @@ class FactAgent:
         main_builder.add_node("input_ingestor", input_ingestor_node)
         main_builder.add_node("retrieve_subclaim", retrieve_subclaim_node)
         main_builder.add_edge(START, "input_ingestor")
-        main_builder.add_conditional_edges("input_ingestor", route_subclaims)
+        main_builder.add_conditional_edges("input_ingestor", route_subclaims) # Route to retrieval for each subclaim if there are any, otherwise end the workflow.
 
         self.super_graph = main_builder.compile()
     

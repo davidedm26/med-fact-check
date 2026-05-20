@@ -80,7 +80,11 @@ def get_llm_with_tools(
     else:
         raise ValueError(f"Unsupported provider: {resolved_provider}")
 
-    tool_list = list(tools)
     if allow_tools is False:
         return llm.bind_tools([], tool_choice="none")
+    
+    tool_list = list(tools)
+    if not tool_list:
+        return llm
+
     return llm.bind_tools(tool_list)

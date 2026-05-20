@@ -9,3 +9,6 @@ src/prompts/__pycache__/
 # Python cache
 __pycache__/
 *.py[cod]
+
+data/
+*.pdf
