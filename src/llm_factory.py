@@ -16,8 +16,8 @@ def _require(value: Optional[str], name: str) -> str:
 
 
 def get_llm_with_tools(
-    tools: Iterable[object],
-    *,
+    tools: Iterable[object], 
+    *, # The asterisk here forces all following parameters to be passed as keyword arguments
     provider: Optional[str] = None,
     model_name: Optional[str] = None,
     temperature: Optional[float] = None,
@@ -46,6 +46,8 @@ def get_llm_with_tools(
             model_name=resolved_model,
             temperature=resolved_temperature,
             api_key=_require(resolved_key, "GROQ_API_KEY or LLM_API_KEY"),
+            timeout=30,
+            max_retries=5,
         )
 
     elif resolved_provider == "nvidia":
@@ -75,12 +77,14 @@ def get_llm_with_tools(
             model=resolved_model,
             temperature=resolved_temperature,
             base_url=resolved_base_url,
+            timeout=30,
+            max_retries=5,
         )
 
     else:
         raise ValueError(f"Unsupported provider: {resolved_provider}")
 
-    if allow_tools is False:
+    if allow_tools is False: # If allow_tools is explicitly set to False, we bind an empty list of tools to disable tool usage, even if tools are provided.
         return llm.bind_tools([], tool_choice="none")
     
     tool_list = list(tools)
