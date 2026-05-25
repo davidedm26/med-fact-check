@@ -21,6 +21,7 @@ class State(MessagesState):
     retrieval_source: Optional[str]
     retrieval_strategy: Optional[str]
     subclaim_id: Optional[str]
+    subclaim: Optional[str]
     downloaded_documents: Optional[List[Dict[str, object]]]
     sparse_top_k_chunks: Optional[List[Dict[str, object]]]
     dense_top_k_chunks: Optional[List[Dict[str, object]]]
