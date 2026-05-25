@@ -11,6 +11,9 @@ from prompts.retrieve import (
     retrieval_query_generation_schema,
     retrieval_strategy_router_schema,
 )
+from prompts.evaluate import (
+    reasoning_schema,
+)
 from tools.retrieve.download import (
     download_documents,
 )
@@ -116,6 +119,11 @@ class FactAgent:
         self.strategy_router_agent = self.base_llm.with_structured_output(
             retrieval_strategy_router_schema, method="function_calling"
         )
+
+        # ── Evaluation Team agents ──
+        self.reasoning_agent = self.base_llm.with_structured_output(
+            reasoning_schema, method="function_calling"
+        )
         
     def _build_graphs(self):
         """Build the state graphs for the workflow."""
@@ -123,6 +131,8 @@ class FactAgent:
         self._build_decompose_graph()
         # Retrieval subgraph
         self._build_retrieval_graph()
+        # Evaluation subgraph
+        self._build_evaluation_graph()
         # Main workflow graph (Merges the subgraphs and adds routing logic)
         self._build_main_graph()
 
@@ -141,6 +151,13 @@ class FactAgent:
             self.source_selector_agent,
             self.query_generator_agent,
             self.strategy_router_agent,
+        )
+
+    def _build_evaluation_graph(self):
+        """Build the evaluation subgraph."""
+        from agents.evaluation_team import build_evaluation_graph
+        self.evaluation_graph = build_evaluation_graph(
+            self.reasoning_agent,
         )
 
     def _build_main_graph(self):
@@ -202,11 +219,77 @@ class FactAgent:
                 ],
             }
 
+        # ── Evaluation node (batch) ───────────────────────────────────────
+        # This node runs ONCE after ALL parallel retrieve branches have
+        # completed.  It iterates over every accumulated subclaim_result
+        # and invokes the evaluation subgraph (reasoning + veracity) for
+        # each one sequentially.
+        def evaluation_node(state: State):
+            subclaim_results = state.get("subclaim_results") or []
+            if not subclaim_results:
+                print("[evaluation_node] no subclaim_results to evaluate")
+                return {"evaluation_results": [], "messages": []}
+
+            all_evaluation_results = []
+            for result in subclaim_results:
+                subclaim_id = result.get("subclaim_id", "")
+                subclaim = result.get("subclaim", "")
+                print(f"[evaluation_node] evaluating {subclaim_id}: {subclaim[:60]}...")
+
+                # Format evidence chunks for the Reasoning Agent prompt
+                chunks = (
+                    result.get("sparse_top_k_chunks") or []
+                ) + (
+                    result.get("dense_top_k_chunks") or []
+                )
+                evidence_lines = []
+                for idx, chunk in enumerate(chunks, 1):
+                    if isinstance(chunk, dict):
+                        text = chunk.get("text") or chunk.get("content") or json.dumps(chunk)
+                        source = chunk.get("source") or chunk.get("id") or "unknown"
+                        score = chunk.get("score", "")
+                        evidence_lines.append(f"[Chunk {idx} | source={source} | score={score}]\n{text}")
+                    else:
+                        evidence_lines.append(f"[Chunk {idx}]\n{str(chunk)}")
+                evidence_text = "\n\n".join(evidence_lines) if evidence_lines else "(No evidence chunks available.)"
+
+                # Invoke the evaluation subgraph for this subclaim
+                eval_response = self.evaluation_graph.invoke({
+                    "subclaim_id": subclaim_id,
+                    "subclaim": subclaim,
+                    "evidence_text": evidence_text,
+                    "messages": [HumanMessage(content=subclaim, name="evaluation_input")],
+                })
+
+                # Collect the evaluation results from the subgraph response
+                eval_results = eval_response.get("evaluation_results") or []
+                # Enrich each result with the retrieval metadata
+                for er in eval_results:
+                    er["source"] = result.get("source")
+                    er["query"] = result.get("query")
+                    er["chunks_count"] = len(chunks)
+                all_evaluation_results.extend(eval_results)
+
+            return {
+                "evaluation_results": all_evaluation_results,
+                "messages": [
+                    HumanMessage(
+                        content=str([
+                            {"subclaim_id": r.get("subclaim_id"), "label": r.get("label"), "confidence": r.get("confidence")}
+                            for r in all_evaluation_results
+                        ]),
+                        name="evaluation_node",
+                    )
+                ],
+            }
+
         main_builder = StateGraph(State) 
         main_builder.add_node("decompose", decompose_node)
         main_builder.add_node("retrieve", retrieval_node)
+        main_builder.add_node("evaluate", evaluation_node)
         main_builder.add_edge(START, "decompose")
         main_builder.add_conditional_edges("decompose", route_subclaims) # Route to retrieval for each subclaim if there are any, otherwise end the workflow.
+        main_builder.add_edge("retrieve", "evaluate")  # After all retrieves complete (fan-in), run evaluation in batch
 
         self.super_graph = main_builder.compile()
 
