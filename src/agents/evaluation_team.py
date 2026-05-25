@@ -17,6 +17,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from state import State, _message_text
 from prompts.evaluate import reasoning_prompt, reasoning_schema
+from utils.logger import get_logger
+
+log = get_logger("EvaluationTeam")
 
 
 _veracity_pipeline_cache = None  # module-level cache for the NLI pipeline
@@ -49,13 +52,13 @@ def create_veracity_pipeline(model_name: str = None):
     resolved = model_name or os.getenv(
         "VERACITY_MODEL_NAME", "pritamdeka/PubMedBERT-MNLI-MedNLI"
     )
-    print(f"[veracity] Loading NLI model: {resolved}")
+    log.info(f"Loading NLI model: {resolved}")
     tok = AutoTokenizer.from_pretrained(resolved)
     model = AutoModelForSequenceClassification.from_pretrained(resolved)
     _veracity_pipeline_cache = TextClassificationPipeline(
         model=model, tokenizer=tok, top_k=None,  # return scores for all labels
     )
-    print(f"[veracity] NLI model loaded successfully")
+    log.info("NLI model loaded successfully")
     return _veracity_pipeline_cache
 
 
@@ -106,7 +109,7 @@ def build_evaluation_graph(reasoning_agent):
 
     def reasoning_node(state: State):
         """Invoke the Reasoning Agent to produce a structured justification."""
-        print("[reasoning_agent] start")
+        log.info("reasoning_agent start")
 
         subclaim = state.get("subclaim") or ""
         evidence_text = state.get("evidence_text") or ""
@@ -123,7 +126,7 @@ def build_evaluation_graph(reasoning_agent):
             HumanMessage(content=user_content),
         ]
         structured = reasoning_agent.invoke(messages)
-        print("[reasoning_agent] response received")
+        log.info("reasoning_agent response received")
 
         # Extract fields (handle both dict and object response formats)
         if isinstance(structured, dict):
@@ -152,7 +155,7 @@ def build_evaluation_graph(reasoning_agent):
 
     def veracity_node(state: State):
         """Run the PubMedBERT NLI classifier to assign label + confidence."""
-        print("[veracity_agent] start")
+        log.info("veracity_agent start")
 
         # Collect fields from the previous node's output
         subclaim = state.get("subclaim") or ""
@@ -168,7 +171,7 @@ def build_evaluation_graph(reasoning_agent):
 
         try:
             nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
-            print(f"[veracity_agent] NLI raw output: {nli_results}")
+            log.debug(f"NLI raw output: {nli_results}")
 
             # nli_results is a list of dicts: [{"label": "ENTAILMENT", "score": 0.87}, ...]
             # Pick the top prediction
@@ -187,11 +190,11 @@ def build_evaluation_graph(reasoning_agent):
                 confidence = 0.0
 
         except Exception as exc:
-            print(f"[veracity_agent] NLI error: {exc}")
+            log.error(f"NLI error: {exc}")
             label = "nei"
             confidence = 0.0
 
-        print(f"[veracity_agent] label={label}, confidence={confidence}")
+        log.info(f"label={label}, confidence={confidence}")
 
         evaluation_entry = {
             "subclaim_id": subclaim_id,

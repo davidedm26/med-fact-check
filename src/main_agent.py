@@ -29,6 +29,9 @@ load_dotenv()
 
 
 from state import State, _message_text
+from utils.logger import get_logger
+
+log = get_logger("MainAgent")
   
 class FactAgent:
     def __init__(self, dataset: str, model_name = None, temperature: float = 0.2):
@@ -80,18 +83,18 @@ class FactAgent:
 
         def supervisor_node(state: State) -> Command[str]: 
             """An LLM-based router."""
-            print("[supervisor] start")
+            log.info("supervisor start")
             messages = [
                 {"role": "system", "content": system_prompt},
             ] + state["messages"]
-            print("[supervisor] invoking llm")
+            log.info("supervisor invoking llm")
             response = self.base_llm.with_structured_output(Router, method="function_calling").invoke(messages)
-            print("[supervisor] llm response received")
+            log.info("supervisor llm response received")
             # Check if the response is valid and extract the router choice
             goto = response.next # Extract the router choice from the response
             if goto not in options:
                 goto = "FINISH"  # Default to FINISH if the response is invalid
-                print(f"Invalid router choice: {response.next}. Defaulting to FINISH.")
+                log.warning(f"Invalid router choice: {response.next}. Defaulting to FINISH.")
 
             if goto == "FINISH":
                 goto = END
@@ -227,14 +230,14 @@ class FactAgent:
         def evaluation_node(state: State):
             subclaim_results = state.get("subclaim_results") or []
             if not subclaim_results:
-                print("[evaluation_node] no subclaim_results to evaluate")
+                log.info("no subclaim_results to evaluate")
                 return {"evaluation_results": [], "messages": []}
 
             all_evaluation_results = []
             for result in subclaim_results:
                 subclaim_id = result.get("subclaim_id", "")
                 subclaim = result.get("subclaim", "")
-                print(f"[evaluation_node] evaluating {subclaim_id}: {subclaim[:60]}...")
+                log.info(f"evaluating {subclaim_id}: {subclaim[:60]}...")
 
                 # Format evidence chunks for the Reasoning Agent prompt
                 chunks = (
@@ -310,16 +313,17 @@ class FactAgent:
         messages = [("user", claim)]
         
         results = []
-        print("[process_claim] starting graph stream")
+        results = []
+        log.info("starting graph stream")
         for step in self.super_graph.stream( # stream method allows us to get intermediate results at each step of the graph execution
             {"messages": messages}, # initial state with the claim as the first user message
             {"recursion_limit": recursion_limit} # recursion limit to prevent infinite loops in case of errors
         ):
             if verbose:
-                print(step)
+                log.info(f"Step output: {step}")
                 print("---")
             results.append(step)
-        print("[process_claim] graph stream finished")
+        log.info("graph stream finished")
         
         return results
     

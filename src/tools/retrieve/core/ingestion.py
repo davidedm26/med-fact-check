@@ -10,23 +10,24 @@ from tools.retrieve.core.connectors.uniprot_api import search_protein
 
 from tools.retrieve.core.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+from utils.logger import get_logger
+log = get_logger("IngestionNode")
 
 class IngestionNode:
     def __init__(self):
         # Ensure the data/ folder exists in the project
         os.makedirs("data", exist_ok=True)
-        logging.info("[IngestionNode] Initialized. Ready to download data.")
+        log.info("Initialized. Ready to download data.")
 
     def prepare_data(self, sub_id: str, search_queries: List[str], target_source: str) -> List[dict]:
-        logging.info(f"[IngestionNode] Task for {sub_id}: {search_queries} -> Destination: {target_source.upper()}")
+        log.info(f"Task for {sub_id}: {search_queries} -> Destination: {target_source.upper()}")
         
         target = target_source.lower()
         raw_chunks = []
 
         # 1. Loop through each query
         for single_query in search_queries:
-            logging.info(f"[{target.upper()}] 🔎 Searching data for variant: '{single_query}'")
+            log.info(f"[{target.upper()}] 🔎 Searching data for variant: '{single_query}'")
             
             if target == "clinical_trials":
                 extracted_trials = search_trials(query=single_query, limit=5) 
@@ -71,7 +72,7 @@ class IngestionNode:
                                     }
                                 })
             else:
-                logging.error(f"[IngestionNode] Source '{target}' not supported.")
+                log.error(f"Source '{target}' not supported.")
                 continue
 
         # 2. Smart deduplication
@@ -89,8 +90,8 @@ class IngestionNode:
             export_filename = os.path.join("data", f"export_{sub_id}_{target}.json")
             with open(export_filename, "w", encoding="utf-8") as f_out:
                 json.dump(final_chunks, f_out, indent=2, ensure_ascii=False)
-            logging.info(f"[{target.upper()}] 📦 Saved deduplicated export ({len(final_chunks)} chunks) to: '{export_filename}'")
+            log.info(f"[{target.upper()}] 📦 Saved deduplicated export ({len(final_chunks)} chunks) to: '{export_filename}'")
         else:
-            logging.warning(f"[IngestionNode] No data found for '{sub_id}'. No export created.")
+            log.warning(f"No data found for '{sub_id}'. No export created.")
 
         return final_chunks

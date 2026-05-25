@@ -1,17 +1,16 @@
 import json
 
 import requests
-import logging
 from typing import List, Dict
 
-# Logging configuration
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+from utils.logger import get_logger
+log = get_logger("ClinicalTrialsAPI")
 
 # Using ClinicalTrials API v2
 BASE_URL_CT = "https://clinicaltrials.gov/api/v2/studies"
 
 def search_trials(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
-    logging.info(f"[ClinicalTrials] Searching trials for query: '{query}'")
+    log.info(f"Searching trials for query: '{query}'")
     
     params = {
         "query.term": query,
@@ -77,7 +76,7 @@ def search_trials(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
         return extracted_data
 
     except requests.exceptions.RequestException as e:
-        logging.error(f"[ClinicalTrials] Network error: {e}")
+        log.error(f"Network error: {e}")
         return []
 
 # Local test block

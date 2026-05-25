@@ -1,11 +1,11 @@
 import json
-import logging
 import re
 from typing import List, Dict, Optional
 from langchain_core.tools import tool
 from rank_bm25 import BM25Okapi
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+from utils.logger import get_logger
+log = get_logger("MedFactCheck.SparseRetriever")
 
 def tokenize_text(text: str) -> List[str]:
     return re.findall(r'\b\w+\b', text.lower())
@@ -16,7 +16,7 @@ def extract_relevant_paragraphs(query: str, paragraphs_with_metadata: List[Dict]
     Returns the top_k dictionaries intact, preserving traceability.
     """
     if not paragraphs_with_metadata:
-        logging.warning("[BM25] No paragraphs provided as input.")
+        log.warning("[BM25] No paragraphs provided as input.")
         return []
 
     # 1. Extract and tokenize only the 'text' key from each dictionary
@@ -32,7 +32,7 @@ def extract_relevant_paragraphs(query: str, paragraphs_with_metadata: List[Dict]
     # Passing 'paragraphs_with_metadata' returns the full dictionary objects
     top_results = bm25.get_top_n(tokenized_query, paragraphs_with_metadata, n=top_k)
     
-    logging.info(f"[BM25] Extracted {len(top_results)} most relevant paragraphs for query '{query}'.")
+    log.info(f"[BM25] Extracted {len(top_results)} most relevant paragraphs for query '{query}'.")
     return top_results
 
 @tool
@@ -53,7 +53,7 @@ def sparse_retrieve_tool(query: str, documents: Optional[str] = None, top_k: int
     try:
         docs_list = json.loads(documents)
     except Exception as e:
-        logging.error(f"[sparse_retrieve_tool] Failed to parse documents JSON: {e}")
+        log.error(f"[sparse_retrieve_tool] Failed to parse documents JSON: {e}")
         return []
 
     return extract_relevant_paragraphs(query, docs_list, top_k)

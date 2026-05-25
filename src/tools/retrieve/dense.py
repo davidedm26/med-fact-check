@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
 import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
@@ -11,8 +10,8 @@ import numpy as np
 import torch
 from langchain_core.tools import tool
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
-log = logging.getLogger("MedFactCheck.DenseRetriever")
+from utils.logger import get_logger
+log = get_logger("MedFactCheck.DenseRetriever")
 
 
 @dataclass

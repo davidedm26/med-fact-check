@@ -6,8 +6,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from state import State, _message_text
 from prompts.decompose import claim_decomposition_prompt, claim_classification_prompt
+from utils.logger import get_logger
 
-
+log = get_logger("DecomposingTeam")
 # TO DO: Managing of error cases and fallback mechanisms in case the decomposition or classification agents fail to produce valid output.
 
 def build_decompose_graph(decomposition_agent, classification_agent):
@@ -15,11 +16,11 @@ def build_decompose_graph(decomposition_agent, classification_agent):
 
     def claim_decomposition_node(state: State) -> Command[Literal["claim_classification"]]: #hardcoded goto for simplicity since the decomposition step always goes to classification next
 
-        print("[claim_decomposition] start")
+        log.info("claim_decomposition start")
 
         messages = [SystemMessage(content=claim_decomposition_prompt)] + state["messages"] # Pass the proper System Prompt along with the conversation history to the decomposition agent. The message should include the original claim that needs to be decomposed, which is typically the last message in the conversation history at this point. 
         structured = decomposition_agent.invoke(messages) 
-        print("[claim_decomposition] agent response received")
+        log.info("claim_decomposition agent response received")
 
         predicates = structured.get("predicates") if isinstance(structured, dict) else None
 
@@ -37,14 +38,14 @@ def build_decompose_graph(decomposition_agent, classification_agent):
         )
 
     def claim_classification_node(state: State) -> Command[Literal["claim_filter"]]:
-        print("[claim_classification] start")
+        log.info("claim_classification start")
         predicates = state.get("predicates") or []
         messages = [
             SystemMessage(content=claim_classification_prompt),
             HumanMessage(content=json.dumps(predicates, ensure_ascii=False)), # pass the extracted subclaims as a message to the classification agent
         ]
         structured = classification_agent.invoke(messages)
-        print("[claim_classification] agent response received")
+        log.info("claim_classification agent response received")
         predicate_type_dict = (
             structured.get("predicate_type_dict") if isinstance(structured, dict) else None
         )
@@ -61,14 +62,14 @@ def build_decompose_graph(decomposition_agent, classification_agent):
     # The claim splitter node doesn't leverage any LLM agent - it just filters the subclaims based on the classification results and prepares the final list of verifiable subclaims for the main workflow.
 
     def claim_filter_node(state: State) -> Command[Literal["__end__"]]:
-        print("[claim_filter] start")
+        log.info("claim_filter start")
         predicate_type_dict = state.get("predicate_type_dict") or []
         verifiable_subclaims = [
             item.get("predicate")
             for item in predicate_type_dict
             if isinstance(item, dict) and item.get("type") == "verifiable"
         ]
-        print("[claim_filter] filter complete")
+        log.info("claim_filter complete")
         return Command(
             update={
                 "verifiable_subclaims": verifiable_subclaims,

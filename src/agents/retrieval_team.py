@@ -14,6 +14,9 @@ from tools.retrieve.download import (
 )
 from tools.retrieve.dense import dense_retrieve_tool
 from tools.retrieve.sparse import sparse_retrieve_tool
+from utils.logger import get_logger
+
+log = get_logger("RetrievalTeam")
 
 def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_router_llm):
     """Build the unified retrieval subgraph."""
@@ -46,7 +49,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         return [fallback_query]
 
     def source_selector_node(state: State):
-        print("[source_selector] start")
+        log.info("source_selector start")
         query = _message_text(state["messages"][-1]) #get last message text (each subclaim will be sent to the retrieval node one at a time, so we can assume the last message contains the subclaim to retrieve for)
         subclaim_id = state.get("subclaim_id") 
         messages = [
@@ -54,7 +57,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             HumanMessage(content=query)
         ]
 
-        print("[source_selector] invoking llm")
+        log.info("source_selector invoking llm")
         response = source_selector_llm.invoke(messages)
         selected_source = "literature"
         reasoning = "fallback to literature"
@@ -67,7 +70,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         if selected_source not in VALID_TARGET_SOURCES:
             selected_source = "literature"
 
-        print(f"[source_selector] selected {selected_source} ({reasoning})")
+        log.info(f"source_selector selected {selected_source} ({reasoning})")
         return {
             "retrieval_source": selected_source,
             "messages": [
@@ -83,7 +86,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         }
 
     def downloader_agent_node(state: State):
-        print("[downloader_agent] start")
+        log.info("downloader_agent start")
         query = _message_text(state["messages"][-1]) # get last message text (the source selector node adds a message with the selected source and reasoning, but the content of the message is a dict in string format, so we need to parse it to extract the original query if needed for fallback)
         
         subclaim_id = state.get("subclaim_id")
@@ -93,7 +96,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             HumanMessage(content=query)
         ]
 
-        print("[downloader_agent] invoking llm for query generation")
+        log.info("downloader_agent invoking llm for query generation")
         response = query_generator_llm.invoke(messages)
         generated_queries = []
         reasoning = "fallback to input query"
@@ -106,7 +109,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
 
         search_queries = _normalize_search_queries(generated_queries, query)
 
-        print(f"[downloader_agent] downloading from {selected_source} with args: {search_queries}")
+        log.info(f"downloader_agent downloading from {selected_source} with args: {search_queries}")
         downloaded_documents = download_documents.invoke(
             {"sub_id": subclaim_id, "search_queries": search_queries, "target_source": selected_source}
         )
@@ -130,7 +133,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         }
 
     def retrieval_strategy_router_node(state: State):
-        print("[retrieval_strategy_router] start")
+        log.info("retrieval_strategy_router start")
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
         messages = [
             SystemMessage(content=retrieval_strategy_router_prompt),
@@ -150,9 +153,9 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             if candidate_strategy in RETRIEVAL_STRATEGY_TO_NODE:
                 retrieval_strategy = candidate_strategy
         except Exception as exc:
-            print(f"[retrieval_strategy_router] fallback to dense due to: {exc}")
+            log.warning(f"retrieval_strategy_router fallback to dense due to: {exc}")
 
-        print(f"[retrieval_strategy_router] selected {retrieval_strategy} ({reasoning})")
+        log.info(f"retrieval_strategy_router selected {retrieval_strategy} ({reasoning})")
         return {
             "retrieval_strategy": retrieval_strategy,
             "messages": [
@@ -168,12 +171,12 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         }
 
     def sparse_retriever_node(state: State):
-        print("[sparse_retriever] start")
+        log.info("sparse_retriever start")
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
         documents = state.get("downloaded_documents") or []
         docs_json = json.dumps(documents)
         sparse_chunks = sparse_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": 3})
-        print("[sparse_retriever] complete")
+        log.info("sparse_retriever complete")
         return {
             "retrieval_strategy": "sparse",
             "sparse_top_k_chunks": sparse_chunks,
@@ -191,12 +194,12 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         }
 
     def dense_retriever_node(state: State):
-        print("[dense_retriever] start")
+        log.info("dense_retriever start")
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
         documents = state.get("downloaded_documents") or []
         docs_json = json.dumps(documents)
         dense_chunks = dense_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": 3})
-        print("[dense_retriever] complete")
+        log.info("dense_retriever complete")
         return {
             "retrieval_strategy": "dense",
             "sparse_top_k_chunks": [],
