@@ -32,6 +32,16 @@ from state import State, _message_text
 from utils.logger import get_logger
 
 log = get_logger("MainAgent")
+
+
+def _provider_api_key_name(provider: str) -> Optional[str]:
+    if provider == "nvidia":
+        return "NVIDIA_API_KEY"
+    if provider == "google":
+        return "GOOGLE_API_KEY"
+    if provider == "groq":
+        return "GROQ_API_KEY"
+    return None
   
 class FactAgent:
     def __init__(self, dataset: str):
@@ -40,11 +50,17 @@ class FactAgent:
         Initialize the FactAgent, reading LLM parameters from configuration.
         """
         self.dataset = dataset  # Provide the dataset as part of the agent's context for better grounding in responses (not used in the current implementation but can be useful for future enhancements)
-        self.provider = os.getenv("LLM_PROVIDER") or config.get("llm.provider", "google_genai")
-        self.api_key = os.getenv("LLM_API_KEY")
-        self.base_url = os.getenv("LLM_PROVIDER_BASE_URL")
-        self.model_name = config.get("llm.model_name", "gemini-1.5-pro-002")
+        self.provider = config.get("llm.provider", "google")
+        provider_settings = config.get(f"llm.providers.{self.provider}", {})
+        self.base_url = provider_settings.get("base_url")
+        self.model_name = provider_settings.get("model_name", config.get("llm.model_name", "gemma-4-26b-a4b-it"))
         self.temperature = config.get("llm.temperature", 0.2)
+
+        api_key_name = _provider_api_key_name(self.provider)
+        if api_key_name and not os.getenv(api_key_name):
+            raise ValueError(
+                f"Missing required API key for provider '{self.provider}': set {api_key_name} in your .env"
+            )
 
         # General initialization of the LLM without tools, this instance can be used for agent that don't require tools
         self.base_llm = get_llm_with_tools(
@@ -53,7 +69,6 @@ class FactAgent:
             model_name=self.model_name,
             temperature=self.temperature,
             base_url=self.base_url,
-            api_key=self.api_key,
             allow_tools = False,
         )
         self._setup_agents()

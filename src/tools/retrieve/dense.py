@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
@@ -14,6 +15,10 @@ from utils.logger import get_logger
 from utils.config import config
 
 log = get_logger("MedFactCheck.DenseRetriever")
+
+
+def _get_hf_token() -> Optional[str]:
+    return os.getenv("HF_TOKEN")
 
 
 @dataclass
@@ -226,10 +231,13 @@ class BiomedicalEmbedder:
         except ImportError as exc:
             raise ImportError("Dense retriever requires 'transformers'.") from exc
 
-        self._q_tok = AutoTokenizer.from_pretrained(self._query_model_name)
-        self._q_model = AutoModel.from_pretrained(self._query_model_name).to(self.device).eval()
-        self._a_tok = AutoTokenizer.from_pretrained(self._article_model_name)
-        self._a_model = AutoModel.from_pretrained(self._article_model_name).to(self.device).eval()
+        hf_token = _get_hf_token()
+        token_kwargs = {"token": hf_token} if hf_token else {}
+
+        self._q_tok = AutoTokenizer.from_pretrained(self._query_model_name, **token_kwargs)
+        self._q_model = AutoModel.from_pretrained(self._query_model_name, **token_kwargs).to(self.device).eval()
+        self._a_tok = AutoTokenizer.from_pretrained(self._article_model_name, **token_kwargs)
+        self._a_model = AutoModel.from_pretrained(self._article_model_name, **token_kwargs).to(self.device).eval()
 
     def embed_query(self, query: str) -> np.ndarray:
         with torch.no_grad():

@@ -26,6 +26,10 @@ log = get_logger("EvaluationTeam")
 _veracity_pipeline_cache = None  # module-level cache for the NLI pipeline
 
 
+def _get_hf_token() -> str | None:
+    return os.getenv("HF_TOKEN")
+
+
 def create_veracity_pipeline(model_name: str = None):
     """
     Factory: create (or return cached) PubMedBERT NLI text-classification pipeline.
@@ -52,8 +56,10 @@ def create_veracity_pipeline(model_name: str = None):
 
     resolved = model_name or os.getenv("VERACITY_MODEL_NAME") or config.get("evaluation.veracity_model_name", "pritamdeka/PubMedBERT-MNLI-MedNLI")
     log.info(f"Loading NLI model: {resolved}")
-    tok = AutoTokenizer.from_pretrained(resolved)
-    model = AutoModelForSequenceClassification.from_pretrained(resolved)
+    hf_token = _get_hf_token()
+    token_kwargs = {"token": hf_token} if hf_token else {}
+    tok = AutoTokenizer.from_pretrained(resolved, **token_kwargs)
+    model = AutoModelForSequenceClassification.from_pretrained(resolved, **token_kwargs)
     _veracity_pipeline_cache = TextClassificationPipeline(
         model=model, tokenizer=tok, top_k=None,  # return scores for all labels
     )
