@@ -3,7 +3,7 @@ from datasets import load_dataset
 from collections import defaultdict
 
 def check_scifact_conflicts():
-    print("🔍 Controllo conflitti in SciFact...")
+    print("Checking conflicts in SciFact...")
     dataset = load_dataset("allenai/scifact", "claims", split="train+validation", trust_remote_code=True)
     
     claim_labels = defaultdict(set)
@@ -18,20 +18,20 @@ def check_scifact_conflicts():
         else:
             label = "NEI"
             
-        # Aggiungiamo la label al set (il set ignora i duplicati identici)
+        # Add label to the set (set ignores identical duplicates)
         claim_labels[claim].add(label)
         
-    # Filtriamo solo i claim che hanno PIÙ DI UNA label diversa
+    # Filter only claims that have MORE THAN ONE different label
     conflicts = {claim: labels for claim, labels in claim_labels.items() if len(labels) > 1}
-    print(f"📊 Trovati {len(conflicts)} claim con etichette contrastanti in SciFact.")
+    print(f"Found {len(conflicts)} claims with conflicting labels in SciFact.")
     
     if conflicts:
-        print("Ecco alcuni esempi di conflitti in SciFact:")
-        for claim, labels in list(conflicts.items())[:5]: # Mostra i primi 5
-            print(f" ⚠️ Claim: '{claim}' -> Etichette trovate: {labels}")
+        print("Here are some examples of conflicts in SciFact:")
+        for claim, labels in list(conflicts.items())[:5]: # Show the first 5
+            print(f"Claim: '{claim}' -> Labels found: {labels}")
 
 def check_bioasq_conflicts():
-    print("\n🔍 Controllo conflitti in BioASQ...")
+    print("\nChecking conflicts in BioASQ...")
     file_path = "raw_datasets/BioASQ-train-yesno-7b.json"
     
     with open(file_path, "r", encoding="utf-8") as f:
@@ -65,12 +65,12 @@ def check_bioasq_conflicts():
                     claim_labels[claim].add(label)
                     
     conflicts = {claim: labels for claim, labels in claim_labels.items() if len(labels) > 1}
-    print(f"📊 Trovati {len(conflicts)} claim con etichette contrastanti in BioASQ.")
+    print(f"Found {len(conflicts)} claims with conflicting labels in BioASQ.")
     
     if conflicts:
-        print("Ecco alcuni esempi di conflitti in BioASQ:")
+        print("Here are some examples of conflicts in BioASQ:")
         for claim, labels in list(conflicts.items())[:5]:
-            print(f" ⚠️ Claim: '{claim}' -> Etichette trovate: {labels}")
+            print(f" Claim: '{claim}' -> Labels found: {labels}")
 
 if __name__ == "__main__":
     check_scifact_conflicts()

@@ -8,17 +8,17 @@ DATASETS = ["scifact", "bioasq", "healthfc"]
 OUTPUT_CSV = "evaluation_summary.csv"
 
 def run_evaluation():
-    print("📊 STARTING PIPELINE EVALUATION (BINARY ONLY)...\n" + "="*50)
+    print("STARTING PIPELINE EVALUATION (BINARY ONLY)...\n" + "="*50)
     
     all_metrics = []
 
     for ds_name in DATASETS:
         mock_file = f"{MOCK_DIR}/mock_{ds_name}.json"
-        print(f"\n📂 Analyzing: {ds_name.upper()}")
+        print(f"\nAnalyzing: {ds_name.upper()}")
         print("-" * 40)
         
         if not os.path.exists(mock_file):
-            print(f"⚠️ WARNING: File {mock_file} non trovato. Salto il dataset.")
+            print(f"WARNING: File {mock_file} not found. Skipping dataset.")
             continue
             
         with open(mock_file, 'r', encoding='utf-8') as f:
@@ -31,18 +31,18 @@ def run_evaluation():
         evaluated_claims = len(filtered_results)
         excluded_claims = total_claims - evaluated_claims
         
-        print(f"📉 Total claims loaded:     {total_claims}")
-        print(f"🧹 Excluded 'NEI' claims:   {excluded_claims}")
-        print(f"🧪 Evaluated claims:        {evaluated_claims} (Supported/Refuted)")
+        print(f"Total claims loaded:     {total_claims}")
+        print(f"Excluded 'NEI' claims:   {excluded_claims}")
+        print(f"Evaluated claims:        {evaluated_claims} (Supported/Refuted)")
         
         if evaluated_claims == 0:
-            print("❌ Nessun claim valido rimasto per la valutazione.")
+            print("No valid claims left for evaluation.")
             continue
             
         y_true = [item["true_label"] for item in filtered_results]
         y_pred = [item["predicted_label"] for item in filtered_results]
         
-        # Calcolo Metriche (Weighted average per bilanciare eventuali squilibri)
+        # Compute metrics (weighted average to balance any class imbalance)
         acc = accuracy_score(y_true, y_pred)
         prec = precision_score(y_true, y_pred, average='weighted', zero_division=0)
         rec = recall_score(y_true, y_pred, average='weighted', zero_division=0)
@@ -53,7 +53,7 @@ def run_evaluation():
         print(f"Recall:    {rec:.4f}  ({rec*100:.2f}%)")
         print(f"F1-Score:  {f1:.4f}  ({f1*100:.2f}%)")
         
-        # Aggiungiamo i dati alla lista per l'esportazione CSV
+        # Add metrics to the list for CSV export
         all_metrics.append({
             "Dataset": ds_name.upper(),
             "Total_Claims": total_claims,
@@ -67,13 +67,13 @@ def run_evaluation():
 
     print("\n" + "="*50)
     
-    # Esportazione in CSV
+    # Export to CSV
     if all_metrics:
         df_metrics = pd.DataFrame(all_metrics)
         df_metrics.to_csv(OUTPUT_CSV, index=False)
-        print(f"💾 Salvataggio completato! Tabella riassuntiva esportata in:\n➡️  {OUTPUT_CSV}")
+        print(f"Save complete! Summary table exported to:\n➡️  {OUTPUT_CSV}")
     else:
-        print("⚠️ Nessun dato da esportare.")
+        print("No data to export.")
 
 if __name__ == "__main__":
     run_evaluation()

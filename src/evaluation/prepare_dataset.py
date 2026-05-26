@@ -13,7 +13,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def prepare_scifact():
-    print("📥 Downloading SciFact (Train+Validation) from Hugging Face...")
+    print("Downloading SciFact (Train+Validation) from Hugging Face...")
 
     dataset = load_dataset("allenai/scifact", "claims", split="train+validation", trust_remote_code=True)
     
@@ -42,14 +42,14 @@ def prepare_scifact():
     df.to_csv(f"{OUTPUT_DIR}/scifact_clean.csv", index=False)
     
     counts = df['true_label'].value_counts().to_dict()
-    print(f"✅ SciFact saved! ({len(df)} UNIQUE claims). Label distribution: {counts}")
+    print(f"SciFact saved! ({len(df)} UNIQUE claims). Label distribution: {counts}")
 
 def prepare_bioasq():
-    print("🛠️ Formatting BioASQ (from local file)...")
+    print("Formatting BioASQ (from local file)...")
     file_path = f"{RAW_DIR}/BioASQ-train-yesno-7b.json"
     
     if not os.path.exists(file_path):
-        print(f"⚠️ WARNING: File {file_path} not found. Please copy it to the '{RAW_DIR}/' folder.")
+        print(f"WARNING: File {file_path} not found. Please copy it to the '{RAW_DIR}/' folder.")
         return
         
     import json
@@ -99,14 +99,14 @@ def prepare_bioasq():
     df.to_csv(f"{OUTPUT_DIR}/bioasq_clean.csv", index=False)
     
     counts = df['true_label'].value_counts().to_dict()
-    print(f"✅ BioASQ saved and formatted! ({len(df)} UNIQUE claims). Label distribution: {counts}")
+    print(f"BioASQ saved and formatted! ({len(df)} UNIQUE claims). Label distribution: {counts}")
     
 def prepare_healthfc():
-    print("🛠️ Formatting HealthFC (from local file)...")
+    print("Formatting HealthFC (from local file)...")
     file_path = f"{RAW_DIR}/healthFC_annotated.csv"
     
     if not os.path.exists(file_path):
-        print(f"⚠️ WARNING: File {file_path} not found. Please copy it to the '{RAW_DIR}/' folder.")
+        print(f"WARNING: File {file_path} not found. Please copy it to the '{RAW_DIR}/' folder.")
         return
         
     df_original = pd.read_csv(file_path)
@@ -131,12 +131,12 @@ def prepare_healthfc():
     df.to_csv(f"{OUTPUT_DIR}/healthfc_clean.csv", index=False)
     
     counts = df['true_label'].value_counts().to_dict()
-    print(f"✅ HealthFC saved and formatted! ({len(df)} claims). Label distribution: {counts}")
+    print(f"HealthFC saved and formatted! ({len(df)} claims). Label distribution: {counts}")
 
 
 if __name__ == "__main__":
-    print("🚀 STARTING DATASET PREPARATION\n" + "="*40)
+    print("STARTING DATASET PREPARATION\n" + "="*40)
     prepare_scifact()
     prepare_bioasq()
     prepare_healthfc()
-    print("="*40 + "\n🎉 All datasets are clean, formatted, and ready for evaluation!")
+    print("="*40 + "\nAll datasets are clean, formatted, and ready for evaluation!")
