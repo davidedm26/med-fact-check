@@ -4,7 +4,7 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.types import Command, Send
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv       
-from llm_factory import get_llm_with_tools 
+from utils.llm_factory import get_llm_with_tools 
 from prompts.decompose import *  
 from prompts.retrieve import (
     retrieval_source_selection_schema,
@@ -147,6 +147,8 @@ class FactAgent:
         self._build_retrieval_graph()
         # Evaluation subgraph
         self._build_evaluation_graph()
+        # Aggregator node
+        self._build_aggregator()
         # Main workflow graph (Merges the subgraphs and adds routing logic)
         self._build_main_graph()
 
@@ -155,12 +157,12 @@ class FactAgent:
     
     def _build_decompose_graph(self):
         """Build the claim decomposition subgraph."""
-        from agents.decomposing_team import build_decompose_graph
+        from stages.decomposing_team import build_decompose_graph
         self.decompose_graph = build_decompose_graph(self.decomposition_agent, self.classification_agent)
 
     def _build_retrieval_graph(self):
         """Build the retrieval subgraph."""
-        from agents.retrieval_team import build_retrieval_graph
+        from stages.retrieval_team import build_retrieval_graph
         self.retrieval_graph = build_retrieval_graph(
             self.source_selector_agent,
             self.query_generator_agent,
@@ -169,10 +171,15 @@ class FactAgent:
 
     def _build_evaluation_graph(self):
         """Build the evaluation subgraph."""
-        from agents.evaluation_team import build_evaluation_graph
+        from stages.evaluation_team import build_evaluation_graph
         self.evaluation_graph = build_evaluation_graph(
             self.reasoning_agent,
         )
+
+    def _build_aggregator(self):
+        """Build the aggregator node."""
+        from stages.aggregator import build_aggregate_node
+        self.aggregate_node = build_aggregate_node()
 
     def _build_main_graph(self):
         """Build the main workflow graph."""
@@ -201,17 +208,17 @@ class FactAgent:
                     ).strip()
                 return _message_text(subclaim)
             
-            # It returns a list of Send commands that will send each subclaim to the retrieval node one at a time
+            # It returns a list of Send commands that will send each subclaim to the verify_subgraph one at a time
             return [
                 Send(
-                    "retrieve", # this is the node we want to send the subclaim to
+                    "verify_subclaim", # this is the node we want to send the subclaim to
                     {
                         "subclaim_id": f"sub_{index + 1:02d}", 
                         "subclaim": _subclaim_query(subclaim),
                         "messages": [HumanMessage(content=_subclaim_query(subclaim), name="subclaim")],
                     },
                 )
-                for index, subclaim in enumerate(subclaims) # Each subclaim will be sent to the retrieval node one at a time (check on this)
+                for index, subclaim in enumerate(subclaims) # Each subclaim will be sent to the verify subgraph
             ]
 
         def retrieval_node(state: State):
@@ -233,11 +240,10 @@ class FactAgent:
                 ],
             }
 
-        # ── Evaluation node (batch) ───────────────────────────────────────
-        # This node runs ONCE after ALL parallel retrieve branches have
-        # completed.  It iterates over every accumulated subclaim_result
-        # and invokes the evaluation subgraph (reasoning + veracity) for
-        # each one sequentially.
+        # ── Evaluation node ───────────────────────────────────────
+        # This node runs as the second step inside the verify_subgraph.
+        # Because it's isolated per-subclaim, state["subclaim_results"]
+        # will contain only the single result from the preceding retrieval_node.
         def evaluation_node(state: State):
             subclaim_results = state.get("subclaim_results") or []
             if not subclaim_results:
@@ -292,18 +298,41 @@ class FactAgent:
                             {"subclaim_id": r.get("subclaim_id"), "label": r.get("label"), "confidence": r.get("confidence")}
                             for r in all_evaluation_results
                         ]),
-                        name="evaluation_node",
+                        name="evaluate",
                     )
                 ],
             }
 
+        # ── Verify Subgraph ──
+        # Encapsulates retrieve and evaluate for a single subclaim.
+        verify_builder = StateGraph(State)
+        verify_builder.add_node("retrieve", retrieval_node)
+        verify_builder.add_node("evaluate", evaluation_node)
+        verify_builder.add_edge(START, "retrieve")
+        verify_builder.add_edge("retrieve", "evaluate")
+        verify_builder.add_edge("evaluate", END)
+        verify_subgraph = verify_builder.compile()
+
+        def verify_wrapper_node(state: State):
+            # Invokes the subgraph in isolation
+            res = verify_subgraph.invoke(state)
+            # Only return the fields that have reducers (Annotated[..., operator.add])
+            # to avoid InvalidUpdateError on concurrent LastValue fields (like subclaim_id)
+            return {
+                "subclaim_results": res.get("subclaim_results", []),
+                "evaluation_results": res.get("evaluation_results", []),
+                "messages": res.get("messages", [])
+            }
+
         main_builder = StateGraph(State) 
         main_builder.add_node("decompose", decompose_node)
-        main_builder.add_node("retrieve", retrieval_node)
-        main_builder.add_node("evaluate", evaluation_node)
+        main_builder.add_node("verify_subclaim", verify_wrapper_node)
+        main_builder.add_node("aggregate", self.aggregate_node)
+        
         main_builder.add_edge(START, "decompose")
-        main_builder.add_conditional_edges("decompose", route_subclaims) # Route to retrieval for each subclaim if there are any, otherwise end the workflow.
-        main_builder.add_edge("retrieve", "evaluate")  # After all retrieves complete (fan-in), run evaluation in batch
+        main_builder.add_conditional_edges("decompose", route_subclaims) # Fan-out to verify_subgraph
+        main_builder.add_edge("verify_subclaim", "aggregate")  # Fan-in
+        main_builder.add_edge("aggregate", END)
 
         self.super_graph = main_builder.compile()
 
