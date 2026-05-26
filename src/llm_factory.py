@@ -65,6 +65,22 @@ def get_llm_with_tools(
             max_retries=5,
         )
 
+    elif resolved_provider in {"google", "google_genai"}:
+        try:
+            from langchain_google_genai import ChatGoogleGenerativeAI
+        except ImportError as exc:
+            raise ImportError("Missing dependency: langchain-google-genai") from exc
+
+        resolved_model = model_name or _get_env("GOOGLE_MODEL_NAME", "gemini-1.5-pro-002")
+        resolved_key = api_key or _get_env("GOOGLE_API_KEY") or _get_env("LLM_API_KEY")
+        llm = ChatGoogleGenerativeAI(
+            model=resolved_model,
+            temperature=resolved_temperature,
+            google_api_key=_require(resolved_key, "GOOGLE_API_KEY or LLM_API_KEY"),
+            timeout=30,
+            max_retries=5,
+        )
+
     elif resolved_provider == "ollama":
         try:
             from langchain_ollama import ChatOllama
