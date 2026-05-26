@@ -56,8 +56,7 @@ def fetch_full_text_xml(pmcid: str) -> Optional[str]:
     """
     if not pmcid:
         return None
-        
-    log.info(f"Downloading full text XML for article {pmcid}...")
+
     url = BASE_URL_FULLTEXT.format(pmcid)
     
     try:

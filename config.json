@@ -21,7 +21,7 @@
         }
     },
     "retrieval": {
-        "api_search_limit": 5,
+        "api_search_limit": 3,
         "sparse": {
             "top_k": 3
         },

@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from typing import List
 
@@ -13,12 +12,19 @@ from tools.retrieve.core.text_cleaner import clean_europe_pmc_xml, format_clinic
 from utils.logger import get_logger
 from utils.config import config
 
+try:
+    from tqdm.auto import tqdm
+except ImportError:  # pragma: no cover - optional dependency fallback
+    def tqdm(iterable, **kwargs):
+        return iterable
+
 log = get_logger("IngestionNode")
 
 class IngestionNode:
     def __init__(self):
         # Ensure the data/ folder exists in the project
         os.makedirs("data", exist_ok=True)
+        self.last_stats = {}
         log.info("Initialized. Ready to download data.")
 
     def prepare_data(self, sub_id: str, search_queries: List[str], target_source: str) -> List[dict]:
@@ -26,15 +32,33 @@ class IngestionNode:
         
         target = target_source.lower()
         raw_chunks = []
+        stats = {
+            "sub_id": sub_id,
+            "target_source": target,
+            "queries_total": len(search_queries),
+            "queries_processed": 0,
+            "articles_found": 0,
+            "articles_download_attempted": 0,
+            "articles_downloaded_success": 0,
+            "articles_download_failed": 0,
+            "chunks_extracted": 0,
+            "duplicates_removed": 0,
+        }
 
         # 1. Loop through each query
-        for single_query in search_queries:
-            log.info(f"[{target.upper()}] 🔎 Searching data for variant: '{single_query}'")
+        for query_index, single_query in enumerate(
+            tqdm(search_queries, desc=f"[{sub_id} | {target.upper()}] queries", unit="query"),
+            1,
+        ):
+            query_tag = f"[{sub_id} | {target.upper()} | query_{query_index}]"
+            log.info(f"{query_tag} 🔎 Searching data for variant: '{single_query}'")
+            stats["queries_processed"] += 1
             
             api_limit = config.get("retrieval.api_search_limit", 5)
             
             if target == "clinical_trials":
                 extracted_trials = search_trials(query=single_query, limit=api_limit) 
+                stats["articles_found"] += len(extracted_trials)
                 for trial in extracted_trials:
                     raw_chunks.append({
                         "text": format_clinical_trial(trial),
@@ -47,6 +71,7 @@ class IngestionNode:
 
             elif target == "knowledge_base":
                 extracted_proteins = search_protein(query=single_query, limit=api_limit)
+                stats["articles_found"] += len(extracted_proteins)
                 for protein in extracted_proteins:
                     raw_chunks.append({
                         "text": format_uniprot(protein),
@@ -59,22 +84,29 @@ class IngestionNode:
 
             elif target == "literature":
                 articles = search_articles(query=single_query, limit=api_limit)
-                for article in articles:
+                stats["articles_found"] += len(articles)
+                for article in tqdm(articles, desc=f"[{sub_id} | {target.upper()} | query_{query_index}] articles", unit="article", leave=False):
+                    stats["articles_download_attempted"] += 1
                     pmcid = article.get("pmcid")
-                    if pmcid:
-                        raw_xml = fetch_full_text_xml(pmcid)
-                        if raw_xml:
-                            paragraphs = clean_europe_pmc_xml(xml_string=raw_xml, article_metadata=article)
-                            for p in paragraphs:
-                                raw_chunks.append({
-                                    "text": p["text"],
-                                    "metadata": {
-                                        "id": p["metadata"].get("pmid"), "title": p["metadata"].get("title"), "type": "Scientific Literature",
-                                        "date": p["metadata"].get("date", p["metadata"].get("year")),
-                                        "url": f"https://doi.org/{p['metadata'].get('doi')}" if p["metadata"].get("doi") else "",
-                                        "extra_info": {"doi": p["metadata"].get("doi")}
-                                    }
-                                })
+                    if not pmcid:
+                        stats["articles_download_failed"] += 1
+                        continue
+                    raw_xml = fetch_full_text_xml(pmcid)
+                    if raw_xml:
+                        stats["articles_downloaded_success"] += 1
+                        paragraphs = clean_europe_pmc_xml(xml_string=raw_xml, article_metadata=article)
+                        for p in paragraphs:
+                            raw_chunks.append({
+                                "text": p["text"],
+                                "metadata": {
+                                    "id": p["metadata"].get("pmid"), "title": p["metadata"].get("title"), "type": "Scientific Literature",
+                                    "date": p["metadata"].get("date", p["metadata"].get("year")),
+                                    "url": f"https://doi.org/{p['metadata'].get('doi')}" if p["metadata"].get("doi") else "",
+                                    "extra_info": {"doi": p["metadata"].get("doi")}
+                                }
+                            })
+                    else:
+                        stats["articles_download_failed"] += 1
             else:
                 log.error(f"Source '{target}' not supported.")
                 continue
@@ -87,6 +119,9 @@ class IngestionNode:
             unique_chunks[unique_key] = chunk
             
         final_chunks = list(unique_chunks.values())
+        stats["chunks_extracted"] = len(raw_chunks)
+        stats["duplicates_removed"] = max(0, len(raw_chunks) - len(final_chunks))
+        self.last_stats = stats
 
         # 3. Save shared export into the data folder
         if final_chunks:
@@ -97,5 +132,17 @@ class IngestionNode:
             log.info(f"[{target.upper()}] 📦 Saved deduplicated export ({len(final_chunks)} chunks) to: '{export_filename}'")
         else:
             log.warning(f"No data found for '{sub_id}'. No export created.")
+
+        log.info(
+            f"[{sub_id} | {target.upper()}] Stats: "
+            f"queries={stats['queries_processed']}/{stats['queries_total']}, "
+            f"articles_found={stats['articles_found']}, "
+            f"download_attempted={stats['articles_download_attempted']}, "
+            f"downloaded_success={stats['articles_downloaded_success']}, "
+            f"download_failed={stats['articles_download_failed']}, "
+            f"chunks_raw={stats['chunks_extracted']}, "
+            f"duplicates_removed={stats['duplicates_removed']}, "
+            f"final_chunks={len(final_chunks)}"
+        )
 
         return final_chunks
