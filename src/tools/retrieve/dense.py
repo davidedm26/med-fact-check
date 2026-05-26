@@ -11,6 +11,8 @@ import torch
 from langchain_core.tools import tool
 
 from utils.logger import get_logger
+from utils.config import config
+
 log = get_logger("MedFactCheck.DenseRetriever")
 
 
@@ -369,7 +371,10 @@ _DEFAULT_DENSE_RETRIEVER: Optional[DenseRetriever] = None
 def _get_default_dense_retriever() -> DenseRetriever:
     global _DEFAULT_DENSE_RETRIEVER
     if _DEFAULT_DENSE_RETRIEVER is None:
-        _DEFAULT_DENSE_RETRIEVER = DenseRetriever()
+        chunk_size = config.get("retrieval.dense.chunk_size", 300)
+        overlap = config.get("retrieval.dense.overlap", 50)
+        model_name = config.get("retrieval.dense.model_name", "medcpt")
+        _DEFAULT_DENSE_RETRIEVER = DenseRetriever(model_name=model_name, chunk_size=chunk_size, overlap=overlap)
     return _DEFAULT_DENSE_RETRIEVER
 
 

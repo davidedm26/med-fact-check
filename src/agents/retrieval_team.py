@@ -15,6 +15,7 @@ from tools.retrieve.download import (
 from tools.retrieve.dense import dense_retrieve_tool
 from tools.retrieve.sparse import sparse_retrieve_tool
 from utils.logger import get_logger
+from utils.config import config
 
 log = get_logger("RetrievalTeam")
 
@@ -175,7 +176,9 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
         documents = state.get("downloaded_documents") or []
         docs_json = json.dumps(documents)
-        sparse_chunks = sparse_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": 3})
+        
+        top_k = config.get("retrieval.sparse.top_k", 3)
+        sparse_chunks = sparse_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": top_k})
         log.info("sparse_retriever complete")
         return {
             "retrieval_strategy": "sparse",
@@ -198,7 +201,9 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
         documents = state.get("downloaded_documents") or []
         docs_json = json.dumps(documents)
-        dense_chunks = dense_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": 3})
+        
+        top_k = config.get("retrieval.dense.top_k", 3)
+        dense_chunks = dense_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": top_k})
         log.info("dense_retriever complete")
         return {
             "retrieval_strategy": "dense",

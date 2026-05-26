@@ -18,6 +18,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from state import State, _message_text
 from prompts.evaluate import reasoning_prompt, reasoning_schema
 from utils.logger import get_logger
+from utils.config import config
 
 log = get_logger("EvaluationTeam")
 
@@ -49,9 +50,7 @@ def create_veracity_pipeline(model_name: str = None):
         TextClassificationPipeline,
     )
 
-    resolved = model_name or os.getenv(
-        "VERACITY_MODEL_NAME", "pritamdeka/PubMedBERT-MNLI-MedNLI"
-    )
+    resolved = model_name or os.getenv("VERACITY_MODEL_NAME") or config.get("evaluation.veracity_model_name", "pritamdeka/PubMedBERT-MNLI-MedNLI")
     log.info(f"Loading NLI model: {resolved}")
     tok = AutoTokenizer.from_pretrained(resolved)
     model = AutoModelForSequenceClassification.from_pretrained(resolved)

@@ -26,7 +26,7 @@ import os
 import json 
 import operator
 load_dotenv()
-
+from utils.config import config
 
 from state import State, _message_text
 from utils.logger import get_logger
@@ -34,21 +34,17 @@ from utils.logger import get_logger
 log = get_logger("MainAgent")
   
 class FactAgent:
-    def __init__(self, dataset: str, model_name = None, temperature: float = 0.2):
+    def __init__(self, dataset: str):
 
         """
-        Initialize the FactAgent with specified model and temperature.
-        
-        Args:
-            model_name: The model to use 
-            temperature: The temperature for the model (default: 0.2)
+        Initialize the FactAgent, reading LLM parameters from configuration.
         """
         self.dataset = dataset  # Provide the dataset as part of the agent's context for better grounding in responses (not used in the current implementation but can be useful for future enhancements)
-        self.provider = os.getenv("LLM_PROVIDER") 
+        self.provider = os.getenv("LLM_PROVIDER") or config.get("llm.provider", "google_genai")
         self.api_key = os.getenv("LLM_API_KEY")
         self.base_url = os.getenv("LLM_PROVIDER_BASE_URL")
-        self.model_name = model_name
-        self.temperature = temperature
+        self.model_name = config.get("llm.model_name", "gemini-1.5-pro-002")
+        self.temperature = config.get("llm.temperature", 0.2)
 
         # General initialization of the LLM without tools, this instance can be used for agent that don't require tools
         self.base_llm = get_llm_with_tools(

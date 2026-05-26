@@ -1,0 +1,22 @@
+{
+    "llm": {
+        "provider": "google_genai",
+        "model_name": "gemini-1.5-pro-002",
+        "temperature": 0.2
+    },
+    "retrieval": {
+        "api_search_limit": 5,
+        "sparse": {
+            "top_k": 3
+        },
+        "dense": {
+            "top_k": 3,
+            "chunk_size": 300,
+            "overlap": 50,
+            "model_name": "medcpt"
+        }
+    },
+    "evaluation": {
+        "veracity_model_name": "pritamdeka/PubMedBERT-MNLI-MedNLI"
+    }
+}

@@ -11,6 +11,8 @@ from tools.retrieve.core.connectors.uniprot_api import search_protein
 from tools.retrieve.core.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot
 
 from utils.logger import get_logger
+from utils.config import config
+
 log = get_logger("IngestionNode")
 
 class IngestionNode:
@@ -29,8 +31,10 @@ class IngestionNode:
         for single_query in search_queries:
             log.info(f"[{target.upper()}] 🔎 Searching data for variant: '{single_query}'")
             
+            api_limit = config.get("retrieval.api_search_limit", 5)
+            
             if target == "clinical_trials":
-                extracted_trials = search_trials(query=single_query, limit=5) 
+                extracted_trials = search_trials(query=single_query, limit=api_limit) 
                 for trial in extracted_trials:
                     raw_chunks.append({
                         "text": format_clinical_trial(trial),
@@ -42,7 +46,7 @@ class IngestionNode:
                     })
 
             elif target == "knowledge_base":
-                extracted_proteins = search_protein(query=single_query, limit=5)
+                extracted_proteins = search_protein(query=single_query, limit=api_limit)
                 for protein in extracted_proteins:
                     raw_chunks.append({
                         "text": format_uniprot(protein),
@@ -54,7 +58,7 @@ class IngestionNode:
                     })
 
             elif target == "literature":
-                articles = search_articles(query=single_query, limit=5)
+                articles = search_articles(query=single_query, limit=api_limit)
                 for article in articles:
                     pmcid = article.get("pmcid")
                     if pmcid:
