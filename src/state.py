@@ -21,6 +21,13 @@ class State(MessagesState):
     retrieval_source: Optional[str]
     retrieval_strategy: Optional[str]
     subclaim_id: Optional[str]
+    subclaim: Optional[str]
     downloaded_documents: Optional[List[Dict[str, object]]]
     sparse_top_k_chunks: Optional[List[Dict[str, object]]]
     dense_top_k_chunks: Optional[List[Dict[str, object]]]
+    # ── Evaluation Team fields ──
+    evaluation_results: Annotated[List[Dict[str, object]], operator.add]  # Aggregated evaluation results (label + confidence + justification) for each subclaim
+    subclaim_justification: Optional[str]  # Output of the Reasoning Agent (used internally by the evaluation subgraph)
+    key_evidence: Optional[List[str]]  # Key evidence excerpts selected by the Reasoning Agent
+    reasoning_conclusion: Optional[str]  # Preliminary conclusion from the Reasoning Agent
+    evidence_text: Optional[str]  # Formatted evidence chunks text (input to the Reasoning Agent)

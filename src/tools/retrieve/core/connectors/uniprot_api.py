@@ -1,16 +1,15 @@
 import json
 
 import requests
-import logging
 from typing import List, Dict
 
-# Logging configuration
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+from utils.logger import get_logger
+log = get_logger("UniProtAPI")
 
 BASE_URL_UNIPROT = "https://rest.uniprot.org/uniprotkb/search"
 
 def search_protein(query: str, limit: int = 10) -> List[Dict]: # Limit to 10
-    logging.info(f"[UniProt] Searching protein/gene for query: '{query}'")
+    log.info(f"Searching protein/gene for query: '{query}'")
     
     params = {
         "query": query,
@@ -86,7 +85,7 @@ def search_protein(query: str, limit: int = 10) -> List[Dict]: # Limit to 10
         return extracted_data
 
     except requests.exceptions.RequestException as e:
-        logging.error(f"[UniProt] Network error: {e}")
+        log.error(f"Network error: {e}")
         return []
 
 # Local test block

@@ -1,9 +1,8 @@
 import requests
-import logging
 from typing import List, Dict, Optional
 
-# Logging configuration
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+from utils.logger import get_logger
+log = get_logger("EuropePMC_API")
 
 BASE_URL_SEARCH = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
 BASE_URL_FULLTEXT = "https://www.ebi.ac.uk/europepmc/webservices/rest/{}/fullTextXML"
@@ -13,7 +12,7 @@ def search_articles(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
     Search Europe PMC for articles using keywords.
     Enforces Open Access search and extracts the core metadata.
     """
-    logging.info(f"[EuropePMC] Searching articles for query: '{query}'")
+    log.info(f"Searching articles for query: '{query}'")
     
     # Keep the OPEN_ACCESS:y filter to ensure full-text access
     structured_query = f"{query} OPEN_ACCESS:y"
@@ -44,11 +43,11 @@ def search_articles(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
                 "date": item.get("firstPublicationDate", item.get("pubYear", "N/A")) 
             })
             
-        logging.info(f"[EuropePMC] Found {len(extracted_data)} articles with metadata extracted.")
+        log.info(f"Found {len(extracted_data)} articles with metadata extracted.")
         return extracted_data
 
     except requests.exceptions.RequestException as e:
-        logging.error(f"[EuropePMC] Network error during search: {e}")
+        log.error(f"Network error during search: {e}")
         return []
 
 def fetch_full_text_xml(pmcid: str) -> Optional[str]:
@@ -57,8 +56,7 @@ def fetch_full_text_xml(pmcid: str) -> Optional[str]:
     """
     if not pmcid:
         return None
-        
-    logging.info(f"[EuropePMC] Downloading full text XML for article {pmcid}...")
+
     url = BASE_URL_FULLTEXT.format(pmcid)
     
     try:
@@ -67,7 +65,7 @@ def fetch_full_text_xml(pmcid: str) -> Optional[str]:
         return response.text
         
     except requests.exceptions.RequestException as e:
-        logging.error(f"[EuropePMC] Error downloading PMCID {pmcid}: {e}")
+        log.error(f"Error downloading PMCID {pmcid}: {e}")
         return None
 
 # Local test block

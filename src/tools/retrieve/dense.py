@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
+import os
 import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
@@ -11,8 +11,14 @@ import numpy as np
 import torch
 from langchain_core.tools import tool
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
-log = logging.getLogger("MedFactCheck.DenseRetriever")
+from utils.logger import get_logger
+from utils.config import config
+
+log = get_logger("MedFactCheck.DenseRetriever")
+
+
+def _get_hf_token() -> Optional[str]:
+    return os.getenv("HF_TOKEN")
 
 
 @dataclass
@@ -225,10 +231,13 @@ class BiomedicalEmbedder:
         except ImportError as exc:
             raise ImportError("Dense retriever requires 'transformers'.") from exc
 
-        self._q_tok = AutoTokenizer.from_pretrained(self._query_model_name)
-        self._q_model = AutoModel.from_pretrained(self._query_model_name).to(self.device).eval()
-        self._a_tok = AutoTokenizer.from_pretrained(self._article_model_name)
-        self._a_model = AutoModel.from_pretrained(self._article_model_name).to(self.device).eval()
+        hf_token = _get_hf_token()
+        token_kwargs = {"token": hf_token} if hf_token else {}
+
+        self._q_tok = AutoTokenizer.from_pretrained(self._query_model_name, **token_kwargs)
+        self._q_model = AutoModel.from_pretrained(self._query_model_name, **token_kwargs).to(self.device).eval()
+        self._a_tok = AutoTokenizer.from_pretrained(self._article_model_name, **token_kwargs)
+        self._a_model = AutoModel.from_pretrained(self._article_model_name, **token_kwargs).to(self.device).eval()
 
     def embed_query(self, query: str) -> np.ndarray:
         with torch.no_grad():
@@ -370,7 +379,10 @@ _DEFAULT_DENSE_RETRIEVER: Optional[DenseRetriever] = None
 def _get_default_dense_retriever() -> DenseRetriever:
     global _DEFAULT_DENSE_RETRIEVER
     if _DEFAULT_DENSE_RETRIEVER is None:
-        _DEFAULT_DENSE_RETRIEVER = DenseRetriever()
+        chunk_size = config.get("retrieval.dense.chunk_size", 300)
+        overlap = config.get("retrieval.dense.overlap", 50)
+        model_name = config.get("retrieval.dense.model_name", "medcpt")
+        _DEFAULT_DENSE_RETRIEVER = DenseRetriever(model_name=model_name, chunk_size=chunk_size, overlap=overlap)
     return _DEFAULT_DENSE_RETRIEVER
 
 

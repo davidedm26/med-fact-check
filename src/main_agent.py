@@ -11,6 +11,9 @@ from prompts.retrieve import (
     retrieval_query_generation_schema,
     retrieval_strategy_router_schema,
 )
+from prompts.evaluate import (
+    reasoning_schema,
+)
 from tools.retrieve.download import (
     download_documents,
 )
@@ -23,26 +26,41 @@ import os
 import json 
 import operator
 load_dotenv()
-
+from utils.config import config
 
 from state import State, _message_text
+from utils.logger import get_logger
+
+log = get_logger("MainAgent")
+
+
+def _provider_api_key_name(provider: str) -> Optional[str]:
+    if provider == "nvidia":
+        return "NVIDIA_API_KEY"
+    if provider == "google":
+        return "GOOGLE_API_KEY"
+    if provider == "groq":
+        return "GROQ_API_KEY"
+    return None
   
 class FactAgent:
-    def __init__(self, dataset: str, model_name = None, temperature: float = 0.2):
+    def __init__(self, dataset: str):
 
         """
-        Initialize the FactAgent with specified model and temperature.
-        
-        Args:
-            model_name: The model to use 
-            temperature: The temperature for the model (default: 0.2)
+        Initialize the FactAgent, reading LLM parameters from configuration.
         """
         self.dataset = dataset  # Provide the dataset as part of the agent's context for better grounding in responses (not used in the current implementation but can be useful for future enhancements)
-        self.provider = os.getenv("LLM_PROVIDER") 
-        self.api_key = os.getenv("LLM_API_KEY")
-        self.base_url = os.getenv("LLM_PROVIDER_BASE_URL")
-        self.model_name = model_name
-        self.temperature = temperature
+        self.provider = config.get("llm.provider", "google")
+        provider_settings = config.get(f"llm.providers.{self.provider}", {})
+        self.base_url = provider_settings.get("base_url")
+        self.model_name = provider_settings.get("model_name", config.get("llm.model_name", "gemma-4-26b-a4b-it"))
+        self.temperature = config.get("llm.temperature", 0.2)
+
+        api_key_name = _provider_api_key_name(self.provider)
+        if api_key_name and not os.getenv(api_key_name):
+            raise ValueError(
+                f"Missing required API key for provider '{self.provider}': set {api_key_name} in your .env"
+            )
 
         # General initialization of the LLM without tools, this instance can be used for agent that don't require tools
         self.base_llm = get_llm_with_tools(
@@ -51,7 +69,6 @@ class FactAgent:
             model_name=self.model_name,
             temperature=self.temperature,
             base_url=self.base_url,
-            api_key=self.api_key,
             allow_tools = False,
         )
         self._setup_agents()
@@ -77,18 +94,18 @@ class FactAgent:
 
         def supervisor_node(state: State) -> Command[str]: 
             """An LLM-based router."""
-            print("[supervisor] start")
+            log.info("supervisor start")
             messages = [
                 {"role": "system", "content": system_prompt},
             ] + state["messages"]
-            print("[supervisor] invoking llm")
+            log.info("supervisor invoking llm")
             response = self.base_llm.with_structured_output(Router, method="function_calling").invoke(messages)
-            print("[supervisor] llm response received")
+            log.info("supervisor llm response received")
             # Check if the response is valid and extract the router choice
             goto = response.next # Extract the router choice from the response
             if goto not in options:
                 goto = "FINISH"  # Default to FINISH if the response is invalid
-                print(f"Invalid router choice: {response.next}. Defaulting to FINISH.")
+                log.warning(f"Invalid router choice: {response.next}. Defaulting to FINISH.")
 
             if goto == "FINISH":
                 goto = END
@@ -116,6 +133,11 @@ class FactAgent:
         self.strategy_router_agent = self.base_llm.with_structured_output(
             retrieval_strategy_router_schema, method="function_calling"
         )
+
+        # ── Evaluation Team agents ──
+        self.reasoning_agent = self.base_llm.with_structured_output(
+            reasoning_schema, method="function_calling"
+        )
         
     def _build_graphs(self):
         """Build the state graphs for the workflow."""
@@ -123,6 +145,8 @@ class FactAgent:
         self._build_decompose_graph()
         # Retrieval subgraph
         self._build_retrieval_graph()
+        # Evaluation subgraph
+        self._build_evaluation_graph()
         # Main workflow graph (Merges the subgraphs and adds routing logic)
         self._build_main_graph()
 
@@ -141,6 +165,13 @@ class FactAgent:
             self.source_selector_agent,
             self.query_generator_agent,
             self.strategy_router_agent,
+        )
+
+    def _build_evaluation_graph(self):
+        """Build the evaluation subgraph."""
+        from agents.evaluation_team import build_evaluation_graph
+        self.evaluation_graph = build_evaluation_graph(
+            self.reasoning_agent,
         )
 
     def _build_main_graph(self):
@@ -202,11 +233,77 @@ class FactAgent:
                 ],
             }
 
+        # ── Evaluation node (batch) ───────────────────────────────────────
+        # This node runs ONCE after ALL parallel retrieve branches have
+        # completed.  It iterates over every accumulated subclaim_result
+        # and invokes the evaluation subgraph (reasoning + veracity) for
+        # each one sequentially.
+        def evaluation_node(state: State):
+            subclaim_results = state.get("subclaim_results") or []
+            if not subclaim_results:
+                log.info("no subclaim_results to evaluate")
+                return {"evaluation_results": [], "messages": []}
+
+            all_evaluation_results = []
+            for result in subclaim_results:
+                subclaim_id = result.get("subclaim_id", "")
+                subclaim = result.get("subclaim", "")
+                log.info(f"evaluating {subclaim_id}: {subclaim[:60]}...")
+
+                # Format evidence chunks for the Reasoning Agent prompt
+                chunks = (
+                    result.get("sparse_top_k_chunks") or []
+                ) + (
+                    result.get("dense_top_k_chunks") or []
+                )
+                evidence_lines = []
+                for idx, chunk in enumerate(chunks, 1):
+                    if isinstance(chunk, dict):
+                        text = chunk.get("text") or chunk.get("content") or json.dumps(chunk)
+                        source = chunk.get("source") or chunk.get("id") or "unknown"
+                        score = chunk.get("score", "")
+                        evidence_lines.append(f"[Chunk {idx} | source={source} | score={score}]\n{text}")
+                    else:
+                        evidence_lines.append(f"[Chunk {idx}]\n{str(chunk)}")
+                evidence_text = "\n\n".join(evidence_lines) if evidence_lines else "(No evidence chunks available.)"
+
+                # Invoke the evaluation subgraph for this subclaim
+                eval_response = self.evaluation_graph.invoke({
+                    "subclaim_id": subclaim_id,
+                    "subclaim": subclaim,
+                    "evidence_text": evidence_text,
+                    "messages": [HumanMessage(content=subclaim, name="evaluation_input")],
+                })
+
+                # Collect the evaluation results from the subgraph response
+                eval_results = eval_response.get("evaluation_results") or []
+                # Enrich each result with the retrieval metadata
+                for er in eval_results:
+                    er["source"] = result.get("source")
+                    er["query"] = result.get("query")
+                    er["chunks_count"] = len(chunks)
+                all_evaluation_results.extend(eval_results)
+
+            return {
+                "evaluation_results": all_evaluation_results,
+                "messages": [
+                    HumanMessage(
+                        content=str([
+                            {"subclaim_id": r.get("subclaim_id"), "label": r.get("label"), "confidence": r.get("confidence")}
+                            for r in all_evaluation_results
+                        ]),
+                        name="evaluation_node",
+                    )
+                ],
+            }
+
         main_builder = StateGraph(State) 
         main_builder.add_node("decompose", decompose_node)
         main_builder.add_node("retrieve", retrieval_node)
+        main_builder.add_node("evaluate", evaluation_node)
         main_builder.add_edge(START, "decompose")
         main_builder.add_conditional_edges("decompose", route_subclaims) # Route to retrieval for each subclaim if there are any, otherwise end the workflow.
+        main_builder.add_edge("retrieve", "evaluate")  # After all retrieves complete (fan-in), run evaluation in batch
 
         self.super_graph = main_builder.compile()
 
@@ -227,16 +324,17 @@ class FactAgent:
         messages = [("user", claim)]
         
         results = []
-        print("[process_claim] starting graph stream")
+        results = []
+        log.info("starting graph stream")
         for step in self.super_graph.stream( # stream method allows us to get intermediate results at each step of the graph execution
             {"messages": messages}, # initial state with the claim as the first user message
             {"recursion_limit": recursion_limit} # recursion limit to prevent infinite loops in case of errors
         ):
             if verbose:
-                print(step)
+                log.info(f"Step output: {step}")
                 print("---")
             results.append(step)
-        print("[process_claim] graph stream finished")
+        log.info("graph stream finished")
         
         return results
     

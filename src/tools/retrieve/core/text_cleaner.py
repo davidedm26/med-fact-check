@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
-import logging
 from typing import List, Dict
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+from utils.logger import get_logger
+log = get_logger("TextCleaner")
 
 
 # 1. Unstructured data cleaning (XML from Europe PMC)
@@ -46,7 +46,7 @@ def clean_europe_pmc_xml(xml_string: str, article_metadata: Dict) -> List[Dict]:
 
         return paragraphs_with_metadata
     except Exception as e:
-        logging.error(f"[Cleaner] XML cleanup error: {e}")
+        log.error(f"XML cleanup error: {e}")
         return []
 
 

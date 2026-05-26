@@ -1,0 +1,38 @@
+{
+    "llm": {
+        "provider": "nvidia",
+        "temperature": 0.2,
+        "providers": {
+            "nvidia": {
+                "model_name": "meta/llama-3.1-8b-instruct",
+                "base_url": "https://integrate.api.nvidia.com/v1"
+            },
+            "groq": {
+                "model_name": "llama-3.1-8b-instant",
+                "base_url": "https://api.groq.com/openai/v1"
+            },
+            "google": {
+                "model_name": "gemma-4-26b-a4b-it"
+            },
+            "ollama": {
+                "model_name": "llama3.1",
+                "base_url": "http://localhost:11434"
+            }
+        }
+    },
+    "retrieval": {
+        "api_search_limit": 3,
+        "sparse": {
+            "top_k": 3
+        },
+        "dense": {
+            "top_k": 3,
+            "chunk_size": 300,
+            "overlap": 50,
+            "model_name": "medcpt"
+        }
+    },
+    "evaluation": {
+        "veracity_model_name": "pritamdeka/PubMedBERT-MNLI-MedNLI"
+    }
+}

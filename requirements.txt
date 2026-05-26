@@ -2,11 +2,13 @@
 langchain>=0.2.0
 langchain-core>=0.2.0
 langchain-openai>=0.1.0        # Serve per NVIDIA NIM (usa le stesse API di OpenAI)
+langchain-google-genai>=1.0.0   # Serve per usare Gemini / Google GenAI
 langchain-ollama>=0.1.0        # Serve per usare Ollama in locale
 langchain-groq>=0.1.0          # Nel caso vogliate usare Groq (come previsto da llm_factory)
 langgraph>=0.1.0               # Il motore dell'architettura Multi-Agente
 pydantic>=2.0.0                # Per la validazione strutturata degli output JSON (Tool Calling)
 huggingface-hub>=0.23.0        # Per il tuo agente locale di test
+tqdm>=4.66.0                   # Per barre di avanzamento e statistiche di ingestion
 
 # --- Web Scraping e Retrieval ---
 requests>=2.31.0               # Per fare chiamate API (EuropePMC, UniProt)
