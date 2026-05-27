@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 import os
 import json 
 import operator
+import uuid
 load_dotenv()
 from utils.config import config
 
@@ -215,6 +216,7 @@ class FactAgent:
                     {
                         "subclaim_id": f"sub_{index + 1:02d}", 
                         "subclaim": _subclaim_query(subclaim),
+                        "run_id": state.get("run_id"),
                         "messages": [HumanMessage(content=_subclaim_query(subclaim), name="subclaim")],
                     },
                 )
@@ -351,12 +353,13 @@ class FactAgent:
             dict: The final result of the fact-checking process
         """
         messages = [("user", claim)]
+        run_id = str(uuid.uuid4())
+        log.info(f"pipeline run_id: {run_id}")
         
-        results = []
         results = []
         log.info("starting graph stream")
         for step in self.super_graph.stream( # stream method allows us to get intermediate results at each step of the graph execution
-            {"messages": messages}, # initial state with the claim as the first user message
+            {"messages": messages, "run_id": run_id}, # initial state with the claim as the first user message
             {"recursion_limit": recursion_limit} # recursion limit to prevent infinite loops in case of errors
         ):
             if verbose:
