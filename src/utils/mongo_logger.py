@@ -125,7 +125,14 @@ def _serialize_for_mongo(obj: Any) -> Any:
 
     # --- standard containers --------------------------------------------------
     if isinstance(obj, dict):
-        return {str(k): _serialize_for_mongo(v) for k, v in obj.items()}
+        serialized = {}
+        for k, v in obj.items():
+            key = str(k)
+            if key in {"text", "content"} and isinstance(v, str):
+                serialized[key] = v[:50]
+            else:
+                serialized[key] = _serialize_for_mongo(v)
+        return serialized
 
     if isinstance(obj, (list, tuple)):
         return [_serialize_for_mongo(item) for item in obj]
