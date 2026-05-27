@@ -187,7 +187,10 @@ class FactAgent:
         # The main graph consider the subgraphs as black boxes and just defines the routing logic between them.
 
         def decompose_node(state: State): 
-            response = self.decompose_graph.invoke({"messages": [state["messages"][-1]]})
+            response = self.decompose_graph.invoke({
+                "messages": [state["messages"][-1]],
+                "run_id": state.get("run_id"),
+            })
             verifiable_subclaims = response.get("verifiable_subclaims") or []
             return {
                 "verifiable_subclaims": verifiable_subclaims,
@@ -226,7 +229,11 @@ class FactAgent:
         def retrieval_node(state: State):
             subclaim = state.get("subclaim") or _message_text(state["messages"][-1])
             subclaim_id = state.get("subclaim_id") 
-            response = self.retrieval_graph.invoke({"messages": [("user", subclaim)], "subclaim_id": subclaim_id})
+            response = self.retrieval_graph.invoke({
+                "messages": [("user", subclaim)],
+                "subclaim_id": subclaim_id,
+                "run_id": state.get("run_id"),
+            })
             retrieval_summary = {
                 "subclaim_id": subclaim_id,
                 "subclaim": subclaim,
@@ -281,6 +288,7 @@ class FactAgent:
                     "subclaim": subclaim,
                     "evidence_text": evidence_text,
                     "messages": [HumanMessage(content=subclaim, name="evaluation_input")],
+                    "run_id": state.get("run_id"),
                 })
 
                 # Collect the evaluation results from the subgraph response
