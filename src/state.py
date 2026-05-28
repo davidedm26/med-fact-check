@@ -12,6 +12,7 @@ def _message_text(message):
  
 # State class that extends MessagesState and includes additional fields for managing the state of a conversation or process.
 class State(MessagesState):
+    run_id: Optional[str]  # UUID identifying the pipeline run (for MongoDB logging)
     next: str # The next step or action to be taken in the process.
     predicates: Optional[List[Dict[str, str]]] # A list of predicates, which are conditions or statements that can be evaluated.
     predicate_type_dict: Optional[List[Dict[str, str]]] # A dictionary mapping predicate types to their corresponding verifiable/non-verifiable categories.

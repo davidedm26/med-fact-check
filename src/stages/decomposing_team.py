@@ -7,6 +7,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from state import State, _message_text
 from prompts.decompose import claim_decomposition_prompt, claim_classification_prompt
 from utils.logger import get_logger
+from utils.mongo_logger import log_node
 
 log = get_logger("DecomposingTeam")
 # TO DO: Managing of error cases and fallback mechanisms in case the decomposition or classification agents fail to produce valid output.
@@ -14,6 +15,7 @@ log = get_logger("DecomposingTeam")
 def build_decompose_graph(decomposition_agent, classification_agent):
     """Build the input ingestion subgraph for decomposer logic."""
 
+    @log_node("decompose")
     def claim_decomposition_node(state: State) -> Command[Literal["claim_classification"]]: #hardcoded goto for simplicity since the decomposition step always goes to classification next
 
         log.info("claim_decomposition start")
@@ -37,6 +39,7 @@ def build_decompose_graph(decomposition_agent, classification_agent):
             goto="claim_classification", # The only edge is to the classification node, so we could avoid this field but we keep it for clarity and consistency with the other nodes.
         )
 
+    @log_node("decompose")
     def claim_classification_node(state: State) -> Command[Literal["claim_filter"]]:
         log.info("claim_classification start")
         predicates = state.get("predicates") or []
@@ -61,6 +64,7 @@ def build_decompose_graph(decomposition_agent, classification_agent):
 
     # The claim splitter node doesn't leverage any LLM agent - it just filters the subclaims based on the classification results and prepares the final list of verifiable subclaims for the main workflow.
 
+    @log_node("decompose")
     def claim_filter_node(state: State) -> Command[Literal["__end__"]]:
         log.info("claim_filter start")
         predicate_type_dict = state.get("predicate_type_dict") or []

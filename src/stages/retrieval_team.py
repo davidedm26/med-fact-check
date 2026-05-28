@@ -15,6 +15,7 @@ from tools.retrieve.download import (
 from tools.retrieve.dense import dense_retrieve_tool
 from tools.retrieve.sparse import sparse_retrieve_tool
 from utils.logger import get_logger
+from utils.mongo_logger import log_node
 from utils.config import config
 
 log = get_logger("RetrievalTeam")
@@ -49,6 +50,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             return [str(parsed_value)]
         return [fallback_query]
 
+    @log_node("retrieval")
     def source_selector_node(state: State):
         log.info("source_selector start")
         query = _message_text(state["messages"][-1]) #get last message text (each subclaim will be sent to the retrieval node one at a time, so we can assume the last message contains the subclaim to retrieve for)
@@ -86,6 +88,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             ],
         }
 
+    @log_node("retrieval")
     def downloader_agent_node(state: State):
         log.info("downloader_agent start")
         query = _message_text(state["messages"][-1]) # get last message text (the source selector node adds a message with the selected source and reasoning, but the content of the message is a dict in string format, so we need to parse it to extract the original query if needed for fallback)
@@ -133,6 +136,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             ],
         }
 
+    @log_node("retrieval")
     def retrieval_strategy_router_node(state: State):
         log.info("retrieval_strategy_router start")
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
@@ -171,6 +175,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             ],
         }
 
+    @log_node("retrieval")
     def sparse_retriever_node(state: State):
         log.info("sparse_retriever start")
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])
@@ -196,6 +201,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
             ],
         }
 
+    @log_node("retrieval")
     def dense_retriever_node(state: State):
         log.info("dense_retriever start")
         query = state.get("retrieval_query") or _message_text(state["messages"][-1])

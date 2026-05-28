@@ -15,6 +15,7 @@ from langchain_core.messages import HumanMessage
 
 from state import State
 from utils.logger import get_logger
+from utils.mongo_logger import log_node
 
 log = get_logger("Aggregator")
 
@@ -32,6 +33,7 @@ def build_aggregate_node():
         main_builder.add_node("aggregate", aggregate_node)
     """
 
+    @log_node("aggregation")
     def aggregate_node(state: State):
         evaluation_results = state.get("evaluation_results") or []
 

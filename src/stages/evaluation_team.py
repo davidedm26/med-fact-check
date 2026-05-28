@@ -18,6 +18,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from state import State, _message_text
 from prompts.evaluate import reasoning_prompt, reasoning_schema
 from utils.logger import get_logger
+from utils.mongo_logger import log_node
 from utils.config import config
 
 log = get_logger("EvaluationTeam")
@@ -112,6 +113,7 @@ def build_evaluation_graph(reasoning_agent):
         return "\n\n".join(lines)
 
 
+    @log_node("evaluation")
     def reasoning_node(state: State):
         """Invoke the Reasoning Agent to produce a structured justification."""
         log.info("reasoning_agent start")
@@ -158,6 +160,7 @@ def build_evaluation_graph(reasoning_agent):
             ],
         }
 
+    @log_node("evaluation")
     def veracity_node(state: State):
         """Run the PubMedBERT NLI classifier to assign label + confidence."""
         log.info("veracity_agent start")
