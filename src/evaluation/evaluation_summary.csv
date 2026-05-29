@@ -1,4 +1,4 @@
 Dataset,Total_Claims,Excluded_NEI,Evaluated_Claims,Accuracy,Precision,Recall,F1_Score
-SCIFACT,2,1,1,1.0,1.0,1.0,1.0
-BIOASQ,2,0,2,0.5,0.25,0.5,0.3333
-HEALTHFC,2,1,1,1.0,1.0,1.0,1.0
+SCIFACT,3,1,2,0.0,0.0,0.0,0.0
+BIOASQ,40,0,40,0.55,0.5857,0.55,0.5333
+HEALTHFC,3,1,2,0.5,0.25,0.5,0.3333

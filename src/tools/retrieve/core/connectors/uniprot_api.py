@@ -15,8 +15,7 @@ def search_protein(query: str, limit: int = 10) -> List[Dict]: # Limit to 10
         "query": query,
         "size": limit,
         "format": "json",
-        #"fields": "accession,id,protein_name,gene_names,cc_function,cc_interaction,cc_disease,organism_name"
-        "fields": "accession,id,protein_name,gene_names,cc_function,organism_name"
+        "fields": "accession,id,protein_name,gene_names,cc_function,cc_interaction,organism_name"
     }
     
     try:
@@ -55,22 +54,33 @@ def search_protein(query: str, limit: int = 10) -> List[Dict]: # Limit to 10
 
             comments = item.get("comments", [])
             function_text = "Funzione non specificata."
+            interaction_list = []
+            
             for comment in comments:
-                if comment.get("commentType") == "FUNCTION":
+                tipo = comment.get("commentType")
+                if tipo == "FUNCTION":
                     texts = comment.get("texts", [])
-                    if texts:
+                    if texts and function_text == "Funzione non specificata.":
                         function_text = texts[0].get("value", "")
-                    break
+                elif tipo == "INTERACTION":
+                    interactants = comment.get("interactions", [])
+                    for i in interactants:
+                        gene = i.get("interactantTwo", {}).get("geneName")
+                        if gene and gene not in interaction_list:
+                            interaction_list.append(gene)
+            
+            biological_text = f"Function: {function_text}"
+            if interaction_list:
+                biological_text += f" Interacts with: {', '.join(interaction_list)}"
                     
             official_url = f"https://www.uniprot.org/uniprotkb/{accession}/entry" if accession != 'Unknown' else ""
             
             extracted_data.append({
                 "accession_id": accession,
                 "protein_name": full_name,
-                #"biological_text": full_bio_text,
+                "biological_text": biological_text,
                 "gene_name": gene_name,
                 "organism": organism,
-                "function": function_text,
                 "url": official_url
             })
             
@@ -102,4 +112,4 @@ if __name__ == "__main__":
         print(f"    Organism: {protein['organism']}")
         print(f"    UniProt ID: {protein['accession_id']}")
         print(f"    Link: {protein['url']}")
-        print(f"    Function: {protein['function'][:200]}...\n")
+        print(f"    Biological Text: {protein['biological_text'][:200]}...\n")

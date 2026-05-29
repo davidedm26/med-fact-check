@@ -1,10 +1,11 @@
 import json
+import os
 from datasets import load_dataset
 from collections import defaultdict
 
 def check_scifact_conflicts():
     print("Checking conflicts in SciFact...")
-    dataset = load_dataset("allenai/scifact", "claims", split="train+validation", trust_remote_code=True)
+    dataset = load_dataset("allenai/scifact", "claims", split="train", trust_remote_code=True)
     
     claim_labels = defaultdict(set)
     for item in dataset:
@@ -12,9 +13,9 @@ def check_scifact_conflicts():
         evidence_label = item.get('evidence_label', '')
         
         if evidence_label == "SUPPORT":
-            label = "Supported"
+            label = "supported"
         elif evidence_label == "CONTRADICT":
-            label = "Refuted"
+            label = "refuted"
         else:
             label = "NEI"
             
@@ -32,7 +33,8 @@ def check_scifact_conflicts():
 
 def check_bioasq_conflicts():
     print("\nChecking conflicts in BioASQ...")
-    file_path = "raw_datasets/BioASQ-train-yesno-7b.json"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, "raw_datasets", "BioASQ-train-yesno-7b.json")
     
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -56,9 +58,9 @@ def check_bioasq_conflicts():
                             ans_text = str(answers[0]).lower().strip()
                     
                     if ans_text == "yes":
-                        label = "Supported"
+                        label = "supported"
                     elif ans_text == "no":
-                        label = "Refuted"
+                        label = "refuted"
                     else:
                         label = "NEI"
                         
