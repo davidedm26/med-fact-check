@@ -8,7 +8,6 @@ claim_decomposition = {
         "properties": {
             "predicates": { 
                 "type": "array",
-                "minItems": 1, # Ensure at least one predicate is returned for claims with factual content
                 "items": {
                     "type": "object",
                     "properties": {
@@ -45,50 +44,25 @@ claim_decomposition = {
 # Claim decomposition examples
 claim_decomposition_examples = [
     {
-        "input_claim": "Howard University Hospital is located in Washington, D.C., and Providence Hospital is located in Washington, D.C.",
+        "input_claim": "Despite the regulator's recent ban, their latest compound saw a drop in sales.",
         "predicates": [
             {
-                "relation": "Location",
-                "subject": "Howard University Hospital",
-                "object": "Washington, D.C.",
-                "search_query": "Verify that Howard University Hospital is located in Washington, D.C."
+                "relation": "Ban",
+                "subject": "The regulator",
+                "object": "the latest compound",
+                "search_query": "There is a recent ban by the regulator."
             },
             {
-                "relation": "Location",
-                "subject": "Providence Hospital",
-                "object": "Washington, D.C.",
-                "search_query": "Verify that Providence Hospital is located in Washington, D.C."
+                "relation": "Drop",
+                "subject": "The regulator's latest compound",
+                "object": "sales",
+                "search_query": "The regulator's latest compound saw a drop in sales."
             }
         ],
     },
     {
-        "input_claim": "Alfredo Cornejo Cuevas was born on June 6, 1933. He won the gold medal in the welterweight division at the 1959 Pan American Games in Chicago, United States. The 1959 Pan American Games were held in Chicago, United States. He also won the world amateur welterweight title in Mexico City.",
-        "predicates": [
-            {
-                "relation": "Born",
-                "subject": "Alfredo Cornejo Cuevas",
-                "object": "June 6, 1933",
-                "search_query": "Verify that Alfredo Cornejo Cuevas was born on June 6, 1933."
-            },
-            {
-                "relation": "Won",
-                "subject": "Alfredo Cornejo Cuevas",
-                "object": "the gold medal in the welterweight division at the Pan American Games in 1959",
-                "search_query": "Verify that Alfredo Cornejo Cuevas won the gold medal in the welterweight division at the Pan American Games in 1959."
-            },
-            {
-                "relation": "Held",
-                "subject": "The Pan American Games in 1959",
-                "object": "Chicago, United States",
-                "search_query": "Verify that the Pan American Games in 1959 were held in Chicago, United States."
-            },
-            {
-                "relation": "Won",
-                "subject": "Alfredo Cornejo Cuevas",
-                "object": "the world amateur welterweight title in Mexico City",
-                "search_query": "Verify that Alfredo Cornejo Cuevas won the world amateur welterweight title in Mexico City."
-            }
-        ],
+        "input_claim": "ciao / hello there! wtf",
+        "predicates": []
     },
     {
         "input_claim": "Daily vitamin D supplementation reduces the risk of osteoporosis in postmenopausal women, and people with kidney stones are sometimes advised to avoid it because it can worsen nephrolithiasis.",
@@ -97,50 +71,234 @@ claim_decomposition_examples = [
                 "relation": "ReduceRisk",
                 "subject": "Daily vitamin D supplementation",
                 "object": "osteoporosis in postmenopausal women",
-                "search_query": "Verify that daily vitamin D supplementation reduces the risk of osteoporosis in postmenopausal women."
+                "search_query": "Daily vitamin D supplementation reduces the risk of osteoporosis in postmenopausal women."
             },
             {
                 "relation": "Avoid",
                 "subject": "People with kidney stones",
                 "object": "daily vitamin D supplementation",
-                "search_query": "Verify that people with kidney stones should avoid daily vitamin D supplementation to prevent worsening nephrolithiasis."
+                "search_query": "People with kidney stones should avoid daily vitamin D supplementation to prevent worsening nephrolithiasis."
             }
         ],
     },
     {
-        "input_claim": "The treatment may help in some cases.",
+        "input_claim": "They're pushing this new injection that's supposed to clear it up in weeks, but everyone online says it just makes the redness worse and your wallet lighter.",
         "predicates": [
             {
-                "relation": "Claim",
-                "subject": "The treatment may help in some cases",
-                "object": "The treatment may help in some cases",
-                "search_query": "Verify that the treatment may help in some cases."
+                "relation": "Supposed to clear",
+                "subject": "The new injection",
+                "object": "it up in weeks",
+                "search_query": "The new injection is supposed to clear it up in weeks."
+            },
+            {
+                "relation": "Says",
+                "subject": "Everyone online",
+                "object": "the new injection just makes the redness worse and your wallet lighter",
+                "search_query": "Everyone online says the new injection just makes the redness worse and your wallet lighter."
             }
         ],
     },
+    {
+        "input_claim": "Does the Mediterranean diet improve cardiovascular health? Can it reduce the risk of heart attacks?",
+        "predicates": [
+            {
+                "relation": "Improve",
+                "subject": "The Mediterranean diet",
+                "object": "cardiovascular health",
+                "search_query": "The Mediterranean diet improves cardiovascular health."
+            },
+            {
+                "relation": "ReduceRisk",
+                "subject": "The Mediterranean diet",
+                "object": "heart attacks",
+                "search_query": "The Mediterranean diet reduces the risk of heart attacks."
+            }
+        ],
+    },
+    {
+        "input_claim": "If the patient presents with an EGFR gene mutation or an ALK translocation, non-small cell lung cancer (NSCLC) responds positively to targeted molecular therapies, although acquired resistance may develop within 10-14 months of starting treatment.",
+        "predicates": [
+            {
+                "relation": "Responds",
+                "subject": "NSCLC with EGFR gene mutation",
+                "object": "targeted molecular therapies",
+                "search_query": "NSCLC responds positively to targeted molecular therapies in patients with an EGFR gene mutation."
+            },
+            {
+                "relation": "Responds",
+                "subject": "NSCLC with ALK translocation",
+                "object": "targeted molecular therapies",
+                "search_query": "NSCLC responds positively to targeted molecular therapies in patients with an ALK translocation."
+            },
+            {
+                "relation": "Develop",
+                "subject": "Acquired resistance to targeted molecular therapies",
+                "object": "within 10-14 months of starting treatment",
+                "search_query": "Acquired resistance to targeted molecular therapies may develop within 10-14 months of starting treatment in NSCLC patients with an EGFR gene mutation."
+            },
+            {
+                "relation": "Develop",
+                "subject": "Acquired resistance to targeted molecular therapies",
+                "object": "within 10-14 months of starting treatment",
+                "search_query": "Acquired resistance to targeted molecular therapies may develop within 10-14 months of starting treatment in NSCLC patients with an ALK translocation."
+            }
+        ],
+    },
+    {
+        "input_claim": "Metformin is recommended as a first-line pharmacological treatment for type 2 diabetes mellitus, unless the patient has severe renal impairment (eGFR < 30 mL/min) or a history of lactic acidosis, in which case DPP-4 inhibitors should be considered instead.",
+        "predicates": [
+            {
+                "relation": "Recommended",
+                "subject": "Metformin",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "Metformin is recommended as a first-line pharmacological treatment for type 2 diabetes mellitus in patients without severe renal impairment (eGFR < 30 mL/min)."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "Metformin",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "Metformin is recommended as a first-line pharmacological treatment for type 2 diabetes mellitus in patients without a history of lactic acidosis."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "DPP-4 inhibitors",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "DPP-4 inhibitors should be considered as a treatment for type 2 diabetes mellitus if the patient has severe renal impairment (eGFR < 30 mL/min)."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "DPP-4 inhibitors",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "DPP-4 inhibitors should be considered as a treatment for type 2 diabetes mellitus if the patient has a history of lactic acidosis."
+            }
+        ],
+    },
+    {
+        "input_claim": "Patients with acute ischemic stroke should receive intravenous alteplase within 4.5 hours of symptom onset, but only if their blood pressure is strictly maintained below 185/110 mmHg; otherwise, mechanical thrombectomy is preferred.",
+        "predicates": [
+            {
+                "relation": "Recommended",
+                "subject": "intravenous alteplase",
+                "object": "within 4.5 hours of symptom onset",
+                "search_query": "Patients with acute ischemic stroke should receive intravenous alteplase within 4.5 hours of symptom onset if their blood pressure is maintained below 185/110 mmHg."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "mechanical thrombectomy",
+                "object": "patients with acute ischemic stroke",
+                "search_query": "Mechanical thrombectomy is preferred for patients with acute ischemic stroke within 4.5 hours of symptom onset if their blood pressure is NOT maintained below 185/110 mmHg."
+            }
+        ],
+    },
+    {
+        "input_claim": "The actor Tom Hanks won an Oscar in 1994, and recently he stated that daily aspirin prevents heart attacks in healthy adults.",
+        "predicates": [
+            {
+                "relation": "Won",
+                "subject": "The actor Tom Hanks",
+                "object": "an Oscar in 1994",
+                "search_query": "The actor Tom Hanks won an Oscar in 1994."
+            },
+            {
+                "relation": "Prevents",
+                "subject": "Daily aspirin",
+                "object": "heart attacks in healthy adults",
+                "search_query": "Daily aspirin prevents heart attacks in healthy adults."
+            }
+        ],
+    },
+    {
+        "input_claim": "Although the manufacturer's stock price surged by 18% on the Nasdaq last week, their new monoclonal antibody reduces amyloid plaque buildup in Alzheimer's patients by 25%, an achievement that is widely felt to be the most magical scientific triumph of our era.",
+        "predicates": [
+            {
+                "relation": "Surged",
+                "subject": "The manufacturer's stock price",
+                "object": "by 18% on the Nasdaq last week",
+                "search_query": "The manufacturer's stock price surged by 18% on the Nasdaq last week."
+            },
+            {
+                "relation": "Reduces",
+                "subject": "The new monoclonal antibody",
+                "object": "amyloid plaque buildup in Alzheimer's patients by 25%",
+                "search_query": "The new monoclonal antibody reduces amyloid plaque buildup in Alzheimer's patients by 25%."
+            },
+            {
+                "relation": "Felt to be",
+                "subject": "The reduction of amyloid plaque buildup by the new monoclonal antibody",
+                "object": "the most magical scientific triumph of our era",
+                "search_query": "The reduction of amyloid plaque buildup by the new monoclonal antibody is widely felt to be the most magical scientific triumph of our era."
+            }
+        ],
+    },
+    {
+        "input_claim": "Following the Ministry of Health's unexpected budget cuts, clinicians are now instructed to prescribe generic amoxicillin instead of targeted cephalosporins unless the patient has a documented penicillin allergy or severe hepatic failure, a policy shift that local tabloids call a murderous attack on the poor.",
+        "predicates": [
+            {
+                "relation": "Budget cuts",
+                "subject": "The Ministry of Health",
+                "object": "unexpected budget cuts",
+                "search_query": "There are unexpected budget cuts by the Ministry of Health."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "generic amoxicillin",
+                "search_query": "Clinicians are instructed to prescribe generic amoxicillin in patients without a documented penicillin allergy."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "generic amoxicillin",
+                "search_query": "Clinicians are instructed to prescribe generic amoxicillin in patients without severe hepatic failure."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "targeted cephalosporins",
+                "search_query": "Clinicians are instructed to prescribe targeted cephalosporins if the patient has a documented penicillin allergy."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "targeted cephalosporins",
+                "search_query": "Clinicians are instructed to prescribe targeted cephalosporins if the patient has severe hepatic failure."
+            },
+            {
+                "relation": "Call",
+                "subject": "Local tabloids",
+                "object": "the policy shift a murderous attack on the poor",
+                "search_query": "Local tabloids call the policy shift to prescribe generic amoxicillin instead of targeted cephalosporins a murderous attack on the poor."
+            }
+        ],
+    },
+    {
+        "input_claim": "penicillina",
+        "predicates": []
+    }
 ]
 
 # Claim decomposition prompt
 claim_decomposition_prompt = f"""
-You are given a problem description and a claim. Split the claim into atomic, verifiable predicates and return only structured predicate objects.
+You are given a problem description and a claim. Split the claim into atomic predicates (extracting BOTH factual assertions and subjective opinions) and return only structured predicate objects.
 
 Important:
-- Never return an empty list when the claim contains factual content.
-- Split conjunctive claims into separate subclaims.
-- Keep each subclaim grounded in the original claim; do not invent new facts or overgeneralize.
-- Prefer 1 factual statement per subclaim.
-- If the claim is compound, produce one subclaim for each independently checkable fact.
-- If the claim is ambiguous, underspecified, or not safely splittable, return the original claim as a single subclaim instead of forcing a decomposition.
-- Ignore subjective opinions, recommendations, and normative fragments that are not factual claims.
-- Do not turn a recommendation into a factual predicate.
+- EMPTY/FRAGMENTS: If the input is a single word, purely conversational, or a verb-less fragment (e.g., "wtf", "hello", "penicillin"), return an empty list `[]`. Do NOT guess or hallucinate facts from prompt examples.
+- ATOMICITY: Split compound/conjunctive claims into multiple subclaims. Each subclaim MUST contain exactly one independently verifiable fact.
+- FAITHFULNESS: Extract EXACTLY what is asserted, even if false. Do NOT auto-correct or add external info. Do not invent facts.
+- EXTRACT EVERYTHING: Include subjective opinions, anecdotal reports, and recommendations. The downstream classifier will filter them.
+
+Structural rules:
+- CONDITIONALS & EXCEPTIONS: If a fact has a premise ("if X", "unless Y"), incorporate it into EACH derived subclaim (e.g., "in patients with X", "in patients without Y"). CRITICAL: Carry the condition into ALL trailing clauses ("as it may lead to Z").
+- ALTERNATIVES: For "only if X; otherwise Y", split into "action if X" and "action if NOT X".
+- DISJUNCTIONS: "X or Y" becomes two subclaims (one for X, one for Y).
+- COREFERENCE: Name entities explicitly. Resolve ALL pronouns ("it", "this treatment") to the exact nouns.
+- ATTRIBUTIONS: If a claim is an opinion/rumor ("people say X"), include the attribution ("people say") in the subclaim.
+- BACKGROUND FACTS: Extract embedded contextual facts (e.g., "Despite the lawsuit..." -> "There is a lawsuit").
 
 Content rules:
-- Keep each predicate minimal: one fact per item.
-- When using the fallback, preserve the original claim wording as closely as possible.
-- Use active voice and correct English.
-- Prefer normalized nouns over gerunds (e.g., "daily vitamin D supplementation" over "taking a daily vitamin D supplement").
-- Prefer explicit subjects (e.g., "people with kidney stones" over "those").
-- Avoid vague wording, pronouns without referents, and "should be avoided by" phrasing.
+- Subclaims MUST be self-contained natural language statement sentences (not questions).
+- CRITICAL: Output valid JSON using DOUBLE QUOTES (") for strings.
+- Prefer explicit subjects and normalized nouns. Use active voice.
 
 Return the result in JSON format, as shown in the example below.
 Here are examples:
@@ -163,24 +321,17 @@ claim_classification = {
                 "items": {
                     "type": "object",
                     "properties": {
-                        "predicate": {
-                            "type": "object",
-                            "properties": {
-                                "relation": {"type": "string"},
-                                "subject": {"type": "string"},
-                                "object": {"type": "string"},
-                                "search_query": {"type": "string"}
-                            },
-                            "additionalProperties": False,
-                            "required": ["relation", "subject", "object", "search_query"]
+                        "query": {
+                            "type": "string",
+                            "description": "The natural language query being classified."
                         },
                         "type": {
                             "type": "string",
-                            "enum": ["verifiable", "non-verifiable"],
+                            "enum": ["verifiable", "non-verifiable", "out-of-domain"],
                             "description": "Classification type of the subclaim."
                         }
                     },
-                    "required": ["predicate", "type"],
+                    "required": ["query", "type"],
                     "additionalProperties": False
                 },
                 "description": "A list of predicates with their classification types."
@@ -193,28 +344,54 @@ claim_classification = {
 
 # Claim classification prompt
 claim_classification_prompt = f"""
-You are an expert in claim verification. Your task is to determine whether each predicate is verifiable or non-verifiable.
-A verifiable claim is a factual statement that can be checked against objective evidence from reliable sources. It makes specific assertions about the world that can be proven true or false through investigation.
+You are an expert in claim verification. Your task is to determine whether each query is VERIFIABLE, NON-VERIFIABLE, or OUT-OF-DOMAIN.
 
-Classify each predicate only by whether it can be checked against objective evidence. Do not judge usefulness, plausibility, importance, or desirability. Do not rewrite the predicate; only assign a label.
+## Definition
+A VERIFIABLE claim is any factual assertion about the world that could, in principle, be checked against objective evidence (scientific studies, databases, official records, measurements). It does NOT matter whether the claim is true, false, controversial, or about an obscure topic — only whether evidence could confirm or refute it. IMPORTANT: For this task, it MUST be related to medicine, health, biology, or clinical practice.
 
-A non-verifiable claim is one that cannot be objectively verified because it:
-- Expresses a subjective opinion, preference, or personal experience  
-- Makes vague or ambiguous statements without specific details  
-- Refers to future events that haven't occurred yet  
-- Makes normative or ethical judgments about what "should" be  
-- Contains hypothetical scenarios or counterfactuals  
-- States a recommendation or preference without attributing it to a checkable source
+A NON-VERIFIABLE claim is ONLY one that:
+- Expresses a purely subjective opinion or personal preference ("X is the best", "I believe...", "the most elegant breakthrough")
+- Makes a normative or ethical judgment about what "should" be done
+- States a recommendation without attributing it to a source
+- Is an anecdotal, vague, or purely qualitative report lacking clinical metrics (e.g., "patients generally report feeling more energetic", "everyone online says")
+- Relies on idioms, metaphors, or vague hyperboles (e.g., "makes your wallet lighter", "a mystical healing process")
+- Is so vague that no specific fact can be checked
 
-### Examples:
-Verifiable: "The average global temperature increased by 0.8$^\circ$C between 1880 and 2012." 
-Non-verifiable: "Climate change is the most important issue facing humanity today."  
-Verifiable: "The film 'Parasite' won the Academy Award for Best Picture in 2020."  
-Non-verifiable: "Parasite deserved to win the Academy Award for Best Picture."
-Verifiable: "The 1959 Pan American Games were held in Chicago, United States."
-Non-verifiable: "People with kidney stones should avoid daily vitamin D supplementation."
-Verifiable: "The article states that people with kidney stones should avoid daily vitamin D supplementation."
+An OUT-OF-DOMAIN claim is one that:
+- Is a verifiable fact, but has absolutely nothing to do with medical science, health, human biology, or clinical practice (e.g., software engineering, IT, pop culture, general history, geography, entertainment, corporate financial/stock data, revenue drops, or legal disputes). Even if a pharmaceutical company is mentioned, pure financial or legal facts are OUT-OF-DOMAIN.
 
-Please analyze the following predicates and classify each one as either VERIFIABLE or NON-VERIFIABLE. Return only structured predicate classifications.
+## Critical rules — do NOT make these mistakes:
+- A claim with a NEGATION is still verifiable ("X does NOT cause Y" → VERIFIABLE)
+- A claim about an OBSCURE or CONTROVERSIAL product is still verifiable ("The Zisano bracelet strengthens the immune system" → VERIFIABLE)
+- A claim phrased as a QUESTION is still verifiable ("Does X treat Y?" → VERIFIABLE)
+- A claim about a medical ASSOCIATION or RISK is still verifiable ("X increases the risk of Y" → VERIFIABLE)
+- A claim you personally doubt or find implausible is still verifiable if it asserts a checkable fact
+- DEFAULT TO OUT-OF-DOMAIN FOR NON-MEDICAL FACTS: If a fact is verifiable but you are unsure if it is medical enough, classify it as OUT-OF-DOMAIN. Only classify as VERIFIABLE if it clearly relates to medicine, biology, or health.
+
+## Examples of VERIFIABLE claims (Medical/Health):
+- "St. John's wort relieves the symptoms of depression." (Medical claim)
+- "Is Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?" (Question form)
+- "Thigh-length graduated compression stockings did not reduce deep vein thrombosis." (Negation)
+- "The Zisano bracelet strengthens the immune system." (Obscure health product)
+- "The WHO recommends exclusive breastfeeding for the first six months." (Attributed health recommendation - checkable)
+
+## Examples of NON-VERIFIABLE claims:
+- "Climate change is the most important issue facing humanity today." (Subjective opinion)
+- "People with kidney stones should avoid daily vitamin D supplementation." (Unattributed recommendation / normative)
+- "Leading experts feel the new mRNA vaccine is the most elegant medical breakthrough of our generation." (Vague qualitative opinion)
+- "Patients generally report feeling more energetic after the second dose." (Anecdotal / lacking metrics)
+
+## Examples of OUT-OF-DOMAIN claims:
+- "The average global temperature increased by 0.8°C between 1880 and 2012." (Verifiable, but general science/climate, not medical)
+- "The film Parasite won the Academy Award for Best Picture in 2020." (Verifiable, but entertainment)
+- "Geolier has written the song Soldati." (Verifiable, but music/pop culture)
+- "AWS S3 storage fees have recently increased by 15%." (Verifiable, but technology/business)
+- "The new software update reduces ETL pipeline execution time by 40%." (Verifiable, but software engineering/IT)
+
+Classify each query only by whether it can be checked against objective evidence. Do not judge usefulness, plausibility, importance, or desirability. Do not rewrite the query; only assign a label.
+
+CRITICAL RULES FOR JSON OUTPUT:
+1. You must output valid JSON using DOUBLE QUOTES (") for all string keys and values.
+2. The `query` field in your output MUST be an exact, character-for-character copy of the input query. NEVER substitute the query with an example from this prompt. If the input query is "ciao", the output query MUST be "ciao".
 """
 

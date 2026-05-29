@@ -3,18 +3,6 @@ Ablation Test -- Decompose Stage
 ================================
 Runs the decompose subgraph in isolation against a curated gold set
 and computes per-claim + aggregate quality metrics.
-
-Usage:
-    cd src
-    python -m tests.test_decompose_stage          (from project root -- not recommended)
-    python ../tests/test_decompose_stage.py        (from src/)
-
-Or simply:
-    cd <project_root>
-    python tests/test_decompose_stage.py
-
-The script adds ``src/`` to sys.path so that project imports work
-regardless of how it is invoked.
 """
 
 from __future__ import annotations
@@ -28,25 +16,17 @@ from pathlib import Path
 from typing import Any
 
 # ---------------------------------------------------------------------------
-# Path setup -- make sure ``src/`` is importable
+# Path setup
 # ---------------------------------------------------------------------------
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _SRC_DIR = _PROJECT_ROOT / "src"
 
-# Ensure src/ is at position 0 so local packages (stages, prompts, etc.)
-# take priority over any globally installed packages with the same name.
 _src_str = str(_SRC_DIR)
 if _src_str in sys.path:
     sys.path.remove(_src_str)
 sys.path.insert(0, _src_str)
 
-# ---------------------------------------------------------------------------
-# Fix ``utils`` module shadowing
-# ---------------------------------------------------------------------------
-# A globally installed ``utils`` single-file module (pip package) may shadow
-# the local ``src/utils/`` package.  We explicitly register the local
-# directory as the ``utils`` package before importing anything from it.
 import importlib
 import types as _types
 
@@ -59,12 +39,10 @@ _utils_pkg.__path__ = [str(_SRC_DIR / "utils")]
 _utils_pkg.__package__ = "utils"
 sys.modules["utils"] = _utils_pkg
 
-# Now we can safely import project modules
 from dotenv import load_dotenv
 
 load_dotenv(_PROJECT_ROOT / ".env")
 
-# Force-disable MongoDB logging for tests to avoid polluting the database
 os.environ["MONGO_LOGGING_ENABLED"] = "false"
 
 # pyrefly: ignore [missing-import]
@@ -75,6 +53,9 @@ from utils.llm_factory import get_llm_with_tools
 from prompts.decompose import claim_decomposition, claim_classification
 # pyrefly: ignore [missing-import]
 from stages.decomposing_team import build_decompose_graph
+# pyrefly: ignore [missing-import]
+from tools.retrieve.dense import BiomedicalEmbedder
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -82,133 +63,99 @@ from stages.decomposing_team import build_decompose_graph
 
 GOLD_SET_PATH = _PROJECT_ROOT / "tests" / "data" / "decompose_gold.json"
 REPORTS_DIR = _PROJECT_ROOT / "tests" / "reports"
-JACCARD_THRESHOLD = 0.5  # minimum token-overlap for a "match"
 
+print("Loading BiomedicalEmbedder for semantic tests...")
+_embedder = BiomedicalEmbedder(model_name="medcpt", device="cpu")
+print("Embedder loaded.")
 
-# ===========================================================================
-# Fuzzy matching helpers
-# ===========================================================================
-
-
-def _tokenize(text: str) -> set[str]:
-    """Lowercase token set (split on whitespace + punctuation)."""
-    import re
-    return set(re.findall(r"[a-z0-9]+", text.lower()))
-
-
-def _jaccard(a: str, b: str) -> float:
-    """Token-level Jaccard similarity between two strings."""
-    ta, tb = _tokenize(a), _tokenize(b)
-    if not ta or not tb:
-        return 0.0
-    return len(ta & tb) / len(ta | tb)
-
+def _cosine_sim(vec1: np.ndarray, vec2: np.ndarray) -> float:
+    return float(np.dot(vec1, vec2))
 
 def _best_match_overlap(
-    predicted: list[dict],
-    expected: list[dict],
-    field: str,
+    predicted_queries: list[str],
+    expected_queries: list[str],
 ) -> float:
-    """
-    Greedy best-match overlap for a given field (subject / object / relation).
+    if not expected_queries:
+        return 1.0
+    if not predicted_queries:
+        return 0.0
 
-    For each expected predicate, find the predicted predicate with the
-    highest Jaccard similarity on ``field`` (above threshold), consume that
-    pair, and average the scores.  Unmatched expected predicates contribute 0.
-    """
-    if not expected:
-        return 1.0  # nothing to match -> perfect by convention
+    pred_vecs = _embedder.embed_passages(predicted_queries)
+    exp_vecs = _embedder.embed_passages(expected_queries)
 
-    available = list(range(len(predicted)))
+    available = list(range(len(predicted_queries)))
     scores: list[float] = []
 
-    for exp in expected:
+    for i in range(len(expected_queries)):
         best_score = 0.0
         best_idx = -1
-        exp_val = exp.get(field, "")
         for idx in available:
-            pred_val = predicted[idx].get(field, "")
-            sim = _jaccard(exp_val, pred_val)
+            sim = _cosine_sim(exp_vecs[i], pred_vecs[idx])
             if sim > best_score:
                 best_score = sim
                 best_idx = idx
-        if best_idx >= 0 and best_score >= JACCARD_THRESHOLD:
+        if best_idx >= 0 and best_score >= 0.8:
             available.remove(best_idx)
         else:
-            best_score = 0.0  # no match above threshold
+            best_score = 0.0
         scores.append(best_score)
 
     return sum(scores) / len(scores)
-
-
-# ===========================================================================
-# Metric computation
-# ===========================================================================
-
 
 def compute_claim_metrics(
     predicted_state: dict[str, Any],
     gold_entry: dict[str, Any],
 ) -> dict[str, Any]:
-    """Compute per-claim metrics comparing predicted output with gold."""
-    # -- Extract predicted data --
     predicted_predicates_raw = predicted_state.get("predicates") or []
     predicate_type_dict = predicted_state.get("predicate_type_dict") or []
     verifiable_subclaims = predicted_state.get("verifiable_subclaims") or []
 
-    # Normalise predicted predicates into a flat list of dicts
-    predicted_predicates: list[dict] = []
+    predicted_queries: list[str] = []
     for p in predicted_predicates_raw:
         if isinstance(p, dict):
-            predicted_predicates.append(p)
+            predicted_queries.append(p.get("search_query", ""))
         else:
-            predicted_predicates.append({"relation": str(p), "subject": "", "object": ""})
+            predicted_queries.append(str(p))
 
-    # -- Gold data --
-    expected_predicates = gold_entry.get("expected_predicates", [])
-    expected_count = gold_entry.get("expected_predicate_count", len(expected_predicates))
+    expected_queries_objs = gold_entry.get("expected_queries", [])
+    expected_queries = [obj.get("query", "") for obj in expected_queries_objs]
+    
+    expected_count = gold_entry.get("expected_predicate_count", len(expected_queries))
     expected_verifiable_count = gold_entry.get("expected_verifiable_count", expected_count)
 
-    pred_count = len(predicted_predicates)
+    pred_count = len(predicted_queries)
 
-    # 1. Predicate count match
     count_match = pred_count == expected_count
     count_delta = abs(pred_count - expected_count)
 
-    # 2. Over / under decomposition
     over = pred_count > expected_count
     under = pred_count < expected_count
 
-    # 3. S/R/O fuzzy overlap
-    subject_overlap = _best_match_overlap(predicted_predicates, expected_predicates, "subject")
-    object_overlap = _best_match_overlap(predicted_predicates, expected_predicates, "object")
-    relation_overlap = _best_match_overlap(predicted_predicates, expected_predicates, "relation")
+    semantic_overlap = _best_match_overlap(predicted_queries, expected_queries)
 
-    # 4. Classification accuracy
-    #    Compare predicted type assignments with gold types.
-    #    Build a map: for each expected predicate, find its best match
-    #    in predicate_type_dict and check if the type is correct.
     classification_correct = 0
     classification_total = 0
 
-    for exp_pred in expected_predicates:
-        exp_type = exp_pred.get("type", "verifiable")
-        exp_subj = exp_pred.get("subject", "")
+    for exp_obj in expected_queries_objs:
+        exp_type = exp_obj.get("type", "verifiable")
+        exp_q = exp_obj.get("query", "")
         classification_total += 1
 
-        # Find the best-matching entry in predicate_type_dict
         best_sim = 0.0
         matched_type = None
-        for ptd_entry in predicate_type_dict:
-            pred_obj = ptd_entry.get("predicate", {})
-            if isinstance(pred_obj, dict):
-                sim = _jaccard(exp_subj, pred_obj.get("subject", ""))
-            else:
-                sim = _jaccard(exp_subj, str(pred_obj))
-            if sim > best_sim:
-                best_sim = sim
-                matched_type = ptd_entry.get("type")
-        if best_sim >= JACCARD_THRESHOLD and matched_type is not None:
+        
+        if expected_queries:
+            exp_vec = _embedder.embed_passages([exp_q])[0]
+            for ptd_entry in predicate_type_dict:
+                pred_q = ptd_entry.get("query", "")
+                if not pred_q: continue
+                pred_vec = _embedder.embed_passages([pred_q])[0]
+                sim = _cosine_sim(exp_vec, pred_vec)
+                if sim > best_sim:
+                    best_sim = sim
+                    matched_type = ptd_entry.get("type")
+                    
+        if best_sim >= 0.8 and matched_type is not None:
             if matched_type == exp_type:
                 classification_correct += 1
 
@@ -216,24 +163,10 @@ def compute_claim_metrics(
         classification_correct / classification_total if classification_total > 0 else 0.0
     )
 
-    # 5. Filter precision & recall
-    #    Expected verifiable count vs. predicted verifiable subclaims
     predicted_verifiable_count = len(verifiable_subclaims)
-
-    # Filter precision: of the predicates the filter kept, how many were correct?
-    # We approximate: if the filter output count is <= expected_verifiable_count, precision = 1
-    # (since we don't have per-subclaim ground truth matching here, we use count-based proxy)
-    #
-    # For a more precise version, we'd match each verifiable_subclaim to expected verifiable predicates.
-    # Here we use the count-based heuristic:
-    expected_verifiable_set_size = expected_verifiable_count
-    actual_verifiable_set_size = predicted_verifiable_count
-
-    # True positives: min of expected and predicted (assuming alignment)
-    # This is a simplification; real TP would need content matching
-    tp = min(expected_verifiable_set_size, actual_verifiable_set_size)
-    fp = max(0, actual_verifiable_set_size - expected_verifiable_set_size)
-    fn = max(0, expected_verifiable_set_size - actual_verifiable_set_size)
+    tp = min(expected_verifiable_count, predicted_verifiable_count)
+    fp = max(0, predicted_verifiable_count - expected_verifiable_count)
+    fn = max(0, expected_verifiable_count - predicted_verifiable_count)
 
     filter_precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     filter_recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
@@ -247,23 +180,20 @@ def compute_claim_metrics(
         "predicate_count_delta": count_delta,
         "over_decomposed": over,
         "under_decomposed": under,
-        "subject_overlap_score": round(subject_overlap, 4),
-        "object_overlap_score": round(object_overlap, 4),
-        "relation_overlap_score": round(relation_overlap, 4),
+        "semantic_overlap_score": round(semantic_overlap, 4),
         "classification_accuracy": round(classification_accuracy, 4),
         "expected_verifiable_count": expected_verifiable_count,
         "predicted_verifiable_count": predicted_verifiable_count,
         "filter_precision": round(filter_precision, 4),
         "filter_recall": round(filter_recall, 4),
-        "predicted_predicates": predicted_predicates,
+        "predicted_queries": predicted_queries,
         "predicted_predicate_type_dict": predicate_type_dict,
         "predicted_verifiable_subclaims": verifiable_subclaims,
-        "expected_predicates": expected_predicates,
+        "expected_queries": expected_queries_objs,
     }
 
 
 def compute_aggregate_metrics(results: list[dict]) -> dict[str, Any]:
-    """Compute aggregate metrics across all claims."""
     n = len(results)
     if n == 0:
         return {}
@@ -278,9 +208,7 @@ def compute_aggregate_metrics(results: list[dict]) -> dict[str, Any]:
         "total_claims": n,
         "predicate_count_accuracy": _rate("predicate_count_match"),
         "avg_predicate_count_delta": _avg("predicate_count_delta"),
-        "avg_subject_overlap": _avg("subject_overlap_score"),
-        "avg_object_overlap": _avg("object_overlap_score"),
-        "avg_relation_overlap": _avg("relation_overlap_score"),
+        "avg_semantic_overlap": _avg("semantic_overlap_score"),
         "avg_classification_accuracy": _avg("classification_accuracy"),
         "avg_filter_precision": _avg("filter_precision"),
         "avg_filter_recall": _avg("filter_recall"),
@@ -289,25 +217,15 @@ def compute_aggregate_metrics(results: list[dict]) -> dict[str, Any]:
     }
 
 
-# ===========================================================================
-# Console reporting
-# ===========================================================================
-
-_SEP = "-" * 70
-
-
 def print_claim_report(gold_entry: dict, metrics: dict) -> None:
-    """Print a compact per-claim report to the console."""
-    print(f"\n{_SEP}")
+    print(f"\n{'-' * 70}")
     print(f"  Claim: {gold_entry['claim_id']}  ({gold_entry.get('complexity', '?')})")
     print(f"  Text:  {gold_entry['claim'][:100]}...")
-    print(f"{_SEP}")
+    print(f"{'-' * 70}")
     print(f"  Predicates:  expected={metrics['expected_predicate_count']}  "
           f"predicted={metrics['predicted_predicate_count']}  "
           f"{'OK' if metrics['predicate_count_match'] else 'FAIL'}")
-    print(f"  Overlap:     subject={metrics['subject_overlap_score']:.2f}  "
-          f"object={metrics['object_overlap_score']:.2f}  "
-          f"relation={metrics['relation_overlap_score']:.2f}")
+    print(f"  Overlap:     semantic={metrics['semantic_overlap_score']:.2f}")
     print(f"  Classify:    accuracy={metrics['classification_accuracy']:.2f}")
     print(f"  Filter:      precision={metrics['filter_precision']:.2f}  "
           f"recall={metrics['filter_recall']:.2f}")
@@ -318,16 +236,13 @@ def print_claim_report(gold_entry: dict, metrics: dict) -> None:
 
 
 def print_aggregate_report(agg: dict) -> None:
-    """Print the final aggregate summary."""
     print(f"\n{'=' * 70}")
     print("  AGGREGATE METRICS")
     print(f"{'=' * 70}")
     print(f"  Total claims tested:         {agg.get('total_claims', 0)}")
     print(f"  Predicate count accuracy:    {agg.get('predicate_count_accuracy', 0):.2%}")
     print(f"  Avg predicate count delta:   {agg.get('avg_predicate_count_delta', 0):.2f}")
-    print(f"  Avg subject overlap:         {agg.get('avg_subject_overlap', 0):.2%}")
-    print(f"  Avg object overlap:          {agg.get('avg_object_overlap', 0):.2%}")
-    print(f"  Avg relation overlap:        {agg.get('avg_relation_overlap', 0):.2%}")
+    print(f"  Avg semantic overlap:        {agg.get('avg_semantic_overlap', 0):.2%}")
     print(f"  Avg classification accuracy: {agg.get('avg_classification_accuracy', 0):.2%}")
     print(f"  Avg filter precision:        {agg.get('avg_filter_precision', 0):.2%}")
     print(f"  Avg filter recall:           {agg.get('avg_filter_recall', 0):.2%}")
@@ -336,17 +251,11 @@ def print_aggregate_report(agg: dict) -> None:
     print(f"{'=' * 70}")
 
 
-# ===========================================================================
-# Main
-# ===========================================================================
-
-
 def main() -> None:
     print("\n" + "=" * 66)
     print("           ABLATION TEST -- DECOMPOSE STAGE")
     print("=" * 66 + "\n")
 
-    # -- Load gold set -------------------------------------------------
     if not GOLD_SET_PATH.exists():
         print(f"ERROR: Gold set not found at {GOLD_SET_PATH}")
         sys.exit(1)
@@ -357,7 +266,6 @@ def main() -> None:
     gold_claims = gold_data.get("gold_claims", [])
     print(f"Loaded {len(gold_claims)} claims from gold set\n")
 
-    # -- Setup LLM agents (standalone -- no full FactAgent needed) ------
     provider = config.get("llm.provider", "google")
     provider_settings = config.get(f"llm.providers.{provider}", {})
     model_name = provider_settings.get(
@@ -368,8 +276,7 @@ def main() -> None:
 
     print(f"Provider:    {provider}")
     print(f"Model:       {model_name}")
-    print(f"Temperature: {temperature}")
-    print(f"Jaccard thr: {JACCARD_THRESHOLD}\n")
+    print(f"Temperature: {temperature}\n")
 
     base_llm = get_llm_with_tools(
         [],
@@ -387,10 +294,8 @@ def main() -> None:
         claim_classification, method="function_calling"
     )
 
-    # -- Build decompose graph -----------------------------------------
     decompose_graph = build_decompose_graph(decomposition_agent, classification_agent)
 
-    # -- Run tests -----------------------------------------------------
     all_results: list[dict] = []
     total_time = 0.0
 
@@ -406,7 +311,6 @@ def main() -> None:
             )
         except Exception as exc:
             print(f"  ERROR invoking graph: {exc}")
-            # Record a failure entry
             all_results.append({
                 "claim_id": claim_id,
                 "claim": claim_text,
@@ -417,18 +321,16 @@ def main() -> None:
                 "predicate_count_delta": gold_entry.get("expected_predicate_count", 0),
                 "over_decomposed": False,
                 "under_decomposed": True,
-                "subject_overlap_score": 0.0,
-                "object_overlap_score": 0.0,
-                "relation_overlap_score": 0.0,
+                "semantic_overlap_score": 0.0,
                 "classification_accuracy": 0.0,
                 "expected_verifiable_count": gold_entry.get("expected_verifiable_count", 0),
                 "predicted_verifiable_count": 0,
                 "filter_precision": 0.0,
                 "filter_recall": 0.0,
-                "predicted_predicates": [],
+                "predicted_queries": [],
                 "predicted_predicate_type_dict": [],
                 "predicted_verifiable_subclaims": [],
-                "expected_predicates": gold_entry.get("expected_predicates", []),
+                "expected_queries": gold_entry.get("expected_queries", []),
             })
             continue
 
@@ -436,17 +338,14 @@ def main() -> None:
         total_time += elapsed
         print(f"  Completed in {elapsed:.1f}s")
 
-        # Compute metrics
         metrics = compute_claim_metrics(response, gold_entry)
         all_results.append(metrics)
         print_claim_report(gold_entry, metrics)
 
-    # -- Aggregate -----------------------------------------------------
     aggregate = compute_aggregate_metrics(all_results)
     print_aggregate_report(aggregate)
     print(f"\nTotal execution time: {total_time:.1f}s")
 
-    # -- Save JSON report ----------------------------------------------
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report_path = REPORTS_DIR / f"decompose_report_{timestamp}.json"
@@ -457,7 +356,6 @@ def main() -> None:
             "provider": provider,
             "model_name": model_name,
             "temperature": temperature,
-            "jaccard_threshold": JACCARD_THRESHOLD,
         },
         "total_execution_time_s": round(total_time, 2),
         "per_claim_results": all_results,
@@ -468,7 +366,6 @@ def main() -> None:
         json.dump(report, f, indent=2, ensure_ascii=False, default=str)
 
     print(f"\nReport saved to: {report_path}")
-
 
 if __name__ == "__main__":
     main()
