@@ -135,6 +135,29 @@ claim_decomposition_examples = [
             }
         ],
     },
+    {
+        "input_claim": "If the patient presents with an EGFR gene mutation or an ALK translocation, non-small cell lung cancer (NSCLC) responds positively to targeted molecular therapies, although acquired resistance may develop within 10-14 months of starting treatment.",
+        "predicates": [
+            {
+                "relation": "Responds",
+                "subject": "NSCLC with EGFR gene mutation",
+                "object": "targeted molecular therapies",
+                "search_query": "NSCLC responds positively to targeted molecular therapies in patients with an EGFR gene mutation."
+            },
+            {
+                "relation": "Responds",
+                "subject": "NSCLC with ALK translocation",
+                "object": "targeted molecular therapies",
+                "search_query": "NSCLC responds positively to targeted molecular therapies in patients with an ALK translocation."
+            },
+            {
+                "relation": "Develop",
+                "subject": "Acquired resistance to targeted molecular therapies in NSCLC",
+                "object": "within 10-14 months of starting treatment",
+                "search_query": "Acquired resistance to targeted molecular therapies in NSCLC may develop within 10-14 months of starting treatment."
+            }
+        ],
+    },
 ]
 
 # Claim decomposition prompt
@@ -150,6 +173,11 @@ Important:
 - If the claim is ambiguous, underspecified, or not safely splittable, return the original claim as a single subclaim instead of forcing a decomposition.
 - Ignore subjective opinions, recommendations, and normative fragments that are not factual claims.
 - Do not turn a recommendation into a factual predicate.
+
+Structural rules:
+- CONDITIONALS: If a fact is conditioned on a premise ("if X then Y", "when X", "in patients with X"), incorporate the condition INTO each derived subclaim. Never extract the condition as a standalone predicate. Example: "If EGFR is mutated, NSCLC responds to therapy" becomes "NSCLC responds to therapy in patients with EGFR mutation" — NOT two separate claims.
+- DISJUNCTIONS: If a claim contains "X or Y", split into separate subclaims — one for X and one for Y — each carrying the full surrounding context. Example: "EGFR mutation or ALK translocation" becomes two subclaims, one about EGFR and one about ALK.
+- COREFERENCE: Every subclaim must name the disease, treatment, and population explicitly. Never use "the treatment", "those affected", or "it" — replace with the actual entity from the original claim.
 
 Content rules:
 - Keep each predicate minimal: one fact per item.
