@@ -65,35 +65,6 @@ claim_decomposition_examples = [
         "predicates": []
     },
     {
-        "input_claim": "Alfredo Cornejo Cuevas was born on June 6, 1933. He won the gold medal in the welterweight division at the 1959 Pan American Games in Chicago, United States. The 1959 Pan American Games were held in Chicago, United States. He also won the world amateur welterweight title in Mexico City.",
-        "predicates": [
-            {
-                "relation": "Born",
-                "subject": "Alfredo Cornejo Cuevas",
-                "object": "June 6, 1933",
-                "search_query": "Alfredo Cornejo Cuevas was born on June 6, 1933."
-            },
-            {
-                "relation": "Won",
-                "subject": "Alfredo Cornejo Cuevas",
-                "object": "the gold medal in the welterweight division at the Pan American Games in 1959",
-                "search_query": "Alfredo Cornejo Cuevas won the gold medal in the welterweight division at the Pan American Games in 1959."
-            },
-            {
-                "relation": "Held",
-                "subject": "The Pan American Games in 1959",
-                "object": "Chicago, United States",
-                "search_query": "The Pan American Games in 1959 were held in Chicago, United States."
-            },
-            {
-                "relation": "Won",
-                "subject": "Alfredo Cornejo Cuevas",
-                "object": "the world amateur welterweight title in Mexico City",
-                "search_query": "Alfredo Cornejo Cuevas won the world amateur welterweight title in Mexico City."
-            }
-        ],
-    },
-    {
         "input_claim": "Daily vitamin D supplementation reduces the risk of osteoporosis in postmenopausal women, and people with kidney stones are sometimes advised to avoid it because it can worsen nephrolithiasis.",
         "predicates": [
             {
@@ -111,13 +82,19 @@ claim_decomposition_examples = [
         ],
     },
     {
-        "input_claim": "The treatment may help in some cases.",
+        "input_claim": "They're pushing this new injection that's supposed to clear it up in weeks, but everyone online says it just makes the redness worse and your wallet lighter.",
         "predicates": [
             {
-                "relation": "Claim",
-                "subject": "The treatment may help in some cases",
-                "object": "The treatment may help in some cases",
-                "search_query": "The treatment may help in some cases."
+                "relation": "Supposed to clear",
+                "subject": "The new injection",
+                "object": "it up in weeks",
+                "search_query": "The new injection is supposed to clear it up in weeks."
+            },
+            {
+                "relation": "Says",
+                "subject": "Everyone online",
+                "object": "the new injection just makes the redness worse and your wallet lighter",
+                "search_query": "Everyone online says the new injection just makes the redness worse and your wallet lighter."
             }
         ],
     },
@@ -155,9 +132,15 @@ claim_decomposition_examples = [
             },
             {
                 "relation": "Develop",
-                "subject": "Acquired resistance to targeted molecular therapies in NSCLC",
+                "subject": "Acquired resistance to targeted molecular therapies",
                 "object": "within 10-14 months of starting treatment",
-                "search_query": "Acquired resistance to targeted molecular therapies in NSCLC may develop within 10-14 months of starting treatment."
+                "search_query": "Acquired resistance to targeted molecular therapies may develop within 10-14 months of starting treatment in NSCLC patients with an EGFR gene mutation."
+            },
+            {
+                "relation": "Develop",
+                "subject": "Acquired resistance to targeted molecular therapies",
+                "object": "within 10-14 months of starting treatment",
+                "search_query": "Acquired resistance to targeted molecular therapies may develop within 10-14 months of starting treatment in NSCLC patients with an ALK translocation."
             }
         ],
     },
@@ -288,6 +271,10 @@ claim_decomposition_examples = [
             }
         ],
     },
+    {
+        "input_claim": "penicillina",
+        "predicates": []
+    }
 ]
 
 # Claim decomposition prompt
@@ -295,37 +282,23 @@ claim_decomposition_prompt = f"""
 You are given a problem description and a claim. Split the claim into atomic predicates (extracting BOTH factual assertions and subjective opinions) and return only structured predicate objects.
 
 Important:
-- EMPTY/GIBBERISH CLAIMS: If the input claim is meaningless, purely conversational, or contains no extractable assertions (e.g., "wtf", "hello"), you MUST return an empty list `[]` for predicates. Do NOT hallucinate facts from the examples.
-- Never return an empty list when the claim contains factual content.
-- Split conjunctive claims into separate subclaims.
-- Keep each subclaim grounded in the original claim; do not invent new facts or overgeneralize.
-- STRICT FAITHFULNESS: Extract EXACTLY what the claim asserts, even if you know it is factually incorrect, absurd, or false. Do NOT auto-correct the claim or substitute entities with the 'correct' real-world facts (e.g., if the claim says 'X invented Y', do not replace 'X' with the actual inventor).
-- Prefer 1 factual statement per subclaim.
-- If the claim is compound, produce one subclaim for each independently checkable fact.
-- If the claim is ambiguous, underspecified, or not safely splittable, return the original claim as a single subclaim instead of forcing a decomposition.
-- EXTRACT EVERYTHING: Extract ALL assertions from the text, including subjective opinions, anecdotal reports, recommendations, and normative statements. Do not filter them out during decomposition. The downstream classifier will decide if they are verifiable or not.
+- EMPTY/FRAGMENTS: If the input is a single word, purely conversational, or a verb-less fragment (e.g., "wtf", "hello", "penicillin"), return an empty list `[]`. Do NOT guess or hallucinate facts from prompt examples.
+- ATOMICITY: Split compound/conjunctive claims into multiple subclaims. Each subclaim MUST contain exactly one independently verifiable fact.
+- FAITHFULNESS: Extract EXACTLY what is asserted, even if false. Do NOT auto-correct or add external info. Do not invent facts.
+- EXTRACT EVERYTHING: Include subjective opinions, anecdotal reports, and recommendations. The downstream classifier will filter them.
 
 Structural rules:
-- CONDITIONALS: If a fact is conditioned on a premise ("if X then Y", "when X", "in patients with X"), incorporate the condition INTO each derived subclaim. Never extract the condition as a standalone predicate. Example: "If EGFR is mutated, NSCLC responds to therapy" becomes "NSCLC responds to therapy in patients with EGFR mutation" — NOT two separate claims.
-- EXCEPTIONS: If a claim contains an exception ("unless X", "except in Y"), convert it into a negative condition ("in patients without X") and attach it to the main claim. If the exception has an alternative ("unless X, in which case Z"), extract the main claim with the negative condition ("in patients without X") AND extract the alternative with the positive condition ("Z if the patient has X").
-- ALTERNATIVES ("otherwise"): If a claim specifies a strict condition and an alternative ("only if X; otherwise Y"), split into two claims: the main action with the positive condition ("if X"), and the alternative Y with the INVERTED condition ("if NOT X"). Ensure both claims retain the full context.
-- DISJUNCTIONS: If a claim contains "X or Y", split into separate subclaims — one for X and one for Y — each carrying the full surrounding context. Example: "EGFR mutation or ALK translocation" becomes two subclaims, one about EGFR and one about ALK.
-- COREFERENCE: Every subclaim must name the entities explicitly. Resolve ALL pronouns ("it", "they", "their", "this") and abstract references ("the treatment", "the company", "this outcome", "an achievement") to the exact nouns or full events from the original claim.
-- BACKGROUND FACTS: Extract embedded facts even if they are presented as noun phrases or contextual background (e.g., "Despite the lawsuit..." -> "There is a lawsuit..."). Treat them as independent assertions.
+- CONDITIONALS & EXCEPTIONS: If a fact has a premise ("if X", "unless Y"), incorporate it into EACH derived subclaim (e.g., "in patients with X", "in patients without Y"). CRITICAL: Carry the condition into ALL trailing clauses ("as it may lead to Z").
+- ALTERNATIVES: For "only if X; otherwise Y", split into "action if X" and "action if NOT X".
+- DISJUNCTIONS: "X or Y" becomes two subclaims (one for X, one for Y).
+- COREFERENCE: Name entities explicitly. Resolve ALL pronouns ("it", "this treatment") to the exact nouns.
+- ATTRIBUTIONS: If a claim is an opinion/rumor ("people say X"), include the attribution ("people say") in the subclaim.
+- BACKGROUND FACTS: Extract embedded contextual facts (e.g., "Despite the lawsuit..." -> "There is a lawsuit").
 
 Content rules:
-- Keep each predicate minimal: one fact per item.
-- Break down the original claim into multiple, atomic subclaims that can each be independently verified.
-- The subclaims MUST be natural language sentences, formulated as statements (not questions).
-- The subclaims must be completely self-contained. Resolve any pronouns (e.g. "it", "they") to the original entities.
-- Ensure you extract all the assertions in the claim, no matter how small.
-- Do NOT add external information that is not present in the original claim.
-- CRITICAL: You must output valid JSON using DOUBLE QUOTES (") for all string keys and values. Never use single quotes to enclose strings.
-- When using the fallback, preserve the original claim wording as closely as possible.
-- Use active voice and correct English.
-- Prefer normalized nouns over gerunds (e.g., "daily vitamin D supplementation" over "taking a daily vitamin D supplement").
-- Prefer explicit subjects (e.g., "people with kidney stones" over "those").
-- Avoid vague wording, pronouns without referents, and "should be avoided by" phrasing.
+- Subclaims MUST be self-contained natural language statement sentences (not questions).
+- CRITICAL: Output valid JSON using DOUBLE QUOTES (") for strings.
+- Prefer explicit subjects and normalized nouns. Use active voice.
 
 Return the result in JSON format, as shown in the example below.
 Here are examples:
@@ -371,7 +344,7 @@ claim_classification = {
 
 # Claim classification prompt
 claim_classification_prompt = f"""
-You are an expert in claim verification. Your task is to determine whether each query is VERIFIABLE or NON-VERIFIABLE.
+You are an expert in claim verification. Your task is to determine whether each query is VERIFIABLE, NON-VERIFIABLE, or OUT-OF-DOMAIN.
 
 ## Definition
 A VERIFIABLE claim is any factual assertion about the world that could, in principle, be checked against objective evidence (scientific studies, databases, official records, measurements). It does NOT matter whether the claim is true, false, controversial, or about an obscure topic — only whether evidence could confirm or refute it. IMPORTANT: For this task, it MUST be related to medicine, health, biology, or clinical practice.
@@ -380,11 +353,12 @@ A NON-VERIFIABLE claim is ONLY one that:
 - Expresses a purely subjective opinion or personal preference ("X is the best", "I believe...", "the most elegant breakthrough")
 - Makes a normative or ethical judgment about what "should" be done
 - States a recommendation without attributing it to a source
-- Is an anecdotal, vague, or purely qualitative report lacking clinical metrics (e.g., "patients generally report feeling more energetic")
+- Is an anecdotal, vague, or purely qualitative report lacking clinical metrics (e.g., "patients generally report feeling more energetic", "everyone online says")
+- Relies on idioms, metaphors, or vague hyperboles (e.g., "makes your wallet lighter", "a mystical healing process")
 - Is so vague that no specific fact can be checked
 
 An OUT-OF-DOMAIN claim is one that:
-- Is a verifiable fact, but has absolutely nothing to do with medical science, health, human biology, or clinical practice (e.g., pop culture, general history, geography, entertainment, corporate financial/stock data, revenue drops, or legal disputes). Even if a pharmaceutical company is mentioned, pure financial or legal facts are OUT-OF-DOMAIN.
+- Is a verifiable fact, but has absolutely nothing to do with medical science, health, human biology, or clinical practice (e.g., software engineering, IT, pop culture, general history, geography, entertainment, corporate financial/stock data, revenue drops, or legal disputes). Even if a pharmaceutical company is mentioned, pure financial or legal facts are OUT-OF-DOMAIN.
 
 ## Critical rules — do NOT make these mistakes:
 - A claim with a NEGATION is still verifiable ("X does NOT cause Y" → VERIFIABLE)
@@ -412,6 +386,7 @@ An OUT-OF-DOMAIN claim is one that:
 - "The film Parasite won the Academy Award for Best Picture in 2020." (Verifiable, but entertainment)
 - "Geolier has written the song Soldati." (Verifiable, but music/pop culture)
 - "AWS S3 storage fees have recently increased by 15%." (Verifiable, but technology/business)
+- "The new software update reduces ETL pipeline execution time by 40%." (Verifiable, but software engineering/IT)
 
 Classify each query only by whether it can be checked against objective evidence. Do not judge usefulness, plausibility, importance, or desirability. Do not rewrite the query; only assign a label.
 
