@@ -1,0 +1,768 @@
+{
+  "run_timestamp": "2026-05-28T23:59:55.390111",
+  "config": {
+    "provider": "nvidia",
+    "model_name": "meta/llama-3.1-8b-instruct",
+    "temperature": 0.2
+  },
+  "total_execution_time_s": 53.03,
+  "per_claim_results": [
+    {
+      "claim_id": "scifact_1320",
+      "claim": "Transplanted human glial progenitor cells are incapable of forming a neural network with host animals' neurons.",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9977,
+      "classification_accuracy": 0.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 0,
+      "filter_precision": 0.0,
+      "filter_recall": 0.0,
+      "predicted_queries": [
+        "Transplanted human glial progenitor cells are incapable of forming a neural network with host animals' neurons."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Transplanted human glial progenitor cells are incapable of forming a neural network with host animals' neurons.",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [],
+      "expected_queries": [
+        {
+          "query": "Transplanted human glial progenitor cells incapable of forming a neural network with host animals' neurons.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_42",
+      "claim": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 2,
+      "predicate_count_match": false,
+      "predicate_count_delta": 1,
+      "over_decomposed": true,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.999,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 2,
+      "filter_precision": 0.5,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+        "Homozygous alpha (+)- thalassemia trait subjects have a high microerythrocyte count."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Homozygous alpha (+)- thalassemia trait subjects have a high microerythrocyte count.",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+        "Homozygous alpha (+)- thalassemia trait subjects have a high microerythrocyte count."
+      ],
+      "expected_queries": [
+        {
+          "query": "A high microerythrocyte count raises vulnerability severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_113",
+      "claim": "Angiotensin converting enzyme inhibitors are associated with increased risk for functional renal insufficiency.",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9968,
+      "classification_accuracy": 0.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 0,
+      "filter_precision": 0.0,
+      "filter_recall": 0.0,
+      "predicted_queries": [
+        "Angiotensin converting enzyme inhibitors are associated with increased risk for functional renal insufficiency."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Angiotensin converting enzyme inhibitors are associated with increased risk for functional renal insufficiency.",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [],
+      "expected_queries": [
+        {
+          "query": "Angiotensin converting enzyme inhibitors associated with increased risk for functional renal insufficiency.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_1259",
+      "claim": "The relationship between a breast cancer patient's capacity to metabolize tamoxifen and treatment outcome is dependent on the patient's genetic make-up.",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9738,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "The relationship between a breast cancer patient's capacity to metabolize tamoxifen and treatment outcome is dependent on the patient's genetic make-up."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "The relationship between a breast cancer patient's capacity to metabolize tamoxifen and treatment outcome is dependent on the patient's genetic make-up.",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "The relationship between a breast cancer patient's capacity to metabolize tamoxifen and treatment outcome is dependent on the patient's genetic make-up."
+      ],
+      "expected_queries": [
+        {
+          "query": "The relationship between tamoxifen metabolism capacity and treatment outcome in breast cancer patients depends on the patient's genetic make-up.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_1359",
+      "claim": "Varenicline monotherapy is more effective after 12 weeks of treatment compared to combination nicotine replacement therapies with varenicline or bupropion.",
+      "expected_predicate_count": 2,
+      "predicted_predicate_count": 2,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9837,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 2,
+      "predicted_verifiable_count": 2,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "Varenicline monotherapy is more effective after 12 weeks of treatment compared to combination nicotine replacement therapies with varenicline or bupropion.",
+        "Combination nicotine replacement therapies with varenicline or bupropion are less effective after 12 weeks of treatment compared to Varenicline monotherapy."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Varenicline monotherapy is more effective after 12 weeks of treatment compared to combination nicotine replacement therapies with varenicline or bupropion.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Combination nicotine replacement therapies with varenicline or bupropion are less effective after 12 weeks of treatment compared to Varenicline monotherapy.",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Varenicline monotherapy is more effective after 12 weeks of treatment compared to combination nicotine replacement therapies with varenicline or bupropion.",
+        "Combination nicotine replacement therapies with varenicline or bupropion are less effective after 12 weeks of treatment compared to Varenicline monotherapy."
+      ],
+      "expected_queries": [
+        {
+          "query": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with varenicline.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with bupropion.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_1298",
+      "claim": "Thigh-length graduated compression stockings (GCS) did not reduce deep vein thrombosis in patients admitted to hospital who are immobile because of acute stroke.",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9914,
+      "classification_accuracy": 0.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 0,
+      "filter_precision": 0.0,
+      "filter_recall": 0.0,
+      "predicted_queries": [
+        "Thigh-length graduated compression stockings (GCS) did not reduce deep vein thrombosis in patients admitted to hospital who are immobile because of acute stroke."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [],
+      "expected_queries": [
+        {
+          "query": "Thigh-length graduated compression stockings (GCS) did not reduce deep vein thrombosis in patients immobile due to acute stroke.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_9",
+      "claim": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 1.0,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001."
+      ],
+      "expected_queries": [
+        {
+          "query": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_3",
+      "claim": "Does metformin interfere thyroxine absorption?",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9827,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "Does metformin interfere with thyroxine absorption?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Does metformin interfere with thyroxine absorption?",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Does metformin interfere with thyroxine absorption?"
+      ],
+      "expected_queries": [
+        {
+          "query": "Metformin interferes thyroxine absorption.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_5",
+      "claim": "Is the monoclonal antibody Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9932,
+      "classification_accuracy": 0.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 0,
+      "filter_precision": 0.0,
+      "filter_recall": 0.0,
+      "predicted_queries": [
+        "Is Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Is Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [],
+      "expected_queries": [
+        {
+          "query": "Trastuzumab (Herceptin) potential use in treatment of prostate cancer.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_11",
+      "claim": "Is irritable bowel syndrome more common in women with endometriosis?",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9934,
+      "classification_accuracy": 0.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 0,
+      "filter_precision": 0.0,
+      "filter_recall": 0.0,
+      "predicted_queries": [
+        "Is irritable bowel syndrome more common in women with endometriosis?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Is irritable bowel syndrome more common in women with endometriosis?",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [],
+      "expected_queries": [
+        {
+          "query": "Irritable bowel syndrome more common in women with endometriosis.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_8",
+      "claim": "Proteomic analyses need prior knowledge of the organism complete genome. Is the complete genome of the bacteria of the genus Arthrobacter available?",
+      "expected_predicate_count": 2,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": false,
+      "predicate_count_delta": 1,
+      "over_decomposed": false,
+      "under_decomposed": true,
+      "semantic_overlap_score": 0.4335,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 2,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 0.5,
+      "predicted_queries": [
+        "Is the complete genome of the bacteria of the genus Arthrobacter available?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Is the complete genome of the bacteria of the genus Arthrobacter available?",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Is the complete genome of the bacteria of the genus Arthrobacter available?"
+      ],
+      "expected_queries": [
+        {
+          "query": "Proteomic analyses requires prior knowledge of the organism complete genome.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Complete genome of bacteria of the genus Arthrobacter is available availability status.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_37",
+      "claim": "Is amiodarone a class I anti-arrhythmic drug?",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9758,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "Is amiodarone a Class I anti-arrhythmic drug?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Is amiodarone a Class I anti-arrhythmic drug?",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Is amiodarone a Class I anti-arrhythmic drug?"
+      ],
+      "expected_queries": [
+        {
+          "query": "Amiodarone belongs to class class I anti-arrhythmic drugs.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_43",
+      "claim": "Is glycyl-tRNA synthetase gene involved in the development of Charcot-Marie-Tooth disease?",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.991,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "Is the glycyl-tRNA synthetase gene involved in the development of Charcot-Marie-Tooth disease?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Is the glycyl-tRNA synthetase gene involved in the development of Charcot-Marie-Tooth disease?",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Is the glycyl-tRNA synthetase gene involved in the development of Charcot-Marie-Tooth disease?"
+      ],
+      "expected_queries": [
+        {
+          "query": "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_5",
+      "claim": "Does the F.X. Mayr cure have health benefits? Can it prevent diseases or treat them?",
+      "expected_predicate_count": 3,
+      "predicted_predicate_count": 3,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9959,
+      "classification_accuracy": 0.3333,
+      "expected_verifiable_count": 3,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 0.3333,
+      "predicted_queries": [
+        "The F.X. Mayr cure has health benefits.",
+        "The F.X. Mayr cure can prevent diseases.",
+        "The F.X. Mayr cure can treat diseases."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "The F.X. Mayr cure has health benefits.",
+          "type": "verifiable"
+        },
+        {
+          "query": "The F.X. Mayr cure can prevent diseases.",
+          "type": "non-verifiable"
+        },
+        {
+          "query": "The F.X. Mayr cure can treat diseases.",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "The F.X. Mayr cure has health benefits."
+      ],
+      "expected_queries": [
+        {
+          "query": "F.X. Mayr cure has benefits health benefits.",
+          "type": "verifiable"
+        },
+        {
+          "query": "F.X. Mayr cure can prevent diseases.",
+          "type": "verifiable"
+        },
+        {
+          "query": "F.X. Mayr cure can treat diseases.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_9",
+      "claim": "Does regular HPV testing in addition to the recommended Pap smear detect more precancerous lesions than just the Pap smear alone?",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9885,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "Does regular HPV testing in addition to the recommended Pap smear detect more precancerous lesions than just the Pap smear alone?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Does regular HPV testing in addition to the recommended Pap smear detect more precancerous lesions than just the Pap smear alone?",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Does regular HPV testing in addition to the recommended Pap smear detect more precancerous lesions than just the Pap smear alone?"
+      ],
+      "expected_queries": [
+        {
+          "query": "Regular HPV testing in addition to Pap smear detects more precancerous lesions compared to Pap smear alone.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_24",
+      "claim": "Can extract from St. John's wort relieve the symptoms of depression? Is it similarly effective as drugs against depression (antidepressants)?",
+      "expected_predicate_count": 2,
+      "predicted_predicate_count": 2,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9757,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 2,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 0.5,
+      "predicted_queries": [
+        "St. John's wort relieves the symptoms of depression.",
+        "Is St. John's wort similarly effective as antidepressants?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "St. John's wort relieves the symptoms of depression.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Is St. John's wort similarly effective as antidepressants?",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "St. John's wort relieves the symptoms of depression."
+      ],
+      "expected_queries": [
+        {
+          "query": "St. John's wort extract relieves symptoms of depression.",
+          "type": "verifiable"
+        },
+        {
+          "query": "St. John's wort extract similarly effective antidepressants for treating depression.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_31",
+      "claim": "Does covid vaccination reduce the likelihood of getting long-lasting symptoms (long covid) in case of corona infection?",
+      "expected_predicate_count": 1,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9817,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 1,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 1.0,
+      "predicted_queries": [
+        "Does covid vaccination reduce the likelihood of getting long-lasting symptoms (long covid) in case of corona infection?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Does covid vaccination reduce the likelihood of getting long-lasting symptoms (long covid) in case of corona infection?",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Does covid vaccination reduce the likelihood of getting long-lasting symptoms (long covid) in case of corona infection?"
+      ],
+      "expected_queries": [
+        {
+          "query": "COVID vaccination reduces likelihood long-lasting symptoms (long COVID) after corona infection.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_25",
+      "claim": "Does the Zisano bracelet strengthen the immune system, increase endurance and performance or reduce fatigue?",
+      "expected_predicate_count": 3,
+      "predicted_predicate_count": 3,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.9949,
+      "classification_accuracy": 0.0,
+      "expected_verifiable_count": 3,
+      "predicted_verifiable_count": 0,
+      "filter_precision": 0.0,
+      "filter_recall": 0.0,
+      "predicted_queries": [
+        "The Zisano bracelet strengthens the immune system.",
+        "The Zisano bracelet increases endurance and performance.",
+        "The Zisano bracelet reduces fatigue."
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "The Zisano bracelet strengthens the immune system.",
+          "type": "non-verifiable"
+        },
+        {
+          "query": "The Zisano bracelet increases endurance and performance.",
+          "type": "non-verifiable"
+        },
+        {
+          "query": "The Zisano bracelet reduces fatigue.",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [],
+      "expected_queries": [
+        {
+          "query": "Zisano bracelet strengthens the immune system.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Zisano bracelet increases endurance and performance.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Zisano bracelet reduces fatigue.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_36",
+      "claim": "Does transcranial pulse stimulation (TPS) improve mental performance in people with Alzheimer's dementia? Can the treatment improve the quality of life of those affected?",
+      "expected_predicate_count": 2,
+      "predicted_predicate_count": 2,
+      "predicate_count_match": true,
+      "predicate_count_delta": 0,
+      "over_decomposed": false,
+      "under_decomposed": false,
+      "semantic_overlap_score": 0.4953,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 2,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 0.5,
+      "predicted_queries": [
+        "Does transcranial pulse stimulation (TPS) improve mental performance in people with Alzheimer's dementia?",
+        "Can the treatment improve the quality of life of those affected?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Does transcranial pulse stimulation (TPS) improve mental performance in people with Alzheimer's dementia?",
+          "type": "verifiable"
+        },
+        {
+          "query": "Can the treatment improve the quality of life of those affected?",
+          "type": "non-verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Does transcranial pulse stimulation (TPS) improve mental performance in people with Alzheimer's dementia?"
+      ],
+      "expected_queries": [
+        {
+          "query": "Transcranial pulse stimulation (TPS) improves mental performance in people with Alzheimer's dementia.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Transcranial pulse stimulation (TPS) improves quality of life of Alzheimer's dementia patients.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_43",
+      "claim": "Do sedatives and sleeping pills such as benzodiazepines and related substances increase the risk of Alzheimer's disease or other forms of dementia?",
+      "expected_predicate_count": 2,
+      "predicted_predicate_count": 1,
+      "predicate_count_match": false,
+      "predicate_count_delta": 1,
+      "over_decomposed": false,
+      "under_decomposed": true,
+      "semantic_overlap_score": 0.4925,
+      "classification_accuracy": 1.0,
+      "expected_verifiable_count": 2,
+      "predicted_verifiable_count": 1,
+      "filter_precision": 1.0,
+      "filter_recall": 0.5,
+      "predicted_queries": [
+        "Do sedatives and sleeping pills such as benzodiazepines and related substances increase the risk of Alzheimer's disease or other forms of dementia?"
+      ],
+      "predicted_predicate_type_dict": [
+        {
+          "query": "Do sedatives and sleeping pills such as benzodiazepines and related substances increase the risk of Alzheimer's disease or other forms of dementia?",
+          "type": "verifiable"
+        }
+      ],
+      "predicted_verifiable_subclaims": [
+        "Do sedatives and sleeping pills such as benzodiazepines and related substances increase the risk of Alzheimer's disease or other forms of dementia?"
+      ],
+      "expected_queries": [
+        {
+          "query": "Sedatives and sleeping pills (benzodiazepines and related substances) increases risk Alzheimer's disease.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Sedatives and sleeping pills (benzodiazepines and related substances) increases risk other forms of dementia.",
+          "type": "verifiable"
+        }
+      ]
+    }
+  ],
+  "aggregate_metrics": {
+    "total_claims": 20,
+    "predicate_count_accuracy": 0.85,
+    "avg_predicate_count_delta": 0.15,
+    "avg_semantic_overlap": 0.9118,
+    "avg_classification_accuracy": 0.6667,
+    "avg_filter_precision": 0.675,
+    "avg_filter_recall": 0.5667,
+    "over_decomposition_rate": 0.05,
+    "under_decomposition_rate": 0.1
+  }
+}
