@@ -58,7 +58,7 @@ def format_clinical_trial(trial_dict: Dict) -> str:
 
 def format_uniprot(protein_dict: Dict) -> str:
     
-    return protein_dict.get('function', 'No function available.')
+    return protein_dict.get('biological_text', 'No biological text available.')
 
 
 

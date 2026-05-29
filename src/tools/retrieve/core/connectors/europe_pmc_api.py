@@ -25,7 +25,7 @@ def search_articles(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
     }
     
     try:
-        response = requests.get(BASE_URL_SEARCH, params=params, timeout=15)
+        response = requests.get(BASE_URL_SEARCH, params=params, timeout=30)
         response.raise_for_status()
         
         data = response.json()
@@ -60,7 +60,7 @@ def fetch_full_text_xml(pmcid: str) -> Optional[str]:
     url = BASE_URL_FULLTEXT.format(pmcid)
     
     try:
-        response = requests.get(url, timeout=20) 
+        response = requests.get(url, timeout=30) 
         response.raise_for_status()
         return response.text
         
