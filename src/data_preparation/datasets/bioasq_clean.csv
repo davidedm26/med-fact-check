@@ -1,0 +1,747 @@
+claim_id,claim,true_label
+bioasq_0,Is the protein Papilin secreted?,supported
+bioasq_1,Are long non coding RNAs spliced?,supported
+bioasq_2,Is RANKL secreted from the cells?,supported
+bioasq_3,Does metformin interfere thyroxine absorption?,refuted
+bioasq_4,Has Denosumab (Prolia) been approved by FDA?,supported
+bioasq_5,Is the monoclonal antibody Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?,supported
+bioasq_6,Are transcription and splicing connected?,supported
+bioasq_7,Is Alu hypomethylation associated with breast cancer?,supported
+bioasq_8,Proteomic analyses need prior knowledge of the organism complete genome. Is the complete genome of the bacteria of the genus Arthrobacter available?,supported
+bioasq_9,Do mutations of AKT1 occur in meningiomas?,supported
+bioasq_10,Does physical activity influence gut hormones?,supported
+bioasq_11,Is irritable bowel syndrome more common in women with endometriosis?,supported
+bioasq_12,Does BNP increase after intensive exercise in athletes?,supported
+bioasq_13,Are there web based self management strategies for chronic pain ?,supported
+bioasq_14,Is Weaver syndrome similar to Sotos?,supported
+bioasq_15,Are ultraconserved elements often transcribed?,supported
+bioasq_16,Is peripheral neuroepithelioma related to Ewing sarcoma?,supported
+bioasq_17,Is c-met involved in the activation of the Akt pathway?,supported
+bioasq_18,Is pregnancy an additional risk during during H1N1 infection?,supported
+bioasq_19,Are long non coding RNAs as conserved in sequence as protein coding genes?,refuted
+bioasq_20,Is TENS machine effective in pain?,supported
+bioasq_21,Is there any algorithm for enhancer identification from chromatin state?,supported
+bioasq_22,Are transcribed ultraconserved regions involved in cancer?,supported
+bioasq_23,Do patients with Pendred syndrome present congenital deafness?,supported
+bioasq_24,Is CD56 useful in Ewing sarcoma prognosis?,supported
+bioasq_25,Are there any urine biomarkers for chronic kidney disease?,supported
+bioasq_26,Is valproic acid effective for glioblastoma treatment?,supported
+bioasq_27,Can Levoxyl (levothyroxine sodium) cause insomnia?,supported
+bioasq_28,Is fatigue prevalent in patients receiving treatment for glioblastoma?,supported
+bioasq_29,Have Quantitative Trait Loci affecting splicing (splicing QTLs) been linked to disease?,supported
+bioasq_30,Does the CTCF protein co-localize with cohesin?,supported
+bioasq_31,Are stress granules involved in the pathogenesis of Amyotrophic Lateral Sclerosis?,supported
+bioasq_32,Does TGF-beta play a role in cardiac regeneration after myocardial infarction?,supported
+bioasq_33,Is DITPA a thyroid hormone analog utilized in experimental and clinical studies,supported
+bioasq_34,Is MammaPrint cleared by the United States Food and Drug Administration? ,supported
+bioasq_35,Is amantadine effective for treatment of disorders conciousness?,supported
+bioasq_36,Is GAGA associated with nucleosome-free regions (NFR)?,supported
+bioasq_37,Is amiodarone a class I anti-arrhythmic drug?,refuted
+bioasq_38,Is SLC22A3 expressed in the brain?,supported
+bioasq_39,Has the protein TIEG1 been associated with apoptosis?,supported
+bioasq_40,Is PTEN involved in follicular thyroid carcinoma?,supported
+bioasq_41,Does strenuous physical activity affect thyroid hormone metabolism?,supported
+bioasq_42,Is the gene MAOA epigenetically modified by methylation?,supported
+bioasq_43,Is glycyl-tRNA synthetase gene involved in the development of Charcot-Marie-Tooth disease?,supported
+bioasq_44,Is there any software for automated analysis of FISH images?,supported
+bioasq_45,Is there an increased risk for cancer in Dyskeratosis Congenita?,supported
+bioasq_46,Does MicroRNA-21 (miR-21) contribute to cardiovascular disease?,supported
+bioasq_47,Are there any statistical methods for normalizing and identifying differential regions in histone modification ChIP-seq data?,supported
+bioasq_48,Is CD84 genetically associated with arthritis?,supported
+bioasq_49,Are there any specific antidotes for rivaroxaban?,refuted
+bioasq_50,Is cytisine superior to nicotine replacement therapy for smoking cessation?,supported
+bioasq_51,Is the abnormal dosage of ultraconserved elements disfavored in cancer cells?,refuted
+bioasq_52,Does thyroid hormone regulate calcium transient in the myocardium? ,supported
+bioasq_53,Are proteasome inhibitors good candidates for treatment of leukemia and solid tumors?,supported
+bioasq_54,Is there any link between CTF4 and CTF18 during sister chromatid cohesion?,supported
+bioasq_55,Are thyroid hormone receptor alpha1 mutations implicated in thyroid hormone resistance syndrome?,supported
+bioasq_56,Does administration of triiodothyronine improve outcome following coronary artery bypass grafting?,refuted
+bioasq_57,Is long QT syndrome a cause for sudden cardiac death in athletes?,supported
+bioasq_58,Is protein M3/6 a dual specificity phosphatase?,supported
+bioasq_59,Are there focused databases from which you can retrieve gene expression data on renal disease?,supported
+bioasq_60,Are there any DNMT3 proteins present in plants?,supported
+bioasq_61,Has vitamin D has been shown to reduce incidence of falls in older people in clinical trials?,supported
+bioasq_62,Has depression been shown to be a predictor of frailty?,supported
+bioasq_63,Is there any association between Jarid2 and miR-155 in Th17 cells?,supported
+bioasq_64,Is it safe to take isotretinoin during pregnancy?,refuted
+bioasq_65,Can DNA intercalators function as topoisomerase inhibitors?,supported
+bioasq_66,Do orphan and gene related CpG islands follow power-law-like distributions?,supported
+bioasq_67,Can valproic acid act as an activator of AMPK?,supported
+bioasq_68,Is the Drosophila Translational Control Element (TCE) involved in spermatogenesis?,supported
+bioasq_69,Is low T3 syndrome a prognostic marker in patients with renal insufficiency?,supported
+bioasq_70,Does burning mouth syndrome preferentially affect post-mepopausal women?,supported
+bioasq_71,Can life style changes reduce oxidative stress,supported
+bioasq_72,Is oxidative stress affected by FOXO expression?,supported
+bioasq_73,Is the Dictyostelium discoideum proteome known?,supported
+bioasq_74,Is single-cell analysis (SCA) possible in proteomics?,refuted
+bioasq_75,Is shotgun lipidomics the direct infusion of a lipid sample into a mass spectrometer?,supported
+bioasq_76,Is apixaban effective for treatment of acute venous thromboembolism?,supported
+bioasq_77,Is the tricarboxylic acid (TCA) cycle affected in inflammation?,supported
+bioasq_78,Are reduced-nicotine cigarettes effective for smoking cessation?,supported
+bioasq_79,Is the Wnt protein modified by notum?,supported
+bioasq_80,Is ospemifene effective for treatment of dyspareunia?,supported
+bioasq_81,Is pregabalin effective for treatment of patients with restless leg syndrome?,supported
+bioasq_82,Can zinc finger nucleases be used to combat disease?,supported
+bioasq_83,Is RET the major gene involved in Hirschsprung disease?,supported
+bioasq_84,is intense physical activity associated with longevity ?,supported
+bioasq_85,Are cyclophilins proteins that bind to prolines?,supported
+bioasq_86,Can a given genotype exhibit opposite fitness effects (beneficial and detrimental) within the same environment?,supported
+bioasq_87,Has the protein SETMAR (Metnase) a transposase domain?,supported
+bioasq_88,Is alternative splicing of apoptotic genes playing a role in the response to DNA or mitochondrial damage?,supported
+bioasq_89,Is nucleosome eviction ATP-dependent?,supported
+bioasq_90,Is TREM2 associated with Alzheimer's disease in humans?,supported
+bioasq_91,Have mutations in the Polycomb group been found in human diseases?,supported
+bioasq_92,Is microRNA(miRNA) 29 involved in post-ischemic cardiac remodeling?,supported
+bioasq_93,Is exonuclease Xrn1 a component of the P-bodies?,supported
+bioasq_94,Can sorafenib activate AMPK?,supported
+bioasq_95,Is Vortioxetine effective for treatment of depression?,supported
+bioasq_96,Is exome sequencing efficient for the detection of germline mutations?,supported
+bioasq_97,Is it feasible to determine the complete proteome of yeast?,supported
+bioasq_98,Are circRNAs associated with diseases and traits?,supported
+bioasq_99,Could the Menzerath-Altmann law be proved mathematically trivial in genomes?,supported
+bioasq_100,"Are there studies representing the involvement of Notch mutations in neurodegenerative diseases such as Down syndrome, Pick's and Prion's disease, and cadasil syndrome?",supported
+bioasq_101,Are there any functional differences between Mfd and its human Cocaine syndrome protein B (CSB) homolog?,supported
+bioasq_102,Is the yeast Μac1 transcription factor induced upon copper deficiency?,supported
+bioasq_103,Have thyronamines  effects on fat tissue?,refuted
+bioasq_104,Is there a package in R/bioconductor for classification of alternative splicing?,supported
+bioasq_105,Is alemtuzumab effective for remission induction in patients diagnosed with T-cell prolymphocytic leukemia?,supported
+bioasq_106,Is there an association between TERT promoter mutation and survival of glioblastoma patients?,supported
+bioasq_107,Is bapineuzumab effective for treatment of patients with Alzheimer's disease?,refuted
+bioasq_108,Is intense physical activity associated with longevity?,supported
+bioasq_109,Is desmin an intermediate filament protein involved in Dilated Cardiomyopathy (DCM)?,supported
+bioasq_110,Is lambrolizumab effective for treatment of patients with melanoma ?,supported
+bioasq_111,Is cadasil syndrome a hereditary disease?,supported
+bioasq_112,Is nintedanib effective for Idiopathic Pulmonary Fibrosis?,supported
+bioasq_113,Is pesticide exposure associated with polyneuropathy?,supported
+bioasq_114,Is there an association between borna virus and brain tumor?,refuted
+bioasq_115,Does PU.1 (SPI1) affect NF-kB binding?,supported
+bioasq_116,Does the majority of the mitochondrial genomes abide to the second parity rule (PR2)?,refuted
+bioasq_117,Is there an association between bruxism and reflux?,supported
+bioasq_118,Is paroxetine effective for treatment of premenstrual dysphoric disorder?,supported
+bioasq_119,Is endostatin a proangiogenic factor?,refuted
+bioasq_120,Can botulism poisoning of a pregnant woman harm her fetus?,refuted
+bioasq_121,Does a linker histone exist in the yeast genome?,supported
+bioasq_122,Can protein coding exons originate from ALU sequences?,supported
+bioasq_123,Is there evidence that tomato juice lowers cholesterol levels?,supported
+bioasq_124,Are there transposon-free regions in mammalian genomes?,supported
+bioasq_125,Are messenger RNA molecules epigenetically methylated?,supported
+bioasq_126,Have gnotobiotic animal models been used for the study of bowel disease?,supported
+bioasq_127,Is invasion and metastasis one of the hallmarks of cancer?,supported
+bioasq_128,Is it possible to detect survivin protein expression in normal human adult tissues?,refuted
+bioasq_129,Is progesterone effective for treatment of patients with traumatic brain injury based on clinical trial data?,refuted
+bioasq_130,Is there a role for the cylindromatosis tumor suppressor (CYLD) in lung cancer?,supported
+bioasq_131,"Can we detect DNA strand asymmetries using dinucleotide relative abundance ""genomic signatures""?",refuted
+bioasq_132,Is there any relationship between histone ubiquitylation and splicing?,supported
+bioasq_133,Can SUMO affect calcium homeostasis?,supported
+bioasq_134,Have mutations in the GARS gene been identified to cause Charcot-Marie-Tooth Disease Type 2D (CMT2D)?,supported
+bioasq_135,Does melanoma  occur in people of African origin ?,supported
+bioasq_136,Are people with blood group O protected against severe Malaria?,supported
+bioasq_137,Is there a crystal structure of the full-length of the flaviviridae NS5(Methyltransferase - RNA depended RNA Polymerase) ?,supported
+bioasq_138,Can venlafaxine block NET and SERT?,supported
+bioasq_139,Can vitamin B1 deficiency cause encephalopathy?,supported
+bioasq_140,Are epigenetic modifications implicated in cardiovascular development and disease?,supported
+bioasq_141,Can exosomes be detected in urine?,supported
+bioasq_142,Is Kanzaki disease associated with deficiency in alpha-N-acetylgalactosaminidase?,supported
+bioasq_143,Is Mycobacterium avium less susceptible to antibiotics than Mycobacterium tuberculosis?,supported
+bioasq_144,Are there conserved noncoding elements identified between genomes of human and teleosts?,supported
+bioasq_145,Does cortical spreading depression appear in ischemic penumbra following ischemic stroke?,supported
+bioasq_146,Is phospholamban a regulatory/inhibitory protein of the Ca ATPase SERCA?,supported
+bioasq_147,Is Alpers disease inherited in an autosomal recessive mode?,supported
+bioasq_148,Is vemurafenib effective for hairy-cell leukemia?,supported
+bioasq_149,Is there an association between TERT promoter mutation and survival of glioma patients?,supported
+bioasq_150,Does ziconotide bind to N-type calcium channels?,supported
+bioasq_151,Is stop codon bypass possible?,supported
+bioasq_152,Is the protein β1-integrin recycled?,supported
+bioasq_153,Are BBS mutations involved in syndromic Hirschsprung disease?,supported
+bioasq_154,Is there any software for automated analysis of immuno-histochemistry images?,supported
+bioasq_155,Is TALEN being used on stem cells?,supported
+bioasq_156,Is there an association between bruxism and reflux,supported
+bioasq_157,Can a peptide aptamer be used as protein inhibitor?,supported
+bioasq_158,Are integrins part of the extracellular matrix?,supported
+bioasq_159,Is Calcium homeostasis important in cardiac physiology and pathophysiology?,supported
+bioasq_160,Is the gene DUX4 epigenetically regulated in somatic cells?,supported
+bioasq_161,Have hESC been tested for the treatment of age-related macular degeneration?,supported
+bioasq_162,Does d-tubocurarine (d-TC) induces irreversible inhibition of nicotinic acetylcholine receptor (nAChR) at the neuromuscular junction?,refuted
+bioasq_163,Is zyxin a focal adhesion protein?,supported
+bioasq_164,Could DNA (cytosine-5-)-methyltransferases serve as tumour markers?,supported
+bioasq_165,Is phospholamban phosphorylated by Protein kinase A?,supported
+bioasq_166,Are there telemedicine applications for chronic pain management?,supported
+bioasq_167,Is paramyxovirus involved in human subacute thyroiditis?,refuted
+bioasq_168,Is there any link between the aurora B kinase and the polycomb protein ring1B?,supported
+bioasq_169,Is CD99 encoded by MIC2 gene?,supported
+bioasq_170,Has the fungus Ashbya gossypii got many nuclei that share cytoplasm?,supported
+bioasq_171,Is microRNA(miRNA) 30 involved in post-ischemic cardiac remodeling?,supported
+bioasq_172,Is statin use associated with improved outcomes after aneurysmal subarachnoid hemorrhage?,supported
+bioasq_173,Does molindone affect body weight?,supported
+bioasq_174,Is the SDHAF2 gene  encoding a protein necessary for flavination of SDHA?,supported
+bioasq_175,Could Arimidex (anastrozole) cause hot flashes?,supported
+bioasq_176,Are Alu elements transcribed?,supported
+bioasq_177,Are chromomethylases present in animal genomes?,refuted
+bioasq_178,Is low T3 syndrome related with high BNP in cardiac patients?,supported
+bioasq_179,Is delayed enhancement documented in patients with non-ischemic dilated cardiomyopathy?,supported
+bioasq_180,Has overexpression of sirtuins been reported to increase lifespan in budding yeast (Saccharomyces cerevisiae)?,supported
+bioasq_181,Is TREM2 associated with Alzheimer's disease?,supported
+bioasq_182,Does the protein mTOR regulate autophagy?,supported
+bioasq_183,Has proteomics been used in the study of Pick's disease?,supported
+bioasq_184,Are there any urine biomarkers for bladder cancer diagnosis?,supported
+bioasq_185,Is signal transducer and activator of transcription-3 (STAT3) critical for tumor angiogenesis progression?,supported
+bioasq_186,Is sumoylation implicated in myogenesis?,supported
+bioasq_187,Is the Miller-Fisher syndrome considered to be a variant of Guillain-Barré?,supported
+bioasq_188,Is Ctf4 involved in sister chromatid cohesion establishment?,supported
+bioasq_189,Are retroviruses used for gene therapy?,supported
+bioasq_190,Do lincRNAs play a role in human cancer?,supported
+bioasq_191,Is there a phylogenetic analysis for HIV?,supported
+bioasq_192,Are there randomised controlled trials on sevoflurane?,supported
+bioasq_193,Can FOXOs modulate longevity?,supported
+bioasq_194,Is there an association between FGFR3 mutation and plagiocephaly?,supported
+bioasq_195,Are CD44 variants (CD44v) associated with poor prognosis of metastasis?,supported
+bioasq_196,Is Bladder training an effective method to treat  urge incontinence ?,supported
+bioasq_197,Do proton pump inhibitors affect thyroxine absorption?,supported
+bioasq_198,Is PER3 required for CHK2 activation in human cells?,supported
+bioasq_199,Are there any clinical trials of the effect of evening primrose oil on postmenopausal symptoms ?,supported
+bioasq_200,Is acid alpha-glucosidase the enzyme that causes Pompe disease when mutant?,supported
+bioasq_201,Is the optogenetics tool ChR2 light-sensitive?,supported
+bioasq_202,Is the Prostate- Specific Antigen (PSA) test relevant only for prostate cancer?,refuted
+bioasq_203,Is autism one of the characteristics of Moebius syndrome?,supported
+bioasq_204,Is Sarcolipin a regulatory/inhibitory protein of the Calcium ATPase SERCA?,supported
+bioasq_205,Is the circadian clock involved in ribosome biogenesis?,supported
+bioasq_206,Can mutations in Calmodulin cause ventricular fibrillation?,supported
+bioasq_207,Is rivaroxaban metabolized in kidneys?,supported
+bioasq_208,Is Hirschsprung disease one of the characteristics of the Mowat-Wilson syndrome?,supported
+bioasq_209,Is PLK2 involved in alpha-synuclein phosphorylation in the nervous system?,supported
+bioasq_210,Is insulin-like growth factor-I (IGF-I) able to affect tendon protein synthesis in classic Ehlers-Danlos syndrome patients?,supported
+bioasq_211,Does GC content vary markedly within a given isochore?,refuted
+bioasq_212,Is tubulin acetylation involved in cell motility?,supported
+bioasq_213,Can PLN mutations lead to dilated cardiomyopathy?,supported
+bioasq_214,Is corpus callosum involved in the Mowat–Wilson syndrome?,supported
+bioasq_215,Can NXY-059 be used for treatment of acute ischemic stroke patients?,refuted
+bioasq_216,Is flibanserin effetive for Hypoactive Sexual Desire Disorder? ,supported
+bioasq_217,Is recommended the use of perioperative treatment with thyroid hormone therapy in patients undergoing coronary artery bypass grafting?,refuted
+bioasq_218,Is protein CXCR4 used as a prognostic marker of cancer?,supported
+bioasq_219,Is transcapillary  albumin escape altered in diabetic patients?,supported
+bioasq_220,Are conserved noncoding elements associated with developmental genes?,supported
+bioasq_221,Is myasthenia gravis associated with osteoporosis?,supported
+bioasq_222,Does a selective sweep increase genetic variation?,refuted
+bioasq_223,Is indicated the use of antioxidant supplements in patients at risk for coronary artery disease?,refuted
+bioasq_224,Is there evidence to suggest that triiodothyronine has neuroprotective properties in traumatic brain injury?,supported
+bioasq_225,Is Lysine-specific demethylase 1 (LSD1) a critical regulator of hematopoiesis?,supported
+bioasq_226,Is K-63 linked protein ubiquitination related to proteasomal degradation?,refuted
+bioasq_227,Could transcription factors act as cell-cell signalling molecules?,supported
+bioasq_228,is pharmacological treatment of subclinical hypothyroidism effective in reducing cardiovascular events?,refuted
+bioasq_229,"Could Catecholaminergic Polymorphic Ventricular Tachycardia (CPVT)
+cause sudden cardiac death?",supported
+bioasq_230,Are histone deacetylase (HDAC) inhibitors good candidates to control metastasis of solid tumors?,supported
+bioasq_231,Is muscle lim protein (MLP) involved in cardiomyopathies?,supported
+bioasq_232,Have 5q35 microdeletions been implicated in Sotos syndrome development?,supported
+bioasq_233,Is metabolic syndrome related with cardiovascular disease?,supported
+bioasq_234,Is there any functional association during viral replication between flaviviridae viral RNA depended RNA polymerase and viral helicase?,supported
+bioasq_235,Are defects in recombination repair involved in carcinogenesis?,supported
+bioasq_236,Are seizures among the neurological symptoms of incontinentia pigmenti?,supported
+bioasq_237,Is there a genome-wide technique for the detection of R-loop formation?,supported
+bioasq_238,Can bioprinting use human cells?,supported
+bioasq_239,Is transcription-associated mutagenesis (TAM) related to gene expression levels?,supported
+bioasq_240,Is there a pharmacogenetic test for trastuzumab?,supported
+bioasq_241,Do carmustine wafers improve survival of glioblastoma patients?,supported
+bioasq_242,Is Dicer part of the RISC loading complex?,supported
+bioasq_243,Is hypersensitivity to DNA crosslinking agents a hallmark of Fanconi anemia?,supported
+bioasq_244,Have C12orf65 mutations been associated with axonal neuropathy and optic atrophy?,supported
+bioasq_245,Are psammoma bodies characteristic to meningiomas?,supported
+bioasq_246,Is cystatin C or cystatin 3 used as a biomarker of kidney function?,supported
+bioasq_247,Can fetal aneuploidy be detected with non-invasive prenatal testing?,supported
+bioasq_248,Is dichlorphenamide effective for periodic paralysis?,supported
+bioasq_249,Is nivolumab used for treatment of Non–Small-Cell Lung Cancer?,supported
+bioasq_250,Does  thyroid hormone receptor beta1 affect insulin secretion?,refuted
+bioasq_251,Does replication timing affect the rate of somatic mutations?,supported
+bioasq_252,Is NOD1 activated in inflammation?,supported
+bioasq_253,Does the histidine-rich Ca-binding protein (HRC) interact with triadin?,supported
+bioasq_254,Does magnesium sulfate improve outcomes of subarachnoid hemorrhage patients?,refuted
+bioasq_255,Are there plasma membrane receptors for thyroid hormones?,supported
+bioasq_256,Does Rad9 interact with Aft1 in S.cerevisiae?,supported
+bioasq_257,Are there any desmins present in plants?,refuted
+bioasq_258,Are viruses involved in the etiology of human subacute thyroiditis?,supported
+bioasq_259,Is miR-126 involved in heart failure?,supported
+bioasq_260,Does resveratrol reduce cardiac remodeling?,supported
+bioasq_261,Is oxalate renal excretion increased after bariatric surgery?,supported
+bioasq_262,Is there a role for transcription factories in genome organization?,supported
+bioasq_263,Is the length of the poly(A) tail involved in human disease?,supported
+bioasq_264,Are patients with marfan syndrome at increased risk of arrhythmias?,supported
+bioasq_265,Do selenoproteins and selenium play a role in prostate cancer prevention?,refuted
+bioasq_266,Has protein citrullination been implicated in rheumatoid arthritis?,supported
+bioasq_267,Do R-loops tend to form at sites of DNA replication?,supported
+bioasq_268,Is selenium deficiency involved in autoimmune thyroid disease?,supported
+bioasq_269,Is it safe to use Abatacept during pregnancy?,refuted
+bioasq_270,Is STAT3 involved in EIF2AK2-dependent suppression of autophagy?,supported
+bioasq_271,Are CTCF and BORIS involved in genome regulation and cancer?,supported
+bioasq_272,Are Sidekick proteins members of the immunoglobulin superfamily?,supported
+bioasq_273,Is there a relationship between junctin and ryanodine receptors?,supported
+bioasq_274,Have mutations in the ZEB2 gene been found in any human syndrome?,supported
+bioasq_275,Is JTV519 (K201) a potential drug for the prevention of arrhythmias?,supported
+bioasq_276,Are the Fanconi anemia genes a part of the same signalling pathway?,supported
+bioasq_277,Are there clinical trials using stem cells for the treatment of cardiac disease?,supported
+bioasq_278,Is DNA methylation an epigenetic modification of chromatin related to gene expression?,supported
+bioasq_279,Is Growth factor independence 1b (GFI1B) important for hematopoiesis?,supported
+bioasq_280,Has Revlimid been approved by the US Food and Drug Administration?,supported
+bioasq_281,Has single guide RNA been used on human cells?,supported
+bioasq_282,Is Fibroblast Growth Factor 23 a phosphaturic hormone?,supported
+bioasq_283,Is amoxicillin used for treatment of malnutrition in children?,supported
+bioasq_284,Is it possible to purify pseudopodia to be used for proteomic analysis?,supported
+bioasq_285,Is  farnesoid X receptor (FXR) a nuclear receptor?,supported
+bioasq_286,Are DNA helicases involved in progeroid syndromes?,supported
+bioasq_287,Is there association of matrix metalloproteinases with behaviour of pituitary adenomas?,supported
+bioasq_288,Is Vitamin D deficiency in pregnant women associated with gestational diabetes?,supported
+bioasq_289,Does Chromatin Immunoprecipitation (ChIP) show a bias for highly expressed loci?,supported
+bioasq_290,Is clathrin involved in E-cadherin endocytosis?,supported
+bioasq_291,Is Propofol used for short-term sedation?,supported
+bioasq_292,Does splicing occur co-transcriptionally?,supported
+bioasq_293,Are there clinical trials on stem cells in multiple sclerosis,supported
+bioasq_294,Are piRNAs involved in gene silencing?,supported
+bioasq_295,Can RG7112 inhibit MDM2?,supported
+bioasq_296,Are there any specific antidotes for dabigatran?,refuted
+bioasq_297,Are there any Decision support systems for chronic pain management ?,supported
+bioasq_298,Does amiodarone affect thyroid hormone receptors in the myocardium?,supported
+bioasq_299,Does thyroid hormone affect cardiac remodeling?,supported
+bioasq_300,Are there any HCV replication inhibitors available?,supported
+bioasq_301,Is cocaine use associated with increased risk for intracerebral hemorrhage?,supported
+bioasq_302,Is miR-21 related to carcinogenesis?,supported
+bioasq_303,Are thyroid hormone receptor alpha1 mutations  implicated in thyroid hormone resistance syndrome?,supported
+bioasq_304,Is PLK2 involved in alpha-synuclein phosphorylation in Parkinson disease?,supported
+bioasq_305,Is there evidence for somatic mosaicism in Tuberous Sclerosis?,supported
+bioasq_306,Does smoking increase risk for glioblastoma?,refuted
+bioasq_307,Is Wnt16b secreted in response to chemotherapy?,supported
+bioasq_308,Do DNA double-strand breaks play a causal role in carcinogenesis?,supported
+bioasq_309,Do conserved noncoding elements co-occur with matrix-attachment regions?,supported
+bioasq_310,Are Drosophila ultraconserved elements candidate ncRNAs?,supported
+bioasq_311,Does surgery for ovarian endometriomas improve fertility?,supported
+bioasq_312,Are ACTA1 (alpha actin) and NEB (nebulin) genes related to nemaline myopathy?,supported
+bioasq_313,Could RG7112 be used as cancer therapy?,supported
+bioasq_314,Does thyroid hormone affect cardiac remodeling ?,supported
+bioasq_315,Is armodafinil used for treatment of insomnia?,refuted
+bioasq_316,Are there currently applications of deep learning in genomics?,supported
+bioasq_317,Are CpG islands located close to housekeeping genes?,supported
+bioasq_318,Is COL5A2 gene associated to ischemic heart disease?,supported
+bioasq_319,Have microRNAs been implicated in pharmacogenomics? ,supported
+bioasq_320,Is nicotinamide effective for skin cancer prevention?,supported
+bioasq_321,Do Parkinson's disease patients experience stridor?,supported
+bioasq_322,Is there an association between serum interleukin-6 concentrations and outcomes of stroke patients?,supported
+bioasq_323,Could bioprinting be used in regenerative medicine against bone disease?,supported
+bioasq_324,Is macroautophagy a selective degradation process?,supported
+bioasq_325,Is there any link between conserved noncoding elements and alternative splicing in vertebrates?,supported
+bioasq_326,Is muscle regeneration possible in mdx mice with the use of induced mesenchymal stem cells?,supported
+bioasq_327,Is the SDHAF2 gene encoding a protein necessary for flavination of SDHA?,supported
+bioasq_328,Is zolpidem an antibiotic?,refuted
+bioasq_329,Can desvenlafaxine be used at a dose of 50mg/day?,supported
+bioasq_330,Can ferric carboxymaltose be used to treat anemia in inflammatory bowel disease patients?,supported
+bioasq_331,Is there any association of the chromosomal region harboring the gene ITIH3 with schizophrenia?,supported
+bioasq_332,Is the regulation of Vsr endonuclease independent of the growth phase of bacteria?,refuted
+bioasq_333,Are there interactomes available for POU5F1 and SOX2?,supported
+bioasq_334,Is Rheumatoid Arthritis related to myopathy?,supported
+bioasq_335,Is EZH2 associated with prostate cancer?,supported
+bioasq_336,Is there any cross-talk between the Wnt and the Akt pathways?,supported
+bioasq_337,Has the protein GFP been used in transgenesis for live protein imaging?,supported
+bioasq_338,Is the Snord116 cluster associated with the Prader-Willi syndrome?,supported
+bioasq_339,Is poly (ADP- ribosylation) involved in transcriptional control?,supported
+bioasq_340,Is nimodipine recommended for prevention of vasospasm in aneurysmal subarachnoid hemorrhage patients?,supported
+bioasq_341,Is lenvatinib effective for thyroid cancer?,supported
+bioasq_342,Was tamoxifen tested for treatment of glioma patients?,supported
+bioasq_343,Are there any animal models for Niemann-Pick C1 disease?,supported
+bioasq_344,Does HER2 under-expression lead to favorable response to trastuzumab?,refuted
+bioasq_345,Is the PTPN22 gene a biomarker for rheumatoid arthritis?,supported
+bioasq_346,Can administration of the thyrotropin releasing hormone reduce fatigue in cancer patients?,supported
+bioasq_347,Is curcumin a phytochemical?,supported
+bioasq_348,Is Fanconi anemia presented as a genetically and clinically heterogeneous disease entity?,supported
+bioasq_349,Is there evidence for de novo genesis of enhancers in vertebrates?,supported
+bioasq_350,Is TNNI3K a cardiac-specific protein?,supported
+bioasq_351,Is factor XI deficient in Hemophilia C?,supported
+bioasq_352,Are EDNRB mutations involved in the development of Hirschsprung disease?,supported
+bioasq_353,Can the apoptosis regulator BAX trigger the release of cytochrome c?,supported
+bioasq_354,Are optogenetics tools used in the study and treatment of epilepsy?,supported
+bioasq_355,Is micro RNA 1 (miR-1) implicated in cardiac arrhythmias?,supported
+bioasq_356,Are there Conserved Noncoding Elements (CNEs) in invertebrate genomes?,supported
+bioasq_357,Does thyroid hormone signaling affect microRNAs expression in the heart?,supported
+bioasq_358,Do all archaea possess multiple origins of DNA replication?,refuted
+bioasq_359,Is p100 the precursor protein molecule of the NF-kappaB transcription factor subunit p50?,refuted
+bioasq_360,Is there a difference in the rate between gene fusion and gene fission?,supported
+bioasq_361,Can cognitive behavioral therapy improve fatigue in cancer patients?,supported
+bioasq_362,Is protein Fbw7 a SCF type of E3 ubiquitin ligase?,supported
+bioasq_363,Is there increased incidence of incontinence in athletes?,supported
+bioasq_364,Are there enhancer RNAs (eRNAs)?,supported
+bioasq_365,Are conserved noncoding elements associated with the evolution of animal body plans?,supported
+bioasq_366,Are DNA methylation maps applicable to the diagnosis of non-small-cell lung carcinomas?,supported
+bioasq_367,Is the protein product of the cylindromatosis gene (CYLD) a deubiquitinating enzyme?,supported
+bioasq_368,Has the presence of delayed enhancement been documented in athletes performing strenuous exercise?,supported
+bioasq_369,Is triadin involved in cardiac function?,supported
+bioasq_370,Is Mammaprint approved by the United States Food and Drug Administration?,supported
+bioasq_371,Is HER2 active only when it dimerizes?,supported
+bioasq_372,Are microRNA (miR) regulated through DNA methylation of their promoters?,supported
+bioasq_373,Are nucleosomes positioned at DNA replication origins?,refuted
+bioasq_374,Does nimotuzumab improve survival of glioblastoma patients?,supported
+bioasq_375,Is there a relation between ANP and transcapillary albumin escape?,supported
+bioasq_376,Can chronological age be predicted by measuring telomere length?,refuted
+bioasq_377,Is there an association between c-reactive protein concentrations and outcomes of subarachnoid hemorrhage patients? ,supported
+bioasq_378,Can RNASeq be used for the analysis of nascent transcripts?,supported
+bioasq_379,Do RNA:DNA hybrids preferentially form in high or low GC regions?,supported
+bioasq_380,Are shadow enhancers associated with development?,supported
+bioasq_381,Does prudent diet reduce cardiovascular risk?,supported
+bioasq_382,Is Crohn's disease (CD) linked to the consumption of refrigerated food?,supported
+bioasq_383,Are there Conserved Noncoding Elements (CNEs) in plant genomes?,supported
+bioasq_384,Can tetracycline affect tooth formation?,supported
+bioasq_385,Could Catecholaminergic Polymorphic Ventricular Tachycardia (CPVT) cause sudden cardiac death?,supported
+bioasq_386,Does Apolipoprotein E (ApoE) have anti-inflammatory activity?,supported
+bioasq_387,Is the ACE inhibitor indicated for lung cancer treatment?,refuted
+bioasq_388,Are genes symmetrically distributed between leading and lagging DNA strand in bacteria?,refuted
+bioasq_389,Is c-myc subject to regulation by the circadian clock?,supported
+bioasq_390,is there an increase in ultrasound comets after intense exercise?,supported
+bioasq_391,Can cffDNA be used for non-invasive testing?,supported
+bioasq_392,Is the UGT1A1*28 polymorphism associated with irinotecan response in Caucasians?,supported
+bioasq_393,Do U6-associated proteins Lsm4 and Lsm6 interact with SMN?,supported
+bioasq_394,Does MVIIA and MVIIC bind to the same calcium channel?,refuted
+bioasq_395,Is arimoclomol a co-inducer of the heat shock response?,supported
+bioasq_396,Has silicon been used in treatment of  incontinence ?,supported
+bioasq_397,Does the 3D structure of  the genome remain stable during cell differentiation?,refuted
+bioasq_398,Does dronedarone  affect  T3 and T4 levels?,refuted
+bioasq_399,Does triiodothyronine (T3) has cardiac angiogenic effects?,supported
+bioasq_400,Is the HRC Ser96Ala variant associated with sudden cardiac death in patients with dilated cardiomyopathy?,supported
+bioasq_401,Are BRAF mutations common in melanoma?,supported
+bioasq_402,Is it possible to determine the proteome of a formalin fixed and paraffin embedded  (FFPE) tissue?,supported
+bioasq_403,Is aganglionic megacolon a feature of Down syndrome?,supported
+bioasq_404,Does HuR protein regulate the splicing process?,supported
+bioasq_405,Is Titin the largest single protein molecule found in Nature?,supported
+bioasq_406,Can clonidine be used to reduce agitation in children.,supported
+bioasq_407,Does ventriculoperitoneal shunt improve normal pressure hydrocephalus?,supported
+bioasq_408,Does Serca2a bind PLN in the heart?,supported
+bioasq_409,Is there any role for long noncoding RNAs in adipogenesis?,supported
+bioasq_410,Is there any research that relates the function of Notch Signaling with Alzheimer Disease?,supported
+bioasq_411,Was modafinil tested for schizophrenia treatment?,supported
+bioasq_412,Is depression associated with poor prognosis of brain tumor patients?,supported
+bioasq_413,Have germline variants been associated to colorectal cancer?,supported
+bioasq_414,Can Alzheimer's disease related miRNAs be detected in patients' blood?,supported
+bioasq_415,Is it possible to visualize subtahalamic nucleus by using transcranial ultrasound?,supported
+bioasq_416,Do thyroid hormone receptors change after brain injury?,supported
+bioasq_417,Is gastro esophageal reflux related to burning mouth syndrome?,refuted
+bioasq_418,Is thrombophilia related to increased risk of miscarriage?,supported
+bioasq_419,Does nifedipine inhibit L-type calcium channels?,supported
+bioasq_420,Is there any data to suggest that TRH (thyrotropin releasing hormone) administration can improve symptom severity of amyotrophic lateral sclerosis patients?,supported
+bioasq_421,Can siRNA affect response to afatinib treatment?,supported
+bioasq_422,Is there an association between presenteeism and depression?,supported
+bioasq_423,Does triiodothyronine stimulate red blood cell sodium potassium pump?,refuted
+bioasq_424,Is selumetinib effective in thyroid cancer?,supported
+bioasq_425,Are immune cells affected in Amyotrophic Lateral Sclerosis?,supported
+bioasq_426,Are OATP1B1 and OATP1B3 associated with bilirubin transport?,supported
+bioasq_427,Is thyroid hormone therapy indicated in patients with heart failure?,refuted
+bioasq_428,Is there a mouse model for Fanconi anemia?,supported
+bioasq_429,Could Hyperthermic intraperitoneal chemotherapy (HIPEC) be effective for the treatment of recurrent ovarian cancer?,supported
+bioasq_430,Is Rac1 involved in cancer cell invasion?,supported
+bioasq_431,Is the gene SLC6A2 associated with orthostatic intolerance?,supported
+bioasq_432,Is macitentan an ET agonist?,refuted
+bioasq_433,Can we use platelet biomarkers to study Alzheimer's disease?,supported
+bioasq_434,Is CHEK2 involved in cell cycle control?,supported
+bioasq_435,Are the proteins Erbin (LAP2) and Merlin cooperating?,supported
+bioasq_436,Is abdominal pain a common symptom in autism?,supported
+bioasq_437,Are cyclophilins ubiquitously expressed?,supported
+bioasq_438,Are adenylyl cyclases always transmembrane proteins?,refuted
+bioasq_439,Does low T3 negatively affect prognosis of patients after cardiac surgery?,supported
+bioasq_440,Does neuroglobin has neuroprotective properties in the setting of traumatic brain injury?,supported
+bioasq_441,"Does the concentration of protein HIF-1α increase after the administration of the cytoprotective prodrug""amifostine"" (ethyol) ?",supported
+bioasq_442,Do Conserved noncoding elements act as enhancers?,supported
+bioasq_443,Can the iPS cell technology be used in Fanconi anemia therapy?,supported
+bioasq_444,Can Preimplantation Genetic Diagnosis (PGD) be used for gender selection?,supported
+bioasq_445,Has proteomics been used in the study of the dry eye syndrome?,supported
+bioasq_446,Is Tuberous Sclerosis a genetic disease?,supported
+bioasq_447,Does TRIM37 gene mutation causes Mulibrey nanism?,supported
+bioasq_448,Have thyronamines effects on fat tissue?,supported
+bioasq_449,Is there any protein that undergoes both mono-ubiquitination and poly-ubiquitination?,supported
+bioasq_450,Are pseudogenes enriched with housekeeping protein families?,supported
+bioasq_451,Is olaparib effective for prostate cancer?,supported
+bioasq_452,Is physical performance influenced by thyroid hormone metabolism?,supported
+bioasq_453,Do plant genomes contain CpG islands?,supported
+bioasq_454,Are high-flow nasal cannulae effective for treatment of preterm infants?,supported
+bioasq_455,Does triiodothyronine play a regulatory role in insulin secretion from pancreas?,supported
+bioasq_456,Is the Histidine-Rich Calcium Binding protein (HRC) related to arrhythmias and cardiac disease?,supported
+bioasq_457,Can adult humans be induced to produce fetal hemoglobin?,supported
+bioasq_458,Is Turcot syndrome associated with glioblastoma?,supported
+bioasq_459,Is Calcium/Calmodulin dependent protein kinase II (CaMKII) involved in cardiac arrhythmias and heart failure?,supported
+bioasq_460,Does SCRIB deregulation promote cancer?,supported
+bioasq_461,Is cardiac magnetic resonance imaging indicated in the pre-participation screening of athletes?,refuted
+bioasq_462,Is imatinib an antidepressant drug?,refuted
+bioasq_463,Are ultraconserved elements depleted among copy number variants (CNVs)?,supported
+bioasq_464,Is the microRNA 132 (miR-132) involved in brain pathologies?,supported
+bioasq_465,Does cucumber lower blood sugar in diabetics?,supported
+bioasq_466,Are Notch mutations related to T-cell Acute Lymphoblastic Leukemia (T-ALL)?,supported
+bioasq_467,Is the protein FAK (Focal Adhesion Kinase) phosphorylated?,supported
+bioasq_468,Does ghrelin play a role in ischemic stroke?,supported
+bioasq_469,Is LPS a microbial product?,supported
+bioasq_470,Has field-programmable gate array (FPGA) technology been used to solve sequence alignment problems?,supported
+bioasq_471,Is Achondroplasia associated with hearing loss?,supported
+bioasq_472,Is the JNK pathway activated during liver regeneration?,supported
+bioasq_473,Is STAT3 transcription factor regulated by mTORC1?,supported
+bioasq_474,Is calcium overload involved in the development of diabetic cardiomyopathy?,supported
+bioasq_475,Is RIP1 (RIP-1) part of the necrosome?,supported
+bioasq_476,Is the protein KCNQ2 associated with idiopathic epilepsy?,supported
+bioasq_477,Can RNAPolII function as an RNA-dependent RNA-polymerase?,supported
+bioasq_478,Does the Oncotype DX test work with paraffin embedded tissues?,supported
+bioasq_479,Is the PTPN22 gene a biomarker for Rheumatoid Arthritis?,supported
+bioasq_480,Is marijuana use associated with increased risk for stroke?,supported
+bioasq_481,Does fibronectin constitute a serum biomarker for Duchenne muscular dystrophy?,supported
+bioasq_482,Are mutations in the STXBP1 gene associated with epilepsy?,supported
+bioasq_483,Is mitofusin 2 a receptor for parkin?,supported
+bioasq_484,Is there a relationship between thyroid hormone altered metabolism and coronary artery disease?,supported
+bioasq_485,Are microtubules marked by glutamylation?,supported
+bioasq_486,Is synapsin a phosphoprotein?,supported
+bioasq_487,Is Thalidomide currently a marketed drug?,supported
+bioasq_488,Could BRCA gene test used for breast and ovarian cancer risk?,supported
+bioasq_489,Has Glucose-6-phosphate dehydrogenase (G6PD) deficiency an X-linked inheritance?,supported
+bioasq_490,Is the toxin produced by Clostridium botulinum always deadly?,refuted
+bioasq_491,Is ocrelizumab effective for treatment of multiple sclerosis?,supported
+bioasq_492,Is there a role of regorafenib for sarcoma treatment?,supported
+bioasq_493,Is exon skipping correlated with exon circularization?,supported
+bioasq_494,Is NADPH oxidase 5 expressed in rodents?,refuted
+bioasq_495,Does Vitamin D induce  autophagy?,supported
+bioasq_496,Is RASA2 involved in melanoma?,supported
+bioasq_497,Is SUMOylation a post-translational modification in eukaryotes?,supported
+bioasq_498,Is Annexin V an apoptotic marker?,supported
+bioasq_499,Is the protein lefty an inhibitor of nodal?,supported
+bioasq_500,Is Migalastat used for treatment of Fabry Disease?,supported
+bioasq_501,Do statins cause diabetes?,supported
+bioasq_502,Are deletions of chromosomal regulatory boundaries associated with congenital disease?,supported
+bioasq_503,Can the Micro-C XL method achieve mononucleosome resolution?,supported
+bioasq_504,Can Diabetes be caused by a defect in a potassium chanel?,supported
+bioasq_505,Is rucaparib used for ovarian cancer treatment?,supported
+bioasq_506,Could hypophosphatemic rickets cause craniosynostosis?,supported
+bioasq_507,Is vortioxetine effective for treatment of depression?,supported
+bioasq_508,Can beans induce apoptosis?,supported
+bioasq_509,Is treatment resistant depression related to vitamin B9?,supported
+bioasq_510,Is adalimumab effective for hidradenitis suppurativa?,supported
+bioasq_511,Can NEECHAM Confusion Scale be used for evaluation of postoperative delirium?,supported
+bioasq_512,Is there an association between Muenke Syndrome and FGFR3 gene mutation?,supported
+bioasq_513,Has small pox been eradicated from the world?,supported
+bioasq_514,Is there alternative polyadenylation during zebrafish development?,supported
+bioasq_515,Are alterations in ultraconserved elements implicated in breast cancer?,supported
+bioasq_516,Is there any tool that facilitates the functional analysis of cis-regulatory regions in zebrafish?,supported
+bioasq_517,Has whole exome sequencing been performed in Alzheimer patients?,supported
+bioasq_518,Is Stat4 a transcription factor?,supported
+bioasq_519,Have the promoter regions of the genes implicated in Rett Syndrome been characterized with CAGE?,supported
+bioasq_520,"Has ""RNA interference"" been awarded Nobel prize?",supported
+bioasq_521,Is there any role for Pds5b in cohesion establishment?,supported
+bioasq_522,Could plasmepsins be used as targets for developing anti-malaria drugs?,supported
+bioasq_523,Is avanafil indicated for treatment of erectile dysfunction?,supported
+bioasq_524,Is there a role for gamma knife in treatment of Obsessive-Compulsive Disorder?,supported
+bioasq_525,Can NADPH oxidase be inhibited by apocynin and diphenylene iodonium?,supported
+bioasq_526,Does NADPH oxidase 5 require any subunit for function?,refuted
+bioasq_527,Is NSD-1015 an inhibitor of Aromatic L-Amino Acid Decarboxylase?,supported
+bioasq_528,Is pseudouridine a RNA modification?,supported
+bioasq_529,Do IEG create a ripple effect of transcription?,supported
+bioasq_530,Do T-Cells regulate neuropathic pain?,supported
+bioasq_531,Can telomere length shortening be reversed by telomerase?,supported
+bioasq_532,Is ABCE1 involved in ribosomal recycling?,supported
+bioasq_533,Does oculocutaneous albinism show an autosomal recessive inheritance?,supported
+bioasq_534,Are Ultra-conserved elements (UCEs) enriched in segmental duplications?,refuted
+bioasq_535,Do normal cells express the protein TERT?,refuted
+bioasq_536,Is there any involvement of the long non-coding RNA Gomafu in schizophrenia?,supported
+bioasq_537,Is butterfly rash a symptom of Systemic lupus erythematosus?,supported
+bioasq_538,Is infertility characteristic of individuals with Fanconi anemia?,supported
+bioasq_539,Is golimumab effective for ulcerative colitis?,supported
+bioasq_540,Does mTOR regulate the translation of MAPKAPK2?,supported
+bioasq_541,Do histone variant mH2A (macro-H2A) levels decrease upon differentiation?,refuted
+bioasq_542,Could divalent metal transporter 1 deficiency lead to anemia?,supported
+bioasq_543,Does the hERG gene code for a protein which is part of a sodium channel?,refuted
+bioasq_544,Is lenvatinib effective for renal cell carcinoma?,supported
+bioasq_545,Does HuR bind to the untranslated regions (UTRs) of mRNAs?,supported
+bioasq_546,Is H4K20 methylation associated with DNA replication?,supported
+bioasq_547,Does CRISPR inversion of CTCF sites alter genome topology?,supported
+bioasq_548,Is there a role of proton beam therapy in medulloblastoma treatment?,supported
+bioasq_549,Are there canonical marks of active chromatin in developmentally regulated genes?,refuted
+bioasq_550,Are there methods for generating highly multiplexed ChIP-seq libraries?,supported
+bioasq_551,Is Doxorubicin cardiotoxic?,supported
+bioasq_552,Is the mouse Sry gene locus free of repetitive sequences?,refuted
+bioasq_553,Is Meis1 implicated in microphthalmia?,supported
+bioasq_554,Can Pentraxin 3 predict outcomes of sepsis?,supported
+bioasq_555,Is ocular melanosis a risk factor for uveal melanoma?,supported
+bioasq_556,Is siltuximab effective for Castleman disease?,supported
+bioasq_557,Is the enzyme EPRS phosphorylated?,supported
+bioasq_558,Is there a relationship between B cells and Multiple Sclerosis?,supported
+bioasq_559,Does Yersinia pestis causes a respiratory infection?,supported
+bioasq_560,Are the genes for marneral biosynthesis scattered in the genome of A. thaliana?,refuted
+bioasq_561,Is Dupilumab used for treatment of atopic dermatitis?,supported
+bioasq_562,Does Jarid2 play a role in early embryo development?,supported
+bioasq_563,Is PUVA therapy indicated for eczema treatment?,supported
+bioasq_564,Do brown fat cells produce heat?,supported
+bioasq_565,Is Melioidosis caused by the bacterium Burkholderia pseudomallei?,supported
+bioasq_566,Can glyburide reduce cerebral edema?,supported
+bioasq_567,Has the gorilla genome been determined?,supported
+bioasq_568,Is vemurafenib used for thyroid cancer?,supported
+bioasq_569,Are mutations in the C9orf72  gene associated with macular degeneration?,refuted
+bioasq_570,Is the number of described human nuclear mutations less than 50000?,refuted
+bioasq_571,Is Musclin a secretory peptide?,supported
+bioasq_572,Are cutaneous porphyrias inherited with a recessive pattern?,refuted
+bioasq_573,Can methylenetetrahydrofolate reductase (MTHFR) gene mutations cause homocystinuria?,supported
+bioasq_574,Can valproic acid prolong survival of glioblastoma patients?,supported
+bioasq_575,Is Cryptococcus neoformans a frequent cause of isolated skin infections in immunocompromised individuals,refuted
+bioasq_576,Is Obeticholic Acid used for treatment of Primary Biliary Cholangitis?,supported
+bioasq_577,Does the word ovine refers to goats?,refuted
+bioasq_578,Does GATA-1 regulate ribosomal protein genes?,supported
+bioasq_579,Does the TOP2B/TOP2A expression ratio affect the response to AML chemotherapy?,supported
+bioasq_580,Is Lennox-Gastaut Syndrome usually diagnosed in older adults?,refuted
+bioasq_581,Is Beta-Thalassemia is associated with a mutation or deletion of the gene that codes for alpha globin?,refuted
+bioasq_582,Is diphosphatidylglycerol (cardiolipin) a phospholipid of the mitochondrial membranes?,supported
+bioasq_583,Have studies shown that there is no link between DNA methylation patterns and Post Traumatic Stress Disorder?,refuted
+bioasq_584,Is POLD3 essential for mouse development?,supported
+bioasq_585,Are hepadnaviral minichromosomes free of nucleosomes?,refuted
+bioasq_586,Is Cri Du Chat associated with an expansion of a repeat with in the gene found on chromosome 5?,refuted
+bioasq_587,Is it feasible to obtain DNA read lengths that exceed 30 Kb?,refuted
+bioasq_588,Is osteocrin expressed exclusively in the bone?,refuted
+bioasq_589,Are alterations in ultraconserved elements associated with colorectal adenocarcinoma?,supported
+bioasq_590,Is apremilast effective for psoriasis?,supported
+bioasq_591,Is skin color affected by variations of the SLC24A5 gene?,supported
+bioasq_592,Do circRNAs remain untranslated?,refuted
+bioasq_593,Is autophagy the process where bacteria ingest viral particles?,supported
+bioasq_594,Is intraoperative radiotherapy used for treatment of glioblastoma?,refuted
+bioasq_595,Is tirilazad effective for treatment of aneurysmal subarachnoid haemorrhage?,refuted
+bioasq_596,Is dexamethasone recommended for treatment of intracerebral hemorrhage?,refuted
+bioasq_597,Is airplane stroke syndrome a common disease.,refuted
+bioasq_598,Is hydroxyurea usually used to treated infectious disease?,refuted
+bioasq_599,Can acupuncture cause spinal epidural hematoma?,supported
+bioasq_600,Is edema a symptom of nephrotic syndrome?,supported
+bioasq_601,Is there an association between Histone H3.3 mutations and glioma?,supported
+bioasq_602,Is Pfh1 a component of the replisome?,refuted
+bioasq_603,Does the Abelson-related gene (ARG) gene encode for a serine kinase?,refuted
+bioasq_604,Is Prochlorococcus the most abundant photosynthetic organism?,supported
+bioasq_605,Is dupilumab an antibody targeting the IL-1 receptor?,refuted
+bioasq_606,Does the histone chaperone ASF1 interact with histones H1/H2?,refuted
+bioasq_607,Is Hepatic mesenchymal hamartoma usually a malignant tumor?,refuted
+bioasq_608,Are selenium supplements recommended for prostate cancer prevention?,refuted
+bioasq_609,Is there any involvement of L1 retrotransposition in the Rett syndrome?,supported
+bioasq_610,Is Downs syndrome associated with decreased risk of leukemia?,refuted
+bioasq_611,Does PCSK9 (Proprotein convertase subtilisin/kexin type 9) binds with HDL-receptor (HDL-R)?,refuted
+bioasq_612,Is apremilast effective for psoriatic arthritis?,supported
+bioasq_613,Is there any role of TBR1 in autism?,supported
+bioasq_614,Is sonidegib effective for basal cell carcinoma?,supported
+bioasq_615,Does RNA polymerase II have RNA cleavage activity?,supported
+bioasq_616,Is there a sequence bias in MNase digestion patterns?,supported
+bioasq_617,Is NEMO a zinc finger protein?,supported
+bioasq_618,Does TFIIS affect nucleosome positioning?,supported
+bioasq_619,Is tretinoin effective for photoaging?,supported
+bioasq_620,Does TUC.338 inhibit colorectal cancer?,refuted
+bioasq_621,Has ruxolitinib received FDA approval?,supported
+bioasq_622,Is scuba diving safe during pregnancy?,refuted
+bioasq_623,Does deflazacort have more side effects than prednisone?,refuted
+bioasq_624,Does echinacea increase anaphylaxis risk?,supported
+bioasq_625,Are neurexins localized at pre-synapses?,supported
+bioasq_626,Is there any role of 5hmC in T-cell development and differentiation?,supported
+bioasq_627,Are there ultraconserved genomic regions in the budding yeast?,supported
+bioasq_628,Is davunetide being considered for the treatment of progressive supranuclear palsy?,supported
+bioasq_629,Is autophagy modulated in a circadian fashion?,supported
+bioasq_630,Is Drk essential for anesthesia-resistant memory (ARM) in Drosophila?,supported
+bioasq_631,Are TAD boundaries in Drosophila depleted in highly-expressed genes?,refuted
+bioasq_632,Is there increased recombination rate in human regulatory domains?,refuted
+bioasq_633,Is enzastaurin effective treatment of glioblastoma?,refuted
+bioasq_634,Is dasatinib effective for treatment of glioblastoma?,refuted
+bioasq_635,Has IVIG been tested in clinical trials for the treatment of Alzheimer's disease?,supported
+bioasq_636,Does a tonsillectomy affect the patient's voice?,supported
+bioasq_637,Do cephalopods use RNA editing less frequently than other species?,refuted
+bioasq_638,Is there an RNAi drug being developed to treat amyloidosis?,supported
+bioasq_639,Is there an association between carcinoid syndrome and mitral valve disease?,supported
+bioasq_640,Are there RNAi approaches considered for the treatment of kidney injury?,supported
+bioasq_641,Is propranolol used for treatment of infantile hemangioma?,supported
+bioasq_642,Can the CEP290 gene mutations be targeted by AAV-mediated gene therapy?,refuted
+bioasq_643,Are mutations in the nf1 gene associated with memory?,supported
+bioasq_644,Is ACI-35 a passive vaccine?,refuted
+bioasq_645,Is DNA methylation correlated with nucleosome occupancy?,supported
+bioasq_646,Does DDX54 play a role in DNA damage response?,supported
+bioasq_647,Do bacteria from the genus Morexella cause respiratory infections?,supported
+bioasq_648,Do chromatin features predict genes associated with eQTLs?,supported
+bioasq_649,Is Kummell’s disease an avascular necrosis of the vertebral body?,supported
+bioasq_650,Are Conserved Nonexonic Elements (CNEEs) important in phylogenomics research?,supported
+bioasq_651,Can the yeast protein Abf1 act as insulator?,supported
+bioasq_652,Is there any linear-time and linear-space algorithm for the computation of avoided words in biological sequences?,supported
+bioasq_653,Is a CpG island methylator phenotype involved in ependymomas?,supported
+bioasq_654,Are loop domains preserved upon cohesin loss?,refuted
+bioasq_655,Is Loss of function one of the cardinal signs of inflammation?,supported
+bioasq_656,Does the association of PARP1 and CTCF follow a circadian rhythm?,supported
+bioasq_657,Does erythromycin increase risk of hypertrophic pyloric stenosis?,supported
+bioasq_658,Has the proteome of mice hippocampus been analysed?,supported
+bioasq_659,Was saracatinib being considered as a treatment for Alzheimer's disease in November 2017?,supported
+bioasq_660,Are mouse chromosomes acrocentric?,supported
+bioasq_661,Is overproduction of transthyretin is associated with amyloidosis associated neuropathy?,supported
+bioasq_662,"SGOT is an abbreviation for an enzyme other wise known as alanine amino transferase, yes or no?",refuted
+bioasq_663,Is patisiran currently (November 2017) in clinical phase II trials?,refuted
+bioasq_664,Is Solanezumab effective for Alzheimer's Disease?,refuted
+bioasq_665,Are organisms in the genus Morexella associated with sepsis?,supported
+bioasq_666,Are there mammalian promoters with distal enhancer functions?,supported
+bioasq_667,Is autosomal dominant inheritanced form of Osteogenesis imperfecta caused by mutations in the genes associated with collagen production?,supported
+bioasq_668,Is Apremilast effective for Behcet’s syndrome?,supported
+bioasq_669,Are splicing speckles associated with transcription?,refuted
+bioasq_670,Does Enzastaurin improve survival of glioblastoma patients?,refuted
+bioasq_671,Is Tofacitinib effective for Ulcerative Colitis?,supported
+bioasq_672,Is CREB a key memory protein?,supported
+bioasq_673,Is cilengitide effective for treatment of glioblastoma?,refuted
+bioasq_674,Can multiple myeloma patients develop hyperviscosity syndrome?,supported
+bioasq_675,Does the human lncRNA LINC-PINT promote tumorigenesis?,refuted
+bioasq_676,Is LDB1-mediated enhancer looping dependent on cohesin?,refuted
+bioasq_677,Is there any link between ERCC1-XPF and cohesin?,supported
+bioasq_678,Does Evolocumab improve cognitive function?,refuted
+bioasq_679,Can radius fracture cause carpal tunnel syndrome?,supported
+bioasq_680,Can Logic Alignment Free (LAF) be used for bacterial genomes classification?,supported
+bioasq_681,Is Marfan syndrome associated with chordal rupture?,supported
+bioasq_682,Can canagliflozin cause euglycemic diabetic ketoacidosis?,supported
+bioasq_683,Is there an association between Klinefelter syndrome and breast cancer?,supported
+bioasq_684,"Are the human bombesin receptors, GRPR and NMBR, frequently overexpressed G-protein-coupled-receptors by lung-cancers?",supported
+bioasq_685,Is vorinostat effective for glioblastoma?,refuted
+bioasq_686,Is there any role of Dlx1 and Dlx2 transcription factors in cortical interneurons?,supported
+bioasq_687,Has ATF4 transcription factor been linked to cancer and neoplastic transformation?,supported
+bioasq_688,Are patients with Sjogren syndrome at increased risk for lymphoma?,supported
+bioasq_689,Does prolactinoma increase osteoporosis risk?,supported
+bioasq_690,"Down's syndrome occurs when an individual has an extra copy or part of a copy of chromosome 21, yes or no?",supported
+bioasq_691,Is creatinine assessment included in the MELD score?,supported
+bioasq_692,Is celiac disease caused by gliadin-induced transglutaminase-2 (TG2)-dependent events ?,supported
+bioasq_693,"Does wheat belongs to the genus Avena, yes or no?",refuted
+bioasq_694,Does Uc.160 promote cancer?,refuted
+bioasq_695,Can doxycycline cause photosensitivity?,supported
+bioasq_696,Are paralog genes co-regulated?,supported
+bioasq_697,Is polyadenylation a process that stabilizes a protein by adding a string of Adenosine residues to the end of the molecule?,refuted
+bioasq_698,Are stress granules membraneous?,refuted
+bioasq_699,Is the consumption of chocolate associated with an increase in cardiovascular disease?,refuted
+bioasq_700,Is the gene CDKN2A nevogenic?,supported
+bioasq_701,Are there ways of joint Bayesian inference of risk variants?,supported
+bioasq_702,Has intepirdine been evaluated in clinical trials? (November 2017),supported
+bioasq_703,Is subacute sclerosing panencephalitis caused by the Measles vaccine?,refuted
+bioasq_704,Does armodafinil improve fatigue of glioma patients?,refuted
+bioasq_705,Is pregabalin effective for sciatica?,refuted
+bioasq_706,Can gas vesicles be detected by ultrasound?,supported
+bioasq_707,Is Citrobacter rodentium pathogenic?,supported
+bioasq_708,Can CD55 deficiency cause thrombosis?,supported
+bioasq_709,Are sleep apnea and snoring associated with cardiac arrhythmias?,supported
+bioasq_710,Are osteoclasts specialized in bone degradation?,supported
+bioasq_711,Does temsirolimus improve survival of glioblastoma patients?,refuted
+bioasq_712,Are there sex differences in the transcriptome of the mouse hippocampus?,supported
+bioasq_713,Does MC1R palmitoylation reduce pigmentation?,refuted
+bioasq_714,"A bite from the Lone Star Tick Amblyomma americanum, can cause the victim to become allergic to red meat, yes or no?",supported
+bioasq_715,Is Rucaparib effective for ovarian cancer?,supported
+bioasq_716,Does verubecestat activate BACE?,refuted
+bioasq_717,Is Tocilizumab effective for Giant-Cell Arteritis?,supported
+bioasq_718,Is there a link between nuclear position and DNA repair pathway choice?,supported
+bioasq_719,Can non ubiquitinated Tomm20 promote mitophagy?,refuted
+bioasq_720,Does SARM1 deletion cause neurodegeneration?,refuted
+bioasq_721,Is DNA polymerase θ involved in DNA repair?,supported
+bioasq_722,Can nanoparticles be used for afterglow imaging?,supported
+bioasq_723,Is there any role of interleukin-11 in cardiovascular fibrosis?,supported
+bioasq_724,Is there a disease or condition called Exploding Head Syndrome?,supported
+bioasq_725,Is Enlimomab effective for stroke treatment?,refuted
+bioasq_726,Are AAV vectors considered for the treatment of retinal dystrophies?,supported
+bioasq_727,Does International Citicoline Trial on acUte Stroke trial supports efficacy of citicoline for stroke treatment?,refuted
+bioasq_728,Is human lysyl oxidase-like 2 a glycoprotein?,supported
+bioasq_729,Can GDF15 be a biomarker for metformin treatment?,supported
+bioasq_730,Has rituximab been considered as a treatment for chronic fatigues syndrome? (November 2017),supported
+bioasq_731,Does oncogene-induced DNA replication stress inhibit genomic instability?,refuted
+bioasq_732,Is the petrous bone used in ancient DNA sampling?,supported
+bioasq_733,Is recursive splicing more common in short introns?,refuted
+bioasq_734,Is Lysyl oxidase crosslinking collagen?,supported
+bioasq_735,Is sternotomy closure done using either a sternal ZipFix™ implant  or conventional steel wire following cardiac surgery?,supported
+bioasq_736,Is transcription of eRNA bidirectional?,supported
+bioasq_737,Is the protein pelota a ribosomal rescue factor?,supported
+bioasq_738,Is CXCL7 a chemokine?,supported
+bioasq_739,The TRPM2 gene is associated with development of spontaneous thromboembolism?,refuted
+bioasq_740,Is a mutation of the  ZIKV's membrane protein prM responsible for the microcephaly in new-born infants?,supported
+bioasq_741,Is lumican a secreted protein?,supported
+bioasq_742,Is Brucella abortus the organism that causes brucillosis known to cause spontaneous abortions in humans?,refuted
+bioasq_743,Is p53 a transcription factor?,supported
+bioasq_744,Is Cystatin D a biomarker?,supported

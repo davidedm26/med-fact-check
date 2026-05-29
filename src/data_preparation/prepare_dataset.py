@@ -4,8 +4,9 @@ import json
 from datasets import load_dataset
 
 # Define directories for separation of concerns
-RAW_DIR = "raw_datasets"
-OUTPUT_DIR = "datasets"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RAW_DIR = os.path.join(BASE_DIR, "raw_datasets")
+OUTPUT_DIR = os.path.join(BASE_DIR, "datasets")
 
 # Create directories if they don't exist
 os.makedirs(RAW_DIR, exist_ok=True)
@@ -13,9 +14,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def prepare_scifact():
-    print("Downloading SciFact (Train+Validation) from Hugging Face...")
+    print("Downloading SciFact (Train) from Hugging Face...")
 
-    dataset = load_dataset("allenai/scifact", "claims", split="train+validation", trust_remote_code=True)
+    dataset = load_dataset("allenai/scifact", "claims", split="train", trust_remote_code=True)
     
     scifact_data = []
     for item in dataset:
@@ -23,9 +24,9 @@ def prepare_scifact():
         evidence_label = item.get('evidence_label', '')
         
         if evidence_label == "SUPPORT":
-            true_label = "Supported"
+            true_label = "supported"
         elif evidence_label == "CONTRADICT":
-            true_label = "Refuted"
+            true_label = "refuted"
         else:
             true_label = "NEI"
                         
@@ -36,7 +37,7 @@ def prepare_scifact():
     # Remove duplicates from SciFact claims, keeping only one instance of each claim.
     # Note: We previously verified via a separate script (check_conflicts.py) that there are 0 conflicting labels 
     # for the same claim in this dataset. Therefore, it is completely safe to drop duplicates.
-    df['label_priority'] = df['true_label'].map({'Supported': 1, 'Refuted': 1, 'NEI': 2})
+    df['label_priority'] = df['true_label'].map({'supported': 1, 'refuted': 1, 'NEI': 2})
     df = df.sort_values('label_priority').drop_duplicates(subset=['claim'], keep='first').drop(columns=['label_priority'])
     
     df.to_csv(f"{OUTPUT_DIR}/scifact_clean.csv", index=False)
@@ -75,9 +76,9 @@ def prepare_bioasq():
                             ans_text = str(answers[0]).lower().strip()
                     
                     if ans_text == "yes":
-                        true_label = "Supported"
+                        true_label = "supported"
                     elif ans_text == "no":
-                        true_label = "Refuted"
+                        true_label = "refuted"
                     else:
                         true_label = "NEI"
                         
@@ -119,9 +120,9 @@ def prepare_healthfc():
         original_label = str(row['label']).lower().strip()
         
         if original_label in ["true", "yes", "1", "1.0", "wahr"]:
-            true_label = "Supported"
+            true_label = "supported"
         elif original_label in ["false", "no", "0", "0.0", "falsch"]:
-            true_label = "Refuted"
+            true_label = "refuted"
         else:
             true_label = "NEI"
             
