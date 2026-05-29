@@ -43,9 +43,14 @@ def build_decompose_graph(decomposition_agent, classification_agent):
     def claim_classification_node(state: State) -> Command[Literal["claim_filter"]]:
         log.info("claim_classification start")
         predicates = state.get("predicates") or []
+        # Pass only natural language queries to the classification agent
+        queries = [
+            p.get("search_query") or " ".join(str(p.get(k, "")) for k in ("relation", "subject", "object")).strip()
+            for p in predicates if isinstance(p, dict)
+        ]
         messages = [
             SystemMessage(content=claim_classification_prompt),
-            HumanMessage(content=json.dumps(predicates, ensure_ascii=False)), # pass the extracted subclaims as a message to the classification agent
+            HumanMessage(content=json.dumps(queries, ensure_ascii=False)), # pass the extracted queries
         ]
         structured = classification_agent.invoke(messages)
         log.info("claim_classification agent response received")
@@ -69,9 +74,9 @@ def build_decompose_graph(decomposition_agent, classification_agent):
         log.info("claim_filter start")
         predicate_type_dict = state.get("predicate_type_dict") or []
         verifiable_subclaims = [
-            item.get("predicate")
+            item.get("query")
             for item in predicate_type_dict
-            if isinstance(item, dict) and item.get("type") == "verifiable"
+            if isinstance(item, dict) and item.get("type") == "verifiable" and item.get("query")
         ]
         log.info("claim_filter complete")
         return Command(
