@@ -44,21 +44,25 @@ claim_decomposition = {
 # Claim decomposition examples
 claim_decomposition_examples = [
     {
-        "input_claim": "Howard University Hospital is located in Washington, D.C., and Providence Hospital is located in Washington, D.C.",
+        "input_claim": "Despite the regulator's recent ban, their latest compound saw a drop in sales.",
         "predicates": [
             {
-                "relation": "Location",
-                "subject": "Howard University Hospital",
-                "object": "Washington, D.C.",
-                "search_query": "Howard University Hospital is located in Washington, D.C."
+                "relation": "Ban",
+                "subject": "The regulator",
+                "object": "the latest compound",
+                "search_query": "There is a recent ban by the regulator."
             },
             {
-                "relation": "Location",
-                "subject": "Providence Hospital",
-                "object": "Washington, D.C.",
-                "search_query": "Providence Hospital is located in Washington, D.C."
+                "relation": "Drop",
+                "subject": "The regulator's latest compound",
+                "object": "sales",
+                "search_query": "The regulator's latest compound saw a drop in sales."
             }
         ],
+    },
+    {
+        "input_claim": "ciao / hello there! wtf",
+        "predicates": []
     },
     {
         "input_claim": "Alfredo Cornejo Cuevas was born on June 6, 1933. He won the gold medal in the welterweight division at the 1959 Pan American Games in Chicago, United States. The 1959 Pan American Games were held in Chicago, United States. He also won the world amateur welterweight title in Mexico City.",
@@ -203,11 +207,92 @@ claim_decomposition_examples = [
             }
         ],
     },
+    {
+        "input_claim": "The actor Tom Hanks won an Oscar in 1994, and recently he stated that daily aspirin prevents heart attacks in healthy adults.",
+        "predicates": [
+            {
+                "relation": "Won",
+                "subject": "The actor Tom Hanks",
+                "object": "an Oscar in 1994",
+                "search_query": "The actor Tom Hanks won an Oscar in 1994."
+            },
+            {
+                "relation": "Prevents",
+                "subject": "Daily aspirin",
+                "object": "heart attacks in healthy adults",
+                "search_query": "Daily aspirin prevents heart attacks in healthy adults."
+            }
+        ],
+    },
+    {
+        "input_claim": "Although the manufacturer's stock price surged by 18% on the Nasdaq last week, their new monoclonal antibody reduces amyloid plaque buildup in Alzheimer's patients by 25%, an achievement that is widely felt to be the most magical scientific triumph of our era.",
+        "predicates": [
+            {
+                "relation": "Surged",
+                "subject": "The manufacturer's stock price",
+                "object": "by 18% on the Nasdaq last week",
+                "search_query": "The manufacturer's stock price surged by 18% on the Nasdaq last week."
+            },
+            {
+                "relation": "Reduces",
+                "subject": "The new monoclonal antibody",
+                "object": "amyloid plaque buildup in Alzheimer's patients by 25%",
+                "search_query": "The new monoclonal antibody reduces amyloid plaque buildup in Alzheimer's patients by 25%."
+            },
+            {
+                "relation": "Felt to be",
+                "subject": "The reduction of amyloid plaque buildup by the new monoclonal antibody",
+                "object": "the most magical scientific triumph of our era",
+                "search_query": "The reduction of amyloid plaque buildup by the new monoclonal antibody is widely felt to be the most magical scientific triumph of our era."
+            }
+        ],
+    },
+    {
+        "input_claim": "Following the Ministry of Health's unexpected budget cuts, clinicians are now instructed to prescribe generic amoxicillin instead of targeted cephalosporins unless the patient has a documented penicillin allergy or severe hepatic failure, a policy shift that local tabloids call a murderous attack on the poor.",
+        "predicates": [
+            {
+                "relation": "Budget cuts",
+                "subject": "The Ministry of Health",
+                "object": "unexpected budget cuts",
+                "search_query": "There are unexpected budget cuts by the Ministry of Health."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "generic amoxicillin",
+                "search_query": "Clinicians are instructed to prescribe generic amoxicillin in patients without a documented penicillin allergy."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "generic amoxicillin",
+                "search_query": "Clinicians are instructed to prescribe generic amoxicillin in patients without severe hepatic failure."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "targeted cephalosporins",
+                "search_query": "Clinicians are instructed to prescribe targeted cephalosporins if the patient has a documented penicillin allergy."
+            },
+            {
+                "relation": "Instructed to prescribe",
+                "subject": "Clinicians",
+                "object": "targeted cephalosporins",
+                "search_query": "Clinicians are instructed to prescribe targeted cephalosporins if the patient has severe hepatic failure."
+            },
+            {
+                "relation": "Call",
+                "subject": "Local tabloids",
+                "object": "the policy shift a murderous attack on the poor",
+                "search_query": "Local tabloids call the policy shift to prescribe generic amoxicillin instead of targeted cephalosporins a murderous attack on the poor."
+            }
+        ],
+    },
 ]
 
 # Claim decomposition prompt
 claim_decomposition_prompt = f"""
-You are given a problem description and a claim. Split the claim into atomic, verifiable predicates and return only structured predicate objects.
+You are given a problem description and a claim. Split the claim into atomic predicates (extracting BOTH factual assertions and subjective opinions) and return only structured predicate objects.
 
 Important:
 - EMPTY/GIBBERISH CLAIMS: If the input claim is meaningless, purely conversational, or contains no extractable assertions (e.g., "wtf", "hello"), you MUST return an empty list `[]` for predicates. Do NOT hallucinate facts from the examples.
@@ -225,7 +310,8 @@ Structural rules:
 - EXCEPTIONS: If a claim contains an exception ("unless X", "except in Y"), convert it into a negative condition ("in patients without X") and attach it to the main claim. If the exception has an alternative ("unless X, in which case Z"), extract the main claim with the negative condition ("in patients without X") AND extract the alternative with the positive condition ("Z if the patient has X").
 - ALTERNATIVES ("otherwise"): If a claim specifies a strict condition and an alternative ("only if X; otherwise Y"), split into two claims: the main action with the positive condition ("if X"), and the alternative Y with the INVERTED condition ("if NOT X"). Ensure both claims retain the full context.
 - DISJUNCTIONS: If a claim contains "X or Y", split into separate subclaims — one for X and one for Y — each carrying the full surrounding context. Example: "EGFR mutation or ALK translocation" becomes two subclaims, one about EGFR and one about ALK.
-- COREFERENCE: Every subclaim must name the disease, treatment, and population explicitly. Never use "the treatment", "those affected", or "it" — replace with the actual entity from the original claim.
+- COREFERENCE: Every subclaim must name the entities explicitly. Resolve ALL pronouns ("it", "they", "their", "this") and abstract references ("the treatment", "the company", "this outcome", "an achievement") to the exact nouns or full events from the original claim.
+- BACKGROUND FACTS: Extract embedded facts even if they are presented as noun phrases or contextual background (e.g., "Despite the lawsuit..." -> "There is a lawsuit..."). Treat them as independent assertions.
 
 Content rules:
 - Keep each predicate minimal: one fact per item.
@@ -298,7 +384,7 @@ A NON-VERIFIABLE claim is ONLY one that:
 - Is so vague that no specific fact can be checked
 
 An OUT-OF-DOMAIN claim is one that:
-- Is a verifiable fact, but has absolutely nothing to do with medicine, health, human biology, or clinical practice (e.g., pop culture, general history, geography, entertainment).
+- Is a verifiable fact, but has absolutely nothing to do with medical science, health, human biology, or clinical practice (e.g., pop culture, general history, geography, entertainment, corporate financial/stock data, revenue drops, or legal disputes). Even if a pharmaceutical company is mentioned, pure financial or legal facts are OUT-OF-DOMAIN.
 
 ## Critical rules — do NOT make these mistakes:
 - A claim with a NEGATION is still verifiable ("X does NOT cause Y" → VERIFIABLE)
@@ -306,7 +392,7 @@ An OUT-OF-DOMAIN claim is one that:
 - A claim phrased as a QUESTION is still verifiable ("Does X treat Y?" → VERIFIABLE)
 - A claim about a medical ASSOCIATION or RISK is still verifiable ("X increases the risk of Y" → VERIFIABLE)
 - A claim you personally doubt or find implausible is still verifiable if it asserts a checkable fact
-- When in doubt, classify as VERIFIABLE. Most factual claims about the physical world, medical treatments, and scientific findings ARE verifiable.
+- DEFAULT TO OUT-OF-DOMAIN FOR NON-MEDICAL FACTS: If a fact is verifiable but you are unsure if it is medical enough, classify it as OUT-OF-DOMAIN. Only classify as VERIFIABLE if it clearly relates to medicine, biology, or health.
 
 ## Examples of VERIFIABLE claims (Medical/Health):
 - "St. John's wort relieves the symptoms of depression." (Medical claim)
@@ -325,9 +411,12 @@ An OUT-OF-DOMAIN claim is one that:
 - "The average global temperature increased by 0.8°C between 1880 and 2012." (Verifiable, but general science/climate, not medical)
 - "The film Parasite won the Academy Award for Best Picture in 2020." (Verifiable, but entertainment)
 - "Geolier has written the song Soldati." (Verifiable, but music/pop culture)
+- "AWS S3 storage fees have recently increased by 15%." (Verifiable, but technology/business)
 
 Classify each query only by whether it can be checked against objective evidence. Do not judge usefulness, plausibility, importance, or desirability. Do not rewrite the query; only assign a label.
 
-CRITICAL: You must output valid JSON using DOUBLE QUOTES (") for all string keys and values. Never use single quotes to enclose strings.
+CRITICAL RULES FOR JSON OUTPUT:
+1. You must output valid JSON using DOUBLE QUOTES (") for all string keys and values.
+2. The `query` field in your output MUST be an exact, character-for-character copy of the input query. NEVER substitute the query with an example from this prompt. If the input query is "ciao", the output query MUST be "ciao".
 """
 

@@ -111,7 +111,12 @@ def print_results(response: dict, elapsed: float):
         if isinstance(entry, dict):
             q = entry.get("query", "?")
             t = entry.get("type", "?")
-            color = C.GREEN if t == "verifiable" else C.RED
+            if t == "verifiable":
+                color = C.GREEN
+            elif t == "out-of-domain":
+                color = C.YELLOW
+            else:
+                color = C.RED
             label = f"{color}{t.upper()}{C.RESET}"
             print(f"  {C.BOLD}[{i}]{C.RESET} {label}  {q}")
         else:
