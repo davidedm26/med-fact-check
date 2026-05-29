@@ -8,7 +8,6 @@ claim_decomposition = {
         "properties": {
             "predicates": { 
                 "type": "array",
-                "minItems": 1, # Ensure at least one predicate is returned for claims with factual content
                 "items": {
                     "type": "object",
                     "properties": {
@@ -158,6 +157,52 @@ claim_decomposition_examples = [
             }
         ],
     },
+    {
+        "input_claim": "Metformin is recommended as a first-line pharmacological treatment for type 2 diabetes mellitus, unless the patient has severe renal impairment (eGFR < 30 mL/min) or a history of lactic acidosis, in which case DPP-4 inhibitors should be considered instead.",
+        "predicates": [
+            {
+                "relation": "Recommended",
+                "subject": "Metformin",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "Metformin is recommended as a first-line pharmacological treatment for type 2 diabetes mellitus in patients without severe renal impairment (eGFR < 30 mL/min)."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "Metformin",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "Metformin is recommended as a first-line pharmacological treatment for type 2 diabetes mellitus in patients without a history of lactic acidosis."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "DPP-4 inhibitors",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "DPP-4 inhibitors should be considered as a treatment for type 2 diabetes mellitus if the patient has severe renal impairment (eGFR < 30 mL/min)."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "DPP-4 inhibitors",
+                "object": "type 2 diabetes mellitus",
+                "search_query": "DPP-4 inhibitors should be considered as a treatment for type 2 diabetes mellitus if the patient has a history of lactic acidosis."
+            }
+        ],
+    },
+    {
+        "input_claim": "Patients with acute ischemic stroke should receive intravenous alteplase within 4.5 hours of symptom onset, but only if their blood pressure is strictly maintained below 185/110 mmHg; otherwise, mechanical thrombectomy is preferred.",
+        "predicates": [
+            {
+                "relation": "Recommended",
+                "subject": "intravenous alteplase",
+                "object": "within 4.5 hours of symptom onset",
+                "search_query": "Patients with acute ischemic stroke should receive intravenous alteplase within 4.5 hours of symptom onset if their blood pressure is maintained below 185/110 mmHg."
+            },
+            {
+                "relation": "Recommended",
+                "subject": "mechanical thrombectomy",
+                "object": "patients with acute ischemic stroke",
+                "search_query": "Mechanical thrombectomy is preferred for patients with acute ischemic stroke within 4.5 hours of symptom onset if their blood pressure is NOT maintained below 185/110 mmHg."
+            }
+        ],
+    },
 ]
 
 # Claim decomposition prompt
@@ -165,17 +210,20 @@ claim_decomposition_prompt = f"""
 You are given a problem description and a claim. Split the claim into atomic, verifiable predicates and return only structured predicate objects.
 
 Important:
+- EMPTY/GIBBERISH CLAIMS: If the input claim is meaningless, purely conversational, or contains no extractable assertions (e.g., "wtf", "hello"), you MUST return an empty list `[]` for predicates. Do NOT hallucinate facts from the examples.
 - Never return an empty list when the claim contains factual content.
 - Split conjunctive claims into separate subclaims.
 - Keep each subclaim grounded in the original claim; do not invent new facts or overgeneralize.
+- STRICT FAITHFULNESS: Extract EXACTLY what the claim asserts, even if you know it is factually incorrect, absurd, or false. Do NOT auto-correct the claim or substitute entities with the 'correct' real-world facts (e.g., if the claim says 'X invented Y', do not replace 'X' with the actual inventor).
 - Prefer 1 factual statement per subclaim.
 - If the claim is compound, produce one subclaim for each independently checkable fact.
 - If the claim is ambiguous, underspecified, or not safely splittable, return the original claim as a single subclaim instead of forcing a decomposition.
-- Ignore subjective opinions, recommendations, and normative fragments that are not factual claims.
-- Do not turn a recommendation into a factual predicate.
+- EXTRACT EVERYTHING: Extract ALL assertions from the text, including subjective opinions, anecdotal reports, recommendations, and normative statements. Do not filter them out during decomposition. The downstream classifier will decide if they are verifiable or not.
 
 Structural rules:
 - CONDITIONALS: If a fact is conditioned on a premise ("if X then Y", "when X", "in patients with X"), incorporate the condition INTO each derived subclaim. Never extract the condition as a standalone predicate. Example: "If EGFR is mutated, NSCLC responds to therapy" becomes "NSCLC responds to therapy in patients with EGFR mutation" — NOT two separate claims.
+- EXCEPTIONS: If a claim contains an exception ("unless X", "except in Y"), convert it into a negative condition ("in patients without X") and attach it to the main claim. If the exception has an alternative ("unless X, in which case Z"), extract the main claim with the negative condition ("in patients without X") AND extract the alternative with the positive condition ("Z if the patient has X").
+- ALTERNATIVES ("otherwise"): If a claim specifies a strict condition and an alternative ("only if X; otherwise Y"), split into two claims: the main action with the positive condition ("if X"), and the alternative Y with the INVERTED condition ("if NOT X"). Ensure both claims retain the full context.
 - DISJUNCTIONS: If a claim contains "X or Y", split into separate subclaims — one for X and one for Y — each carrying the full surrounding context. Example: "EGFR mutation or ALK translocation" becomes two subclaims, one about EGFR and one about ALK.
 - COREFERENCE: Every subclaim must name the disease, treatment, and population explicitly. Never use "the treatment", "those affected", or "it" — replace with the actual entity from the original claim.
 
@@ -220,7 +268,7 @@ claim_classification = {
                         },
                         "type": {
                             "type": "string",
-                            "enum": ["verifiable", "non-verifiable"],
+                            "enum": ["verifiable", "non-verifiable", "out-of-domain"],
                             "description": "Classification type of the subclaim."
                         }
                     },
@@ -240,13 +288,17 @@ claim_classification_prompt = f"""
 You are an expert in claim verification. Your task is to determine whether each query is VERIFIABLE or NON-VERIFIABLE.
 
 ## Definition
-A VERIFIABLE claim is any factual assertion about the world that could, in principle, be checked against objective evidence (scientific studies, databases, official records, measurements). It does NOT matter whether the claim is true, false, controversial, or about an obscure topic — only whether evidence could confirm or refute it.
+A VERIFIABLE claim is any factual assertion about the world that could, in principle, be checked against objective evidence (scientific studies, databases, official records, measurements). It does NOT matter whether the claim is true, false, controversial, or about an obscure topic — only whether evidence could confirm or refute it. IMPORTANT: For this task, it MUST be related to medicine, health, biology, or clinical practice.
 
 A NON-VERIFIABLE claim is ONLY one that:
-- Expresses a purely subjective opinion or personal preference ("X is the best", "I believe...")
+- Expresses a purely subjective opinion or personal preference ("X is the best", "I believe...", "the most elegant breakthrough")
 - Makes a normative or ethical judgment about what "should" be done
 - States a recommendation without attributing it to a source
+- Is an anecdotal, vague, or purely qualitative report lacking clinical metrics (e.g., "patients generally report feeling more energetic")
 - Is so vague that no specific fact can be checked
+
+An OUT-OF-DOMAIN claim is one that:
+- Is a verifiable fact, but has absolutely nothing to do with medicine, health, human biology, or clinical practice (e.g., pop culture, general history, geography, entertainment).
 
 ## Critical rules — do NOT make these mistakes:
 - A claim with a NEGATION is still verifiable ("X does NOT cause Y" → VERIFIABLE)
@@ -256,26 +308,23 @@ A NON-VERIFIABLE claim is ONLY one that:
 - A claim you personally doubt or find implausible is still verifiable if it asserts a checkable fact
 - When in doubt, classify as VERIFIABLE. Most factual claims about the physical world, medical treatments, and scientific findings ARE verifiable.
 
-## Examples:
-Verifiable: "The average global temperature increased by 0.8°C between 1880 and 2012."
-Verifiable: "The film Parasite won the Academy Award for Best Picture in 2020."
-Verifiable: "The 1959 Pan American Games were held in Chicago, United States."
-Verifiable: "St. John's wort relieves the symptoms of depression."
-Verifiable: "Is St. John's wort similarly effective as antidepressants?"
-Verifiable: "Does metformin interfere with thyroxine absorption?"
-Verifiable: "The F.X. Mayr cure has health benefits."
-Verifiable: "The F.X. Mayr cure can prevent diseases."
-Verifiable: "The Zisano bracelet strengthens the immune system."
-Verifiable: "The Zisano bracelet reduces fatigue."
-Verifiable: "Transplanted human glial progenitor cells are incapable of forming a neural network with host neurons."
-Verifiable: "Angiotensin converting enzyme inhibitors are associated with increased risk for functional renal insufficiency."
-Verifiable: "Is Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?"
-Verifiable: "Is irritable bowel syndrome more common in women with endometriosis?"
-Verifiable: "Thigh-length graduated compression stockings did not reduce deep vein thrombosis in stroke patients."
-Non-verifiable: "Climate change is the most important issue facing humanity today."
-Non-verifiable: "Parasite deserved to win the Academy Award for Best Picture."
-Non-verifiable: "People with kidney stones should avoid daily vitamin D supplementation."
-Non-verifiable: "Everyone ought to exercise more."
+## Examples of VERIFIABLE claims (Medical/Health):
+- "St. John's wort relieves the symptoms of depression." (Medical claim)
+- "Is Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?" (Question form)
+- "Thigh-length graduated compression stockings did not reduce deep vein thrombosis." (Negation)
+- "The Zisano bracelet strengthens the immune system." (Obscure health product)
+- "The WHO recommends exclusive breastfeeding for the first six months." (Attributed health recommendation - checkable)
+
+## Examples of NON-VERIFIABLE claims:
+- "Climate change is the most important issue facing humanity today." (Subjective opinion)
+- "People with kidney stones should avoid daily vitamin D supplementation." (Unattributed recommendation / normative)
+- "Leading experts feel the new mRNA vaccine is the most elegant medical breakthrough of our generation." (Vague qualitative opinion)
+- "Patients generally report feeling more energetic after the second dose." (Anecdotal / lacking metrics)
+
+## Examples of OUT-OF-DOMAIN claims:
+- "The average global temperature increased by 0.8°C between 1880 and 2012." (Verifiable, but general science/climate, not medical)
+- "The film Parasite won the Academy Award for Best Picture in 2020." (Verifiable, but entertainment)
+- "Geolier has written the song Soldati." (Verifiable, but music/pop culture)
 
 Classify each query only by whether it can be checked against objective evidence. Do not judge usefulness, plausibility, importance, or desirability. Do not rewrite the query; only assign a label.
 

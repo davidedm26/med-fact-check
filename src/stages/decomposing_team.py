@@ -48,6 +48,12 @@ def build_decompose_graph(decomposition_agent, classification_agent):
             p.get("search_query") or " ".join(str(p.get(k, "")) for k in ("relation", "subject", "object")).strip()
             for p in predicates if isinstance(p, dict)
         ]
+        if not queries:
+            log.info("No queries to classify; skipping classification agent.")
+            return Command(
+                update={"predicate_type_dict": []},
+                goto="claim_filter",
+            )
         messages = [
             SystemMessage(content=claim_classification_prompt),
             HumanMessage(content=json.dumps(queries, ensure_ascii=False)), # pass the extracted queries
@@ -76,7 +82,7 @@ def build_decompose_graph(decomposition_agent, classification_agent):
         verifiable_subclaims = [
             item.get("query")
             for item in predicate_type_dict
-            if isinstance(item, dict) and item.get("type") == "verifiable" and item.get("query")
+            if isinstance(item, dict) and str(item.get("type")).strip().lower() == "verifiable" and item.get("query")
         ]
         log.info("claim_filter complete")
         return Command(
