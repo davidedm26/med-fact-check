@@ -1,0 +1,116 @@
+{
+  "_description": "Gold set for Retrieval Team nodes ablation study. Each subclaim is annotated with the expected source, 3 expected search queries, and the expected retrieval strategy.",
+  "_version": "1.0",
+  "gold_subclaims": [
+    {
+      "subclaim_id": "ret_01",
+      "subclaim": "Metformin interferes thyroxine absorption.",
+      "expected_target_source": "literature",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Metformin thyroxine absorption interaction",
+        "Metformin effect on thyroxine levels",
+        "Thyroxine absorption inhibition by metformin"
+      ]
+    },
+    {
+      "subclaim_id": "ret_02",
+      "subclaim": "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease.",
+      "expected_target_source": "knowledge_base",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "Glycyl-tRNA synthetase Charcot-Marie-Tooth disease",
+        "GARS gene mutations CMT",
+        "Charcot-Marie-Tooth disease genetic basis"
+      ]
+    },
+    {
+      "subclaim_id": "ret_03",
+      "subclaim": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with bupropion.",
+      "expected_target_source": "clinical_trials",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Varenicline vs bupropion combination therapy",
+        "nicotine replacement therapy clinical trial",
+        "varenicline monotherapy 12 weeks efficacy"
+      ]
+    },
+    {
+      "subclaim_id": "ret_04",
+      "subclaim": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+      "expected_target_source": "literature",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "liver transplantation methadone discontinuation 2001",
+        "methadone treatment protocols liver transplant",
+        "liver transplant programs drug policy"
+      ]
+    },
+    {
+      "subclaim_id": "ret_05",
+      "subclaim": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "expected_target_source": "literature",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "microerythrocyte count severe anemia risk",
+        "homozygous alpha thalassemia trait anemia",
+        "microcytosis vulnerability to anemia"
+      ]
+    },
+    {
+      "subclaim_id": "ret_06",
+      "subclaim": "Trastuzumab (Herceptin) potential use in treatment of prostate cancer.",
+      "expected_target_source": "clinical_trials",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Trastuzumab prostate cancer clinical trials",
+        "Herceptin efficacy in prostate cancer patients",
+        "Trastuzumab treatment outcomes prostate cancer"
+      ]
+    },
+    {
+      "subclaim_id": "ret_07",
+      "subclaim": "Amiodarone belongs to class I anti-arrhythmic drugs.",
+      "expected_target_source": "knowledge_base",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "Amiodarone drug class",
+        "anti-arrhythmic drugs class I",
+        "Amiodarone pharmacological classification"
+      ]
+    },
+    {
+      "subclaim_id": "ret_08",
+      "subclaim": "Transplanted human glial progenitor cells incapable of forming a neural network with host animals' neurons.",
+      "expected_target_source": "literature",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "glial progenitor cells neural network formation",
+        "human glial cells host animal neurons",
+        "transplanted glial progenitor cell integration"
+      ]
+    },
+    {
+      "subclaim_id": "ret_09",
+      "subclaim": "Transcranial pulse stimulation (TPS) improves mental performance in people with Alzheimer's dementia.",
+      "expected_target_source": "clinical_trials",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Transcranial pulse stimulation Alzheimer's dementia trials",
+        "TPS mental performance Alzheimer's patients",
+        "Transcranial pulse stimulation cognitive outcomes"
+      ]
+    },
+    {
+      "subclaim_id": "ret_10",
+      "subclaim": "Complete genome of bacteria of the genus Arthrobacter is available.",
+      "expected_target_source": "knowledge_base",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "Arthrobacter complete genome",
+        "genus Arthrobacter genome sequencing",
+        "Arthrobacter genetic database"
+      ]
+    }
+  ]
+}

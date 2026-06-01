@@ -1,0 +1,122 @@
+{
+  "run_timestamp": "2026-06-01T09:57:56.087058",
+  "config": {
+    "provider": "nvidia",
+    "model_name": "meta/llama-3.1-8b-instruct",
+    "temperature": 0.1
+  },
+  "total_execution_time_s": 10.24,
+  "per_claim_results": [
+    {
+      "subclaim_id": "ret_01",
+      "subclaim": "Metformin interferes thyroxine absorption.",
+      "expected_source": "literature",
+      "predicted_source": "literature",
+      "source_match": true,
+      "expected_queries": [
+        "Metformin thyroxine absorption interaction",
+        "Metformin effect on thyroxine levels",
+        "Thyroxine absorption inhibition by metformin"
+      ],
+      "predicted_queries": [
+        "(metformin AND thyroxine)",
+        "(thyroxine absorption AND metformin)",
+        "(drug interaction AND metformin AND thyroxine)"
+      ],
+      "semantic_overlap_score": 0.9508,
+      "expected_strategy": "dense",
+      "predicted_strategy": "sparse",
+      "strategy_match": false
+    },
+    {
+      "subclaim_id": "ret_02",
+      "subclaim": "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease.",
+      "expected_source": "knowledge_base",
+      "predicted_source": "literature",
+      "source_match": false,
+      "expected_queries": [
+        "Glycyl-tRNA synthetase Charcot-Marie-Tooth disease",
+        "GARS gene mutations CMT",
+        "Charcot-Marie-Tooth disease genetic basis"
+      ],
+      "predicted_queries": [
+        "Glycyl-tRNA synthetase gene",
+        "Charcot-Marie-Tooth disease",
+        "Glycyl-tRNA synthetase and Charcot-Marie-Tooth disease"
+      ],
+      "semantic_overlap_score": 0.9061,
+      "expected_strategy": "sparse",
+      "predicted_strategy": "dense",
+      "strategy_match": false
+    },
+    {
+      "subclaim_id": "ret_03",
+      "subclaim": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with bupropion.",
+      "expected_source": "clinical_trials",
+      "predicted_source": "literature",
+      "source_match": false,
+      "expected_queries": [
+        "Varenicline vs bupropion combination therapy",
+        "nicotine replacement therapy clinical trial",
+        "varenicline monotherapy 12 weeks efficacy"
+      ],
+      "predicted_queries": [
+        "Varenicline vs combination nicotine replacement therapies with bupropion after 12 weeks",
+        "Effectiveness of Varenicline monotherapy vs combination therapy after 12 weeks",
+        "Comparison of Varenicline and combination nicotine replacement therapies with bupropion after 12 weeks"
+      ],
+      "semantic_overlap_score": 0.9381,
+      "expected_strategy": "dense",
+      "predicted_strategy": "sparse",
+      "strategy_match": false
+    },
+    {
+      "subclaim_id": "ret_04",
+      "subclaim": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+      "expected_source": "literature",
+      "predicted_source": "literature",
+      "source_match": true,
+      "expected_queries": [
+        "liver transplantation methadone discontinuation 2001",
+        "methadone treatment protocols liver transplant",
+        "liver transplant programs drug policy"
+      ],
+      "predicted_queries": [
+        "methadone treatment discontinuation liver transplantation",
+        "methadone liver transplantation programs",
+        "methadone treatment liver transplant patients"
+      ],
+      "semantic_overlap_score": 0.9591,
+      "expected_strategy": "sparse",
+      "predicted_strategy": "sparse",
+      "strategy_match": true
+    },
+    {
+      "subclaim_id": "ret_05",
+      "subclaim": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "expected_source": "literature",
+      "predicted_source": "literature",
+      "source_match": true,
+      "expected_queries": [
+        "microerythrocyte count severe anemia risk",
+        "homozygous alpha thalassemia trait anemia",
+        "microcytosis vulnerability to anemia"
+      ],
+      "predicted_queries": [
+        "microerythrocyte count and alpha thalassemia",
+        "high microerythrocyte count and anemia risk",
+        "homozygous alpha thalassemia and microerythrocyte count"
+      ],
+      "semantic_overlap_score": 0.9178,
+      "expected_strategy": "dense",
+      "predicted_strategy": "dense",
+      "strategy_match": true
+    }
+  ],
+  "aggregate_metrics": {
+    "total_subclaims": 5,
+    "source_accuracy": 0.6,
+    "avg_queries_semantic_overlap": 0.9344,
+    "strategy_accuracy": 0.4
+  }
+}

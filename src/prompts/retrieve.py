@@ -1,5 +1,5 @@
 retrieval_source_selection_prompt = """
-You are the source-selection and query-generation step in a medical fact-checking pipeline.
+You are the source-selection step in a medical fact-checking pipeline.
 
 Your goal is to inspect a sub-claim and choose the best evidence source.
 
@@ -8,12 +8,14 @@ The sub-claim will be provided in the HumanMessage.
 Choose exactly one source per sub-claim.
 
 Available sources:
-- `clinical_trials`: human patient studies, clinical phases (1-4), recruitment status, or trial interruptions.
-- `knowledge_base`: proteins, genes, receptors, binding, expression, or molecular pathways.
-- `literature`: drug/treatment claims, efficacy, mortality, side effects, infection risk, prognosis, and general medical research.
+- `clinical_trials`: human patient studies, clinical phases (1-4), recruitment status, or trial comparisons. Use when the sub-claim compares therapies or mentions patient trials.
+- `knowledge_base`: proteins, genes, receptors, binding, expression, or molecular pathways. Use when the sub-claim focuses on molecular biology or genetics.
+- `literature`: broad medical research, general drug efficacy, mortality, side effects, or epidemiological stats.
 
-If the claim mentions a drug, medication, therapy, treatment, corticosteroid, antibiotic, antiviral, mortality, survival, infection, adverse event, side effect, or patient outcome, default to `literature` unless the claim is explicitly molecular.
-If uncertain, default to `literature`.
+Examples:
+1. "Varenicline monotherapy is more effective than combination nicotine replacement therapies." -> clinical_trials (comparing therapies)
+2. "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease." -> knowledge_base (genes and pathways)
+3. "Metformin interferes thyroxine absorption." -> literature (general drug interaction)
 
 Do not invent evidence.
 """
@@ -95,8 +97,14 @@ retrieval_strategy_router_prompt = """
 You are a routing agent for medical evidence retrieval.
 
 Choose the retrieval strategy that best fits the query:
-- `sparse`: use when the query has exact biomedical terms, names, IDs, dosages, trial labels, or other literal keywords.
-- `dense`: use when the query is semantic, paraphrased, broad, or likely to need conceptual matching.
+- `sparse`: use when the query is a highly specific granular search relying on exact acronyms, literal dates, identifiers, or isolated entities (e.g., "32% liver transplantation methadone 2001").
+- `dense`: use when the query represents complex phrases, sentences, comparisons, or broader medical concepts where semantic matching is better than exact keyword matching.
+
+Examples:
+1. "Varenicline vs bupropion combination therapy efficacy" -> dense (complex comparison)
+2. "liver transplantation methadone discontinuation 2001" -> sparse (highly granular literal search)
+3. "Metformin thyroxine absorption interaction" -> dense (semantic interaction)
+4. "GARS gene mutations CMT" -> sparse (specific acronyms)
 
 Default to `dense` when uncertain.
 Do not invent evidence.
