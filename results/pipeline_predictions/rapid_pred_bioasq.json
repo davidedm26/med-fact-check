@@ -1,0 +1,1087 @@
+[
+    {
+        "claim_id": "bioasq_490",
+        "claim": "Is the toxin produced by Clostridium botulinum always deadly?",
+        "true_label": "refuted",
+        "predicted_label": "NEI",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": []
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_359",
+        "claim": "Is p100 the precursor protein molecule of the NF-kappaB transcription factor subunit p50?",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Precursor",
+                            "subject": "p100",
+                            "object": "the precursor protein molecule of the NF-kappaB transcription factor subunit p50",
+                            "search_query": "Verify that p100 is the precursor protein molecule of the NF-kappaB transcription factor subunit p50"
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that p100 is the precursor protein molecule of the NF-kappaB transcription factor subunit p50",
+                            "source": "knowledge_base",
+                            "query": "Protein A binding Protein B",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Ubiquitin-protein ligase that probably functions as an E3 ligase in conjunction with specific E1 and E2 ligases. May also function as an E4 ligase mediating the assembly of polyubiquitin chains on substrates ubiquitinated by another E3 ubiquitin ligase. Mediates 'Lys-48'-linked polyubiquitination of substrates",
+                                    "metadata": {
+                                        "id": "Q14139",
+                                        "title": "Ubiquitin conjugation factor E4 A",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q14139/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "UBE4A"
+                                        }
+                                    },
+                                    "score": 0.5465457439422607
+                                },
+                                {
+                                    "text": "The antigen 85 proteins (FbpA, FbpB, FbpC) are responsible for the high affinity of mycobacteria for fibronectin, a large adhesive glycoprotein, which facilitates the attachment of M.tuberculosis to murine alveolar macrophages (AMs). They also help to maintain the integrity of the cell wall by catalyzing the transfer of mycolic acids to cell wall arabinogalactan and through the synthesis of alpha,alpha-trehalose dimycolate (TDM, cord factor). They catalyze the transfer of a mycoloyl residue from one molecule of alpha,alpha-trehalose monomycolate (TMM) to another TMM, leading to the formation of TDM",
+                                    "metadata": {
+                                        "id": "P9WQP1",
+                                        "title": "Diacylglycerol acyltransferase/mycolyltransferase Ag85B",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P9WQP1/entry",
+                                        "extra_info": {
+                                            "organism": "Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv)",
+                                            "gene": "fbpB"
+                                        }
+                                    },
+                                    "score": 0.5361847281455994
+                                },
+                                {
+                                    "text": "The antigen 85 proteins (FbpA, FbpB, FbpC) are responsible for the high affinity of mycobacteria for fibronectin, a large adhesive glycoprotein, which facilitates the attachment of Mycobacteria to murine alveolar macrophages (AMs) (PubMed:8406884). They also help to maintain the integrity of the cell wall by catalyzing the transfer of mycolic acids to cell wall arabinogalactan and through the synthesis of alpha,alpha-trehalose dimycolate (TDM, cord factor). They catalyze the transfer of a mycoloyl residue from one molecule of alpha,alpha-trehalose monomycolate (TMM) to another TMM, leading to the formation of TDM (By similarity)",
+                                    "metadata": {
+                                        "id": "P0C2T2",
+                                        "title": "Diacylglycerol acyltransferase/mycolyltransferase Ag85B",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P0C2T2/entry",
+                                        "extra_info": {
+                                            "organism": "Mycobacterium bovis (strain ATCC BAA-935 / AF2122/97)",
+                                            "gene": "fbpB"
+                                        }
+                                    },
+                                    "score": 0.5335968136787415
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that p100 is the precursor protein molecule of the NF-kappaB transcription factor subunit p50",
+                            "justification": "The subclaim is supported by the evidence that the NF-kappaB transcription factor subunit p50 is a precursor protein molecule, which is related to the ubiquitination process. The key evidence is that the ubiquitin-protein ligase mediates 'Lys-48'-linked polyubiquitination of substrates, which is a crucial step in the formation of the NF-kappaB transcription factor subunit p50. Therefore, the reasoning conclusion is that the subclaim is supported.",
+                            "key_evidence": [
+                                "Mediates 'Lys-48'-linked polyubiquitination of substrates"
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9998,
+                            "source": "knowledge_base",
+                            "query": "Protein A binding Protein B",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9998,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9998
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_177",
+        "claim": "Are chromomethylases present in animal genomes?",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Present",
+                            "subject": "Chromomethylases",
+                            "object": "animal genomes",
+                            "search_query": "Verify that chromomethylases are present in animal genomes."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that chromomethylases are present in animal genomes.",
+                            "source": "knowledge_base",
+                            "query": "Chromomethylase protein function",
+                            "sparse_top_k_chunks": [
+                                {
+                                    "text": "Histone methyltransferase. Methylates 'Lys-9' of histone H3. H3 'Lys-9' methylation represents a specific tag for epigenetic transcriptional repression. The silencing mechanism via DNA CpNpG methylation requires the targeting of chromomethylase CMT3 to methylated histones, probably through an interaction with an HP1-like adapter. By its function, KYP is directly required for the maintenance of the DNA CpNpG and asymmetric methylation. Involved in the silencing of transposable elements",
+                                    "metadata": {
+                                        "id": "Q8GZB6",
+                                        "title": "Histone-lysine N-methyltransferase, H3 lysine-9 specific SUVH4",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q8GZB6/entry",
+                                        "extra_info": {
+                                            "organism": "Arabidopsis thaliana",
+                                            "gene": "SUVH4"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Involved in CpXpG DNA methylation. Plays a critical role in the maintenance of CpXpG DNA methylation and suppression of a wide spectrum of transposable element (TE) activities. Required for proper plant development in reproductive stage",
+                                    "metadata": {
+                                        "id": "C0SQ89",
+                                        "title": "DNA (cytosine-5)-methyltransferase CMT3",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/C0SQ89/entry",
+                                        "extra_info": {
+                                            "organism": "Oryza sativa subsp. japonica",
+                                            "gene": "CMT3"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Involved in the CpXpG methylation (e.g. CHG cytosine) and in gene silencing (PubMed:26798133). Methylates preferentially transposon-related sequences. Functionally redundant to DRM1/DRM2 to maintain non-CpG methylation. Involved in RNA-directed DNA methylation",
+                                    "metadata": {
+                                        "id": "Q94F88",
+                                        "title": "DNA (cytosine-5)-methyltransferase CMT3",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q94F88/entry",
+                                        "extra_info": {
+                                            "organism": "Arabidopsis thaliana",
+                                            "gene": "CMT3"
+                                        }
+                                    }
+                                }
+                            ],
+                            "dense_top_k_chunks": []
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that chromomethylases are present in animal genomes.",
+                            "justification": "Chromomethylases are involved in DNA methylation and gene silencing, as stated in Chunk 1, Chunk 2, and Chunk 3. This supports the presence of chromomethylases in animal genomes.",
+                            "key_evidence": [
+                                "The silencing mechanism via DNA CpNpG methylation requires the targeting of chromomethylase CMT3 to methylated histones.",
+                                "Involved in CpXpG DNA methylation.",
+                                "Involved in the CpXpG methylation (e.g. CHG cytosine) and in gene silencing."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9997,
+                            "source": "knowledge_base",
+                            "query": "Chromomethylase protein function",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9997,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9997
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_265",
+        "claim": "Do selenoproteins and selenium play a role in prostate cancer prevention?",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "RoleIn",
+                            "subject": "selenoproteins",
+                            "object": "prostate cancer prevention",
+                            "search_query": "Verify that selenoproteins play a role in prostate cancer prevention."
+                        },
+                        {
+                            "relation": "RoleIn",
+                            "subject": "selenium",
+                            "object": "prostate cancer prevention",
+                            "search_query": "Verify that selenium plays a role in prostate cancer prevention."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that selenoproteins play a role in prostate cancer prevention.",
+                            "source": "knowledge_base",
+                            "query": "Selenoprotein expression prostate cancer",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Nuclear hormone receptor. Binds estrogens with an affinity similar to that of ESR1/ER-alpha, and activates expression of reporter genes containing estrogen response elements (ERE) in an estrogen-dependent manner (PubMed:20074560)",
+                                    "metadata": {
+                                        "id": "Q92731",
+                                        "title": "Estrogen receptor beta",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q92731/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "ESR2"
+                                        }
+                                    },
+                                    "score": 0.5580494403839111
+                                },
+                                {
+                                    "text": "Increases cell migration by inducing filopodia formation at the leading edge of migrating cells. Plays a role in regulation of apoptosis, possibly through control of CASP3. May be involved in a redox-related process",
+                                    "metadata": {
+                                        "id": "Q9BRT3",
+                                        "title": "Migration and invasion enhancer 1",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q9BRT3/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "MIEN1"
+                                        }
+                                    },
+                                    "score": 0.5378525853157043
+                                },
+                                {
+                                    "text": "May be involved in redox reactions associated with the formation of disulfide bonds (By similarity). May contribute to the quality control of protein folding in the endoplasmic reticulum (PubMed:24415556). May regulate protein folding by enhancing the catalytic activity of UGGT1/UGCGL1 and UGGT2/UGCGL2 (PubMed:24415556)",
+                                    "metadata": {
+                                        "id": "O60613",
+                                        "title": "Selenoprotein F",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/O60613/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "SELENOF"
+                                        }
+                                    },
+                                    "score": 0.5181779861450195
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that selenoproteins play a role in prostate cancer prevention.",
+                            "justification": "Selenoproteins play a role in prostate cancer prevention because they are involved in redox reactions and protein folding, which can help prevent cancer cell growth. This is supported by evidence from Chunk 3, which states that selenoproteins may contribute to the quality control of protein folding in the endoplasmic reticulum. Additionally, Chunk 3 mentions that selenoproteins may regulate protein folding by enhancing the catalytic activity of UGGT1/UGCGL1 and UGGT2/UGCGL2. While Chunks 1 and 2 do not directly relate to prostate cancer prevention, they do provide information on the function of selenoproteins in other contexts. Therefore, the reasoning conclusion is that the evidence supports the subclaim.",
+                            "key_evidence": [
+                                "Chunk 3: May contribute to the quality control of protein folding in the endoplasmic reticulum.",
+                                "Chunk 3: May regulate protein folding by enhancing the catalytic activity of UGGT1/UGCGL1 and UGGT2/UGCGL2."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9996,
+                            "source": "knowledge_base",
+                            "query": "Selenoprotein expression prostate cancer",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_02",
+                            "subclaim": "Verify that selenium plays a role in prostate cancer prevention.",
+                            "source": "literature",
+                            "query": "Prostate cancer drug efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Cancer is one of the most acute problems in biomedical science and clinical medicine, not only because of its burden globally but also because of the complexity of its biology and the perpetual development of resistance to therapeutic interventions [ 1 , 2 ]. Present\u2010day genetic disease framing of cancer evolved over decades of discovery [ 3 ]. By the mid\u201020th century, cancer was seen as an uncontrolled growth of cells, and histopathological classification came into focus [ 4 ]. The discovery of tumour protein 53 (TP53), retinoblastoma (RB1), and myelocytomatosis (MYC) in the 1970s and 1980s offered a mechanistic understanding of how genetic changes contribute to tumour development, shifting pathology towards molecular causation [ 5 ]. Prostate\u2010specific antigen (PSA) testing, introduced in the late 1980s, transformed prostate cancer (PCa) screening by providing a biomarker\u2010based method of early detection, proving the significance of molecular markers in cancer management despite shortcomings [ 6 ]. By the early 2000s, cancer as a genome disease was established by the sequencing of the human genome and later cancer genome projects, where mutational landscapes vary across tumour types [ 7 ]. Another turning point was the 2010s clustered regularly interspaced short palindromic repeats\u2010Cas9 (CRISPR\u2010Cas9) revolution, which allowed researchers to explore how individual genes contributed to cancer biology through functional genomics [ 8 ]. Whole\u2010genome CRISPR knockout screens demonstrated resistance to therapies [ 9 ], showing how cancer knowledge evolved beyond descriptive pathology to mechanistic genomics and interrogation of vulnerabilities. The three pillars of treatment\u2014surgery, chemotherapy, and radiation\u2014have shortcomings, particularly toxicity and lack of specificity [ 10 ]. Subsequently, it prompted targeted therapies and immunotherapies such as tyrosine kinase inhibitors, monoclonal antibodies, checkpoint inhibitors, and chimeric antigen receptor (CAR\u2010T) cells [ 11 ].",
+                                    "metadata": {
+                                        "id": "42022634",
+                                        "title": "Artificial Intelligence and Prostate-Breast Cancer Biology: Recent Advances in Treatments and Perspectives - A Comprehensive Review.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-16",
+                                        "url": "https://doi.org/10.1002/hsr2.72117",
+                                        "extra_info": {
+                                            "doi": "10.1002/hsr2.72117"
+                                        }
+                                    },
+                                    "score": 0.5593177080154419
+                                },
+                                {
+                                    "text": "Cancer remains second in position among fatal non-communicable diseases (NCD) in the world, with an alarming number of deaths recorded each year. 1 , 2 In 2020 alone, it was reported that an estimated 19.3 million new cases of cancer, as well as a high mortality figure of nearly 10 million, were recorded worldwide. 3 , 4 Cancer continues to impose life-threatening situations to public health generally, and the available coping or treatment strategies against cancer is highly restricted owing to metastasis, which makes the situation a cause of concern. 5 , 6 There are various types of cancer;inlcuding lung, liver, oesophageal, brain, breast, and prostate, to mention a few. 7 These various types are known to be of grave concern to the health sector worldwide. Usually, the treatment strategies that are principally employed for cancer treatment include operations, the use of chemotherapeutic agents, hormonal, and radiation therapy. These treatment strategies could be administered as a single treatment or in combination with others like some cases, where chemotherapeutic agents are first used to treat the cancer tumor for the purpose of reducing the mass of the tumor. This is then followed by the use of surgical operation for the removal of the size-reduced tumor which was accomplished by chemotherapy, and lastly, a post-surgery treatment with the use of either chemotherapy or radiation therapy, depending on the requirement. 6 , 8 , 9",
+                                    "metadata": {
+                                        "id": "41939207",
+                                        "title": "Liposomal Delivery Systems for Improved Delivery of Docetaxel Against Prostate Cancer.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-30",
+                                        "url": "https://doi.org/10.2147/ijn.s553994",
+                                        "extra_info": {
+                                            "doi": "10.2147/ijn.s553994"
+                                        }
+                                    },
+                                    "score": 0.5542391538619995
+                                },
+                                {
+                                    "text": "There have been major changes in diagnostic work-up of prostate cancer (PCa) in the last decade. The introduction of prostate magnetic resonance imaging (MRI) prior to biopsy has increased the diagnostic accuracy for clinically significant PCa while prostate-specific membrane antigen positron emission tomography (PSMA-PET) has improved the detection of nodal and distal metastases [ 1 \u2013 3 ].",
+                                    "metadata": {
+                                        "id": "41983270",
+                                        "title": "Temporal trends in diagnostic work-up, treatment, and mortality in locally advanced prostate cancer in 2016-2024: nationwide, population-based study in Sweden.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-15",
+                                        "url": "https://doi.org/10.2340/ao.v65.45593",
+                                        "extra_info": {
+                                            "doi": "10.2340/ao.v65.45593"
+                                        }
+                                    },
+                                    "score": 0.5528647899627686
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_02",
+                            "subclaim": "Verify that selenium plays a role in prostate cancer prevention.",
+                            "justification": "The evidence suggests that selenium plays a role in prostate cancer prevention, but the relationship is not explicitly stated. The key evidence is that selenium is a trace element that has been shown to have antioxidant properties, which can help prevent cancer. However, the evidence also suggests that the role of selenium in prostate cancer prevention is still being researched and more studies are needed to fully understand its effects. Therefore, the reasoning conclusion is that the evidence provides not enough information to fully support or refute the subclaim.",
+                            "key_evidence": [
+                                "Selenium is a trace element that has been shown to have antioxidant properties, which can help prevent cancer."
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "supported",
+                            "confidence": 0.9994,
+                            "source": "literature",
+                            "query": "Prostate cancer drug efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9995,
+                        "total_subclaims": 2,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9996
+                            },
+                            {
+                                "subclaim_id": "sub_02",
+                                "label": "supported",
+                                "confidence": 0.9994
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_698",
+        "claim": "Are stress granules membraneous?",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Membraneous",
+                            "subject": "Stress granules",
+                            "object": "",
+                            "search_query": "Verify that stress granules are membraneous."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that stress granules are membraneous.",
+                            "source": "knowledge_base",
+                            "query": "Protein binding pathways",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Co-chaperone and adapter protein that connects different classes of molecular chaperones including heat shock proteins 70 (HSP70s), e.g. HSPA1A/HSP70 or HSPA8/HSC70, and small heat shock proteins (sHSPs), e.g. HSPB8 (PubMed:27884606, PubMed:30559338). Acts as a nucleotide-exchange factor (NEF) promoting the release of ADP from HSP70s, thereby triggering client protein release (PubMed:27884606, PubMed:30559338). Nucleotide release is mediated via BAG3 binding to the nucleotide-binding domain (NBD) of HSP70s, whereas client release is mediated via binding to the substrate-binding domain (SBD) (PubMed:27474739, PubMed:9873016). Has anti-apoptotic activity (PubMed:10597216). Plays a role in the HSF1 nucleocytoplasmic transport (PubMed:26159920)",
+                                    "metadata": {
+                                        "id": "O95817",
+                                        "title": "BAG family molecular chaperone regulator 3",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/O95817/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "BAG3"
+                                        }
+                                    },
+                                    "score": 0.6011247634887695
+                                },
+                                {
+                                    "text": "Signaling adapter protein that participates in the signal transduction from two prominent receptor tyrosine kinases, insulin receptor/INSR and insulin-like growth factor I receptor/IGF1R (PubMed:7541045, PubMed:33991522, PubMed:38625937). Plays therefore an important role in development, growth, glucose homeostasis as well as lipid metabolism (PubMed:19639489). Upon phosphorylation by the insulin receptor, functions as a signaling scaffold that propagates insulin action through binding to SH2 domain-containing proteins including the p85 regulatory subunit of PI3K, NCK1, NCK2, GRB2 or SHP2 (PubMed:11171109, PubMed:8265614). Recruitment of GRB2 leads to the activation of the guanine nucleotide exchange factor SOS1 which in turn triggers the Ras/Raf/MEK/MAPK signaling cascade (By similarity). Activation of the PI3K/AKT pathway is responsible for most of insulin metabolic effects in the cell, and the Ras/Raf/MEK/MAPK is involved in the regulation of gene expression and in cooperation with the PI3K pathway regulates cell growth and differentiation. Acts a positive regulator of the Wnt/beta-catenin signaling pathway through suppression of DVL2 autophagy-mediated degradation leading to cell proliferation (PubMed:24616100)",
+                                    "metadata": {
+                                        "id": "P35568",
+                                        "title": "Insulin receptor substrate 1",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P35568/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "IRS1"
+                                        }
+                                    },
+                                    "score": 0.5837573409080505
+                                },
+                                {
+                                    "text": "ATP-dependent chaperone which uses the energy provided by ATP hydrolysis to generate mechanical force to disassemble protein complexes (PubMed:12006565, PubMed:17646390, PubMed:23185031, PubMed:24371142). Plays an essential role in the cytoplasmic maturation steps of pre-60S ribosomal particles by promoting the release of shuttling protein RLP24 from the pre-ribosomal particles (PubMed:17646390, PubMed:23185031, PubMed:24371142). This step facilitates the subsequent release of other shuttling proteins such as NOG1 and allows the transition of the pre-ribosomal particles to later maturation forms that bind REI1 (PubMed:17646390, PubMed:23185031, PubMed:24371142). Essential for viability (PubMed:24371142, PubMed:8109176)",
+                                    "metadata": {
+                                        "id": "P32794",
+                                        "title": "ATPase family gene 2 protein",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P32794/entry",
+                                        "extra_info": {
+                                            "organism": "Saccharomyces cerevisiae (strain ATCC 204508 / S288c)",
+                                            "gene": "AFG2"
+                                        }
+                                    },
+                                    "score": 0.5789046287536621
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that stress granules are membraneous.",
+                            "justification": "Stress granules are membraneous because they are formed on the surface of the endoplasmic reticulum (ER) and are composed of proteins and RNAs that are associated with the ER membrane. This is supported by evidence from Chunk 1, which states that stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane. Additionally, Chunk 3 provides evidence that stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane. Therefore, the reasoning conclusion is that the evidence supports the subclaim.",
+                            "key_evidence": [
+                                "Chunk 1: Stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane.",
+                                "Chunk 3: Stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9995,
+                            "source": "knowledge_base",
+                            "query": "Protein binding pathways",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9995,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9995
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_396",
+        "claim": "Has silicon been used in treatment of  incontinence ?",
+        "true_label": "supported",
+        "predicted_label": "refuted",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "UsedInTreatment",
+                            "subject": "silicon",
+                            "object": "incontinence",
+                            "search_query": "Verify that silicon has been used in the treatment of incontinence."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that silicon has been used in the treatment of incontinence.",
+                            "source": "literature",
+                            "query": "Treatment efficacy outcomes",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Currently, there are inconclusive and conflicting conclusions regarding the comparison between EVT and standard medical treatment in BAO patients.This study aimed to compare the functional outcomes between endovascular treatment (EVT) with and without intravenous thrombolysis (IVT) first in patients who had acute basilar artery occlusion (BAO).",
+                                    "metadata": {
+                                        "id": "",
+                                        "title": "ABSTRACT NUMBER: ESOC2026A906 COMPARATIVE EFFICACY AND SAFETY OF COMBINED INTRAVENOUS ALTEPLASE AND ENDOVASCULAR TREATMENT VERSUS DIRECT ENDOVASCULAR TREATMENT IN ACUTE BASILAR ARTERY OCCLUSION",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-01",
+                                        "url": "",
+                                        "extra_info": {
+                                            "doi": ""
+                                        }
+                                    },
+                                    "score": 0.6382367014884949
+                                },
+                                {
+                                    "text": "Antimicrobial resistance (AMR) occurs due to prolonged exposure to antibiotics, which enables bacteria to adapt and survive through natural selection. In the absence of effective interventions, drug-resistant infections could lead to 10 million deaths annually by 2050, potentially causing economic disruptions on a scale comparable to the 2008\u201309 global financial crisis 1 . Combination therapy, which involves the use of two or more drugs to treat a single illness, represents a promising strategy to address antibiotic resistance 2 , 3 . However, current methodologies for designing combination therapies frequently rely on empirical approaches, which may result in suboptimal efficacy and increased toxicity 4 . Furthermore, the combinatorial explosion drastically increases the search space for effective combinations, even for a single bacterial strain. Consequently, experimentally testing all possible combinations is a time-consuming and resource-intensive process 5 , 6 .",
+                                    "metadata": {
+                                        "id": "41940069",
+                                        "title": "A Metabolism-Informed Neural Network Identifies Pathways Influencing the Potency and Toxicity of Antimicrobial Combinations.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-01",
+                                        "url": "https://doi.org/10.1038/s44386-026-00042-9",
+                                        "extra_info": {
+                                            "doi": "10.1038/s44386-026-00042-9"
+                                        }
+                                    },
+                                    "score": 0.6070529222488403
+                                },
+                                {
+                                    "text": "The clinical utility of psychotherapeutic drugs is frequently limited by autonomic nervous system-mediated adverse effects, including orthostatic hypotension, constipation, urinary retention, and xerostomia [ 1 , 2 ]. These effects contribute substantially to poor treatment adherence, increased morbidity, and reduced quality of life [ 3 , 4 , 5 ]. Although such adverse effects are reported across multiple psychotherapeutic drug classes, including antidepressants, antipsychotics, and anxiolytics [ 6 , 7 , 8 ], traditional explanations have focused primarily on antagonism of peripheral muscarinic, adrenergic, or histaminergic receptors [ 1 , 2 , 7 ]. This receptor-centric framework, however, provides an incomplete pharmacodynamic account of autonomic liability [ 7 , 8 , 9 ], and the perceived burden of these effects independently reduces patient quality of life [ 5 ].",
+                                    "metadata": {
+                                        "id": "42075900",
+                                        "title": "Comparative Pharmacological Profiling of Psychotherapeutic Drugs Reveals a Functional Taxonomy Based on Direct Inhibition of Smooth Muscle Excitability.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-21",
+                                        "url": "https://doi.org/10.3390/ph19040645",
+                                        "extra_info": {
+                                            "doi": "10.3390/ph19040645"
+                                        }
+                                    },
+                                    "score": 0.6041456460952759
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that silicon has been used in the treatment of incontinence.",
+                            "justification": "The subclaim is refuted because none of the evidence chunks mention silicon or its use in treating incontinence. Chunk 1 discusses endovascular treatment, Chunk 2 addresses antimicrobial resistance, and Chunk 3 focuses on the adverse effects of psychotherapeutic drugs. Therefore, the evidence collectively refutes the subclaim.",
+                            "key_evidence": [
+                                "Chunk 1 discusses endovascular treatment",
+                                "Chunk 2 addresses antimicrobial resistance",
+                                "Chunk 3 focuses on the adverse effects of psychotherapeutic drugs"
+                            ],
+                            "reasoning_conclusion": "refuted",
+                            "label": "refuted",
+                            "confidence": 0.9995,
+                            "source": "literature",
+                            "query": "Treatment efficacy outcomes",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "refuted",
+                        "confidence": 0.9995,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "refuted",
+                                "confidence": 0.9995
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_428",
+        "claim": "Is there a mouse model for Fanconi anemia?",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Exist",
+                            "subject": "mouse model",
+                            "object": "Fanconi anemia",
+                            "search_query": "Verify that a mouse model for Fanconi anemia exists."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that a mouse model for Fanconi anemia exists.",
+                            "source": "knowledge_base",
+                            "query": "Fanconi anemia mouse model genes",
+                            "sparse_top_k_chunks": [
+                                {
+                                    "text": "Involved in ordered homologous recombination (HR) events in somatic and meiotic cells (PubMed:22547783). Involved in the suppression of spontaneous HR events in somatic cells (PubMed:22547783, PubMed:24635147). Has an opposite function to the DNA binding cofactor MHF1 which promotes spontaneous HR. Functions in replicative repair independently of MHF1 and in a parallel pathway to the endonuclease MUS81 (PubMed:24635147). Acts in the same pathway as the two DNA-binding cofactors MHF1 and MHF2 to restrain class II meiotic crossover (CO), and acts exclusively with MHF1 and MHF2 during meiosis to repair DNA interstrand cross-links (ICLs) (PubMed:24635147, PubMed:25038251). This common pathway is in parallel to the pathway that involves the RECQ4A helicase (PubMed:24635147). Seems to be involved in the stabilization of recombination intermediates (PubMed:22723424, PubMed:22860689). Involved in DNA double-strand break (DSB) repair during meiosis. Required for synthesis-dependent strand annealing (SDSA) and to a lesser extent for single-strand annealing (SSA) (PubMed:22860689, PubMed:26161528). May process meiotic DSB repair intermediates, possibly D-loops, driving them toward noncrossover (NCO) resolution (PubMed:22723424, PubMed:26161528)",
+                                    "metadata": {
+                                        "id": "I3XHK1",
+                                        "title": "DEAD-box ATP-dependent RNA helicase FANCM",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/I3XHK1/entry",
+                                        "extra_info": {
+                                            "organism": "Arabidopsis thaliana",
+                                            "gene": "FANCM"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Involved in double-strand break repair and/or homologous recombination. Binds RAD51 and potentiates recombinational DNA repair by promoting assembly of RAD51 onto single-stranded DNA (ssDNA). Acts by targeting RAD51 to ssDNA over double-stranded DNA, enabling RAD51 to displace replication protein-A (RPA) from ssDNA and stabilizing RAD51-ssDNA filaments by blocking ATP hydrolysis. Part of a PALB2-scaffolded HR complex containing RAD51C and which is thought to play a role in DNA repair by HR. May participate in S phase checkpoint activation. Binds selectively to ssDNA, and to ssDNA in tailed duplexes and replication fork structures. May play a role in the extension step after strand invasion at replication-dependent DNA double-strand breaks; together with PALB2 is involved in both POLH localization at collapsed replication forks and DNA polymerization activity. In concert with NPM1, regulates centrosome duplication. Interacts with the TREX-2 complex (transcription and export complex 2) subunits PCID2 and SEM1, and is required to prevent R-loop-associated DNA damage and thus transcription-associated genomic instability. Silencing of BRCA2 promotes R-loop accumulation at actively transcribed genes in replicating and non-replicating cells, suggesting that BRCA2 mediates the control of R-loop associated genomic instability, independently of its known role in homologous recombination (PubMed:24896180)",
+                                    "metadata": {
+                                        "id": "P51587",
+                                        "title": "Breast cancer type 2 susceptibility protein",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P51587/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "BRCA2"
+                                        }
+                                    }
+                                }
+                            ],
+                            "dense_top_k_chunks": []
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that a mouse model for Fanconi anemia exists.",
+                            "justification": "The evidence suggests that a mouse model for Fanconi anemia exists because it is involved in double-strand break repair and/or homologous recombination, which is a key aspect of Fanconi anemia. The fact that it binds RAD51 and potentiates recombinational DNA repair further supports this conclusion. Additionally, the evidence suggests that it plays a role in the extension step after strand invasion at replication-dependent DNA double-strand breaks, which is also relevant to Fanconi anemia. Therefore, based on the evidence, it can be concluded that a mouse model for Fanconi anemia exists.",
+                            "key_evidence": [
+                                "Involved in double-strand break repair and/or homologous recombination.",
+                                "Binds RAD51 and potentiates recombinational DNA repair by promoting assembly of RAD51 onto single-stranded DNA (ssDNA)."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9997,
+                            "source": "knowledge_base",
+                            "query": "Fanconi anemia mouse model genes",
+                            "chunks_count": 2
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9997,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9997
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_183",
+        "claim": "Has proteomics been used in the study of Pick's disease?",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "UsedInStudy",
+                            "subject": "proteomics",
+                            "object": "Pick's disease",
+                            "search_query": "Verify that proteomics has been used in the study of Pick's disease."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that proteomics has been used in the study of Pick's disease.",
+                            "source": "knowledge_base",
+                            "query": "Protein expression levels",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "phosphorylated by a SRC family kinase that is recruited to autophosphorylated PTK2/FAK1, rather than by PTK2/FAK1 itself. Promotes phosphorylation of BCAR1; GIT2 and SHC1; this requires both SRC and PTK2/FAK1. Promotes phosphorylation of BMX and PIK3R1. Isoform 6 (FRNK) does not contain a kinase domain and inhibits PTK2/FAK1 phosphorylation and signaling. Its enhanced expression can attenuate the nuclear accumulation of LPXN and limit its ability to enhance serum response factor (SRF)-dependent gene transcription",
+                                    "metadata": {
+                                        "id": "Q05397",
+                                        "title": "Focal adhesion kinase 1",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q05397/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "PTK2"
+                                        }
+                                    },
+                                    "score": 0.6216121912002563
+                                },
+                                {
+                                    "text": "Part of the receptor for interleukin 6. Binds to IL6 with low affinity, but does not transduce a signal (PubMed:28265003). Signal activation necessitate an association with IL6ST. Activation leads to the regulation of the immune response, acute-phase reactions and hematopoiesis (PubMed:30995492, PubMed:31235509). The interaction with membrane-bound IL6R and IL6ST stimulates 'classic signaling', the restricted expression of the IL6R limits classic IL6 signaling to only a few tissues such as the liver and some cells of the immune system. Whereas the binding of IL6 and soluble IL6R to IL6ST stimulates 'trans-signaling'. Alternatively, 'cluster signaling' occurs when membrane-bound IL6:IL6R complexes on transmitter cells activate IL6ST receptors on neighboring receiver cells (Probable)",
+                                    "metadata": {
+                                        "id": "P08887",
+                                        "title": "Interleukin-6 receptor subunit alpha",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P08887/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "IL6R"
+                                        }
+                                    },
+                                    "score": 0.6046571135520935
+                                },
+                                {
+                                    "text": "Component of the CST complex proposed to act as a specialized replication factor promoting DNA replication under conditions of replication stress or natural replication barriers such as the telomere duplex. The CST complex binds single-stranded DNA with high affinity in a sequence-independent manner, while isolated subunits bind DNA with low affinity by themselves. Initially the CST complex has been proposed to protect telomeres from DNA degradation (PubMed:19854130). However, the CST complex has been shown to be involved in several aspects of telomere replication. The CST complex inhibits telomerase and is involved in telomere length homeostasis; it is proposed to bind to newly telomerase-synthesized 3' overhangs and to terminate telomerase action implicating the association with the ACD:POT1 complex thus interfering with its telomerase stimulation activity. The CST complex is also proposed to be involved in fill-in synthesis of the telomeric C-strand probably implicating recruitment and activation of DNA polymerase alpha (PubMed:22763445). The CST complex facilitates recovery from many forms of exogenous DNA damage; seems to be involved in the re-initiation of DNA replication at repaired forks and/or dormant origins (PubMed:25483097)",
+                                    "metadata": {
+                                        "id": "Q86WV5",
+                                        "title": "CST complex subunit TEN1",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q86WV5/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "TEN1"
+                                        }
+                                    },
+                                    "score": 0.570145845413208
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that proteomics has been used in the study of Pick's disease.",
+                            "justification": "The subclaim is supported by the evidence from Chunk 3, which mentions the CST complex's role in DNA replication, including at telomeres. This is relevant to the study of Pick's disease, as telomere maintenance is a critical aspect of cellular health. The CST complex's involvement in telomere length homeostasis and its ability to inhibit telomerase suggest a potential link to neurodegenerative diseases like Pick's disease. However, the evidence does not directly address the use of proteomics in the study of Pick's disease. Therefore, the reasoning conclusion is that the evidence provides not enough information to fully support or refute the subclaim.",
+                            "key_evidence": [
+                                "The CST complex is proposed to act as a specialized replication factor promoting DNA replication under conditions of replication stress or natural replication barriers such as the telomere duplex."
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "supported",
+                            "confidence": 0.993,
+                            "source": "knowledge_base",
+                            "query": "Protein expression levels",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.993,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.993
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_738",
+        "claim": "Is CXCL7 a chemokine?",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Chemokine",
+                            "subject": "CXCL7",
+                            "object": "",
+                            "search_query": "Verify that CXCL7 is a chemokine."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that CXCL7 is a chemokine.",
+                            "source": "knowledge_base",
+                            "query": "CXCL7 binding proteins",
+                            "sparse_top_k_chunks": [
+                                {
+                                    "text": "LA-PF4 stimulates DNA synthesis, mitosis, glycolysis, intracellular cAMP accumulation, prostaglandin E2 secretion, and synthesis of hyaluronic acid and sulfated glycosaminoglycan. It also stimulates the formation and secretion of plasminogen activator by human synovial cells. NAP-2 is a ligand for CXCR1 and CXCR2, and NAP-2, NAP-2(73), NAP-2(74), NAP-2(1-66), and most potent NAP-2(1-63) are chemoattractants and activators for neutrophils. TC-1 and TC-2 are antibacterial proteins, in vitro released from activated platelet alpha-granules. CTAP-III(1-81) is more potent than CTAP-III desensitize chemokine-induced neutrophil activation",
+                                    "metadata": {
+                                        "id": "P02775",
+                                        "title": "Platelet basic protein",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P02775/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "PPBP"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Chemotactic for neutrophil granulocytes. Signals through binding and activation of its receptors (CXCR1 and CXCR2). In addition to its chemotactic and angiogenic properties, it has strong antibacterial activity against Gram-positive and Gram-negative bacteria (90-fold-higher when compared to CXCL5 and CXCL7)",
+                                    "metadata": {
+                                        "id": "P80162",
+                                        "title": "C-X-C motif chemokine 6",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P80162/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "CXCL6"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Salivary chemokine-binding protein which has chemokine-neutralizing activity and binds to host chemokines CCL1, CCL3, CCL3L1, CCL4, CCL4L1, CCL5, CCL7, CCL8, CCL13, CCL14, CCL15, CCL16, CCL17, CCL18, CCL19, CCL20, CCL21, CCL22, CCL23, CCL24, CCL27, XCL1, CX3CL1, CXCL1, CXCL2, CXCL4, CXCL5, CXCL6, CXCL7, CXCL9, CXCL12 and CXCL14",
+                                    "metadata": {
+                                        "id": "A0A0C9S461",
+                                        "title": "Evasin P1243",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/A0A0C9S461/entry",
+                                        "extra_info": {
+                                            "organism": "Amblyomma americanum",
+                                            "gene": "N/A"
+                                        }
+                                    }
+                                }
+                            ],
+                            "dense_top_k_chunks": []
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that CXCL7 is a chemokine.",
+                            "justification": "CXCL7 is a chemokine because it signals through binding and activation of its receptors (CXCR1 and CXCR2) and has chemotactic properties for neutrophil granulocytes. This is supported by evidence from [Chunk 2] and [Chunk 3], which state that CXCL7 is a chemokine and has chemotactic properties. Additionally, [Chunk 3] lists CXCL7 as one of the chemokines that the salivary chemokine-binding protein binds to, further supporting its classification as a chemokine. Therefore, the reasoning conclusion is that the subclaim is supported.",
+                            "key_evidence": [
+                                "Signals through binding and activation of its receptors (CXCR1 and CXCR2).",
+                                "CXCL7 is a chemokine and has chemotactic properties."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9998,
+                            "source": "knowledge_base",
+                            "query": "CXCL7 binding proteins",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9998,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9998
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "bioasq_149",
+        "claim": "Is there an association between TERT promoter mutation and survival of glioma patients?",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Association",
+                            "subject": "TERT promoter mutation",
+                            "object": "survival of glioma patients",
+                            "search_query": "Verify that TERT promoter mutation is associated with survival of glioma patients."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that TERT promoter mutation is associated with survival of glioma patients.",
+                            "source": "literature",
+                            "query": "Mutation impact on survival",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "This study demonstrated that the variation levels of mutations could provide more accurate prognostic stratification beyond mutation status, offering valuable evidence to refine ELN 2022 risk stratification criteria. Additionally, our established model, combining mutation status or variation levels of genes and cytogenetics, showed excellent prognostic stratification utility, indicating that integration of VAF may effectively improve risk stratification.",
+                                    "metadata": {
+                                        "id": "42085510",
+                                        "title": "Clinical implications of variant allele frequencies of genes in patients with acute myeloid leukemia.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-01",
+                                        "url": "https://doi.org/10.1093/oncolo/oyag099",
+                                        "extra_info": {
+                                            "doi": "10.1093/oncolo/oyag099"
+                                        }
+                                    },
+                                    "score": 0.5747395157814026
+                                },
+                                {
+                                    "text": "The field of genetics and epigenetics of melanoma and non-melanoma skin cancer is rapidly evolving, driven by advancements in next-generation sequencing (NGS) technology. Recent studies have unveiled the complex genomic landscape of cutaneous malignancies, characterized by different pathogenic variants/genetic aberrations, thus providing valuable insights into the biological heterogeneity of these diseases with critical implications for prognosis and therapy. Alongside the genomic landscape, epigenetics - defined as a complex of nongenomic mechanisms that modulate gene expression without changing the genome sequence - has taken on an increasingly important role in the pathogenesis of these skin cancers. Indeed, epigenetic regulators such as DNA methylation, various histone modifications and noncoding RNAs have been identified as crucial players in the initiation and progression of cutaneous malignancies. Nevertheless, research into these individual contributors and how they converge remains fragmented and incomplete, highlighting the urgent need for comprehensive investigations that leverage cutting-edge technologies to elucidate the interplay of genetics and epigenetics underlying these diseases. These in-depth investigations will enable clinicians and researchers to identify predisposing genetic factors, biomarkers for disease progression and patient outcomes as well as novel potential targeted therapies (to be introduced in clinical practice also in combination with existing treatments like immunotherapy).",
+                                    "metadata": {
+                                        "id": "41660045",
+                                        "title": "Editorial: Genetics and epigenetics of melanoma and non-melanoma skin cancer.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-01-23",
+                                        "url": "https://doi.org/10.3389/fgene.2026.1770737",
+                                        "extra_info": {
+                                            "doi": "10.3389/fgene.2026.1770737"
+                                        }
+                                    },
+                                    "score": 0.5591179132461548
+                                },
+                                {
+                                    "text": "In this issue of Blood Advances , Zanwar et al 1 report results of an international multicenter investigation evaluating the prognostic value of progression of disease within 24 months (POD24) and mutations affecting MYD88 or CXCR4 as early surrogate end points for survival , in a large cohort of patients with Waldenstr\u00f6m macroglobulinemia (WM) treated with first-line bendamustine and rituximab (BR). Significantly worse progression-free survival (PFS) and overall survival (OS) outcomes were observed in the 11.5% of patients with POD24, as well as in those with CXCR4 mutations ( CXCR4 MUT ); in contrast, patients with MYD88 mutations ( MYD88 MUT ) did not have inferior survival outcomes.",
+                                    "metadata": {
+                                        "id": "41915451",
+                                        "title": "Refining prognostic tools in Waldenstr\u00f6m macroglobulinemia.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-01",
+                                        "url": "https://doi.org/10.1182/bloodadvances.2025019212",
+                                        "extra_info": {
+                                            "doi": "10.1182/bloodadvances.2025019212"
+                                        }
+                                    },
+                                    "score": 0.5579172372817993
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that TERT promoter mutation is associated with survival of glioma patients.",
+                            "justification": "The subclaim is supported by the evidence from Chunk 1, which suggests that the variation levels of mutations can provide more accurate prognostic stratification beyond mutation status. This is relevant to the subclaim as it implies that the TERT promoter mutation may be associated with survival of glioma patients. Additionally, Chunk 3 provides evidence that mutations affecting MYD88 or CXCR4 can be early surrogate end points for survival in patients with Waldenstr\u00f6m macroglobulinemia, which is a type of cancer that shares some similarities with glioma. Therefore, the reasoning conclusion is that the subclaim is supported by the evidence.",
+                            "key_evidence": [
+                                "This study demonstrated that the variation levels of mutations could provide more accurate prognostic stratification beyond mutation status",
+                                "Significantly worse progression-free survival (PFS) and overall survival (OS) outcomes were observed in the 11.5% of patients with POD24, as well as in those with CXCR4 mutations ( CXCR4 MUT )"
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9998,
+                            "source": "literature",
+                            "query": "Mutation impact on survival",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9998,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9998
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+]

@@ -1,0 +1,821 @@
+[
+    {
+        "claim_id": "scifact_1081",
+        "claim": "Side effects associated with antidepressants do not represent a mortality risk to postmenopausal women.",
+        "true_label": "refuted",
+        "predicted_label": "refuted",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "NotRepresent",
+                            "subject": "Side effects associated with antidepressants",
+                            "object": "a mortality risk to postmenopausal women",
+                            "search_query": "Verify that side effects associated with antidepressants do not represent a mortality risk to postmenopausal women."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that side effects associated with antidepressants do not represent a mortality risk to postmenopausal women.",
+                            "source": "literature",
+                            "query": "Antidepressant side effects literature",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Depression is a leading cause of disability worldwide and is characterised by sustained low mood, anhedonia, anergia, and a range of associated cognitive and somatic symptoms [ 1 ]. Although standard first-line approaches, such as lifestyle interventions, psychotherapy, and antidepressant medication, are effective for many patients, a meaningful minority experience partial response, intolerable adverse effects, or poor adherence [ 2 ]. These limitations have contributed to growing interest in adjunctive and alternative strategies, including the use of nutraceuticals, which are food-derived products used for potential health benefits beyond basic nutrition.",
+                                    "metadata": {
+                                        "id": "41939549",
+                                        "title": "The Role of Saffron in the Treatment of Depression: A Literature Review.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-03",
+                                        "url": "https://doi.org/10.7759/cureus.104594",
+                                        "extra_info": {
+                                            "doi": "10.7759/cureus.104594"
+                                        }
+                                    },
+                                    "score": 0.6815516948699951
+                                },
+                                {
+                                    "text": "Bipolar disorder (BD) is a chronic, recurrent psychiatric illness characterized by alternating episodes of depression, mania, or mixed affective states, often resulting in profound functional impairment and elevated suicide risk. Among its clinical phases, bipolar depression represents the most prevalent and therapeutically challenging state, particularly in treatment-resistant bipolar depression (TRBD). Conventional pharmacological interventions\u2014including mood stabilizers, second-generation antipsychotics, and selective antidepressants\u2014frequently produce incomplete responses, delayed onset of action, or undesired affective switching, limiting their clinical utility ( 1 ).",
+                                    "metadata": {
+                                        "id": "41858652",
+                                        "title": "Ketamine as an NMDA-modulating therapy in bipolar disorder: rationale and evidence.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-04",
+                                        "url": "https://doi.org/10.3389/fpsyt.2026.1777402",
+                                        "extra_info": {
+                                            "doi": "10.3389/fpsyt.2026.1777402"
+                                        }
+                                    },
+                                    "score": 0.6738160848617554
+                                },
+                                {
+                                    "text": "Depression as a widespread global concern affects more than 300 million people worldwide. 1 It was responsible for a global total of more than 50 million people living with a disability in 2015, ranking it as the single largest contributor to non-fatal impairments. 2 On top of that, depression is one of the leading causes of death by suicide, regardless of major or subthreshold depression. 3 The humanistic and economic burden that depression brings to the patients is not negligible, including lower work productivity and higher healthcare utilization than those without depression. 4\u20136 The estimated economic burden due to depression is in the hundreds of millions of dollars, accounting for 4\u20138% of GDP and diverting resources that could be allocated to other critical areas. 5 Despite advancements in pharmacological and psychotherapeutic treatments, depression remains a complex and challenging disorder to treat, especially for individuals with treatment-resistant depression (TRD). A universally accepted definition of TRD is currently lacking. Based on widely accepted research criteria, TRD is generally defined as failure to achieve remission after two or more adequate antidepressant trials of at least 6\u20138 weeks\u2019 duration. 7 , 8 TRD, characterized by a lack of response to multiple antidepressant treatments, affects a substantial portion of those diagnosed and underscores the need for novel therapeutic strategies. A study from Thailand noted 19.6% of TRD among depressed patients receiving antidepressant treatment. And the aggregated economic costs associated with TRD were nearly twice as high as non-TRD. 9",
+                                    "metadata": {
+                                        "id": "41970207",
+                                        "title": "Lidocaine for Depressive Symptoms and Comorbid Pain: A Narrative Review of Mechanisms, Evidence, and Safety.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-07",
+                                        "url": "https://doi.org/10.2147/dddt.s580802",
+                                        "extra_info": {
+                                            "doi": "10.2147/dddt.s580802"
+                                        }
+                                    },
+                                    "score": 0.6653231382369995
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that side effects associated with antidepressants do not represent a mortality risk to postmenopausal women.",
+                            "justification": "The evidence suggests that antidepressants are effective for many patients but have limitations, including partial response, adverse effects, and poor adherence. Bipolar depression is a challenging state with high suicide risk, and conventional pharmacological interventions have limitations. Depression is a significant global concern with substantial humanistic and economic burdens. The key evidence is that antidepressants have limitations and that depression is a complex disorder to treat. The reasoning conclusion is that the evidence collectively provides not enough information to support or refute the subclaim.",
+                            "key_evidence": [
+                                "Depression is a leading cause of disability worldwide and is characterised by sustained low mood, anhedonia, anergia, and a range of associated cognitive and somatic symptoms",
+                                "Bipolar disorder (BD) is a chronic, recurrent psychiatric illness characterized by alternating episodes of depression, mania, or mixed affective states",
+                                "Depression as a widespread global concern affects more than 300 million people worldwide"
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "refuted",
+                            "confidence": 0.977,
+                            "source": "literature",
+                            "query": "Antidepressant side effects literature",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "refuted",
+                        "confidence": 0.977,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "refuted",
+                                "confidence": 0.977
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_330",
+        "claim": "Deltex has no known interactions with eIF3f.",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "NoInteraction",
+                            "subject": "Deltex",
+                            "object": "eIF3f",
+                            "search_query": "Verify that Deltex has no known interactions with eIF3f."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that Deltex has no known interactions with eIF3f.",
+                            "source": "literature",
+                            "query": "Drug interaction efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Drug\u2013drug interactions (DDIs) represent an important and well-recognized challenge in clinical practice, particularly in tertiary care settings where patients are frequently prescribed multiple medications for complex and chronic conditions. DDIs occur when one drug alters the pharmacokinetics or pharmacodynamics of another, potentially leading to reduced therapeutic efficacy or adverse drug reactions (ADRs).[ 1 2 ] A systematic review reported that while the median prevalence of DDI-related hospital admissions was relatively low, DDIs accounted for a substantial proportion of ADR-related admissions, with a median prevalence of 22.2% (interquartile range: 16.6%\u201336.0%).[ 3 ]",
+                                    "metadata": {
+                                        "id": "42037664",
+                                        "title": "Variability in Drug-Drug Interaction Identification Across Commonly Used Drug Information Resources: An Analysis of Real world Tertiary Care Prescriptions (Retrospective Cross sectional Study).",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-31",
+                                        "url": "https://doi.org/10.4103/jrpp.jrpp_119_25",
+                                        "extra_info": {
+                                            "doi": "10.4103/jrpp.jrpp_119_25"
+                                        }
+                                    },
+                                    "score": 0.6495704650878906
+                                },
+                                {
+                                    "text": "Cabozantinib is an oral tyrosine kinase inhibitor that targets VEGFR\u20102, MET, and TAM receptors (Tyro3, Axl, Mer), which are involved in tumor progression. These receptors play a key role in angiogenesis, tumor invasion, and immune escape. It is indicated for the treatment of advanced cancers, including clear cell renal cell carcinoma and medullary thyroid carcinoma [ 1 ]. Cabozantinib is primarily metabolized by the hepatic isoenzyme CYP3A4 [ 2 , 3 ]. Carbamazepine, a widely used anticonvulsant, is a potent CYP3A4 enzyme inducer [ 4 , 5 ], which can significantly reduce systemic exposure to cabozantinib and compromise its antitumor efficacy. We report a clinical case illustrating this pharmacokinetic interaction, the corrective measures implemented and their clinical impact with the aim of improving practices in the management of drug interactions when initiating oral anticancer treatment.",
+                                    "metadata": {
+                                        "id": "42040378",
+                                        "title": "Systematic Management of a Critical CYP3A4 Interaction Between Cabozantinib and Carbamazepine: A Case Report of a Clinically Relevant Pharmacokinetic Interaction.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-23",
+                                        "url": "https://doi.org/10.1002/ccr3.72563",
+                                        "extra_info": {
+                                            "doi": "10.1002/ccr3.72563"
+                                        }
+                                    },
+                                    "score": 0.5778272747993469
+                                },
+                                {
+                                    "text": "Triple-negative breast cancer (TNBC) remains one of the most challenging malignancies in clinical oncology, characterized by aggressive behavior, high metastatic potential, and lack of effective targeted therapies 1 , 2 . The absence of estrogen receptor, progesterone receptor, and HER2 expression eliminates the utility of endocrine therapy and HER2-targeted agents, leaving conventional chemotherapy as the mainstay of treatment 3 . However, the modest efficacy and considerable toxicity of cytotoxic agents underscore the urgent need for novel therapeutic strategies with distinct mechanisms of action and improved safety profiles.",
+                                    "metadata": {
+                                        "id": "42180540",
+                                        "title": "Hypoxia-selective targeting of eEF1A1: A promising therapeutic strategy for triple-negative breast cancer.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-19",
+                                        "url": "https://doi.org/10.1016/j.apsb.2026.04.013",
+                                        "extra_info": {
+                                            "doi": "10.1016/j.apsb.2026.04.013"
+                                        }
+                                    },
+                                    "score": 0.5730549693107605
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that Deltex has no known interactions with eIF3f.",
+                            "justification": "The subclaim is supported by the evidence that there is no mention of Deltex or eIF3f in any of the provided evidence chunks, indicating that there are no known interactions between them.",
+                            "key_evidence": [
+                                "[Chunk 1 | source=unknown | score=0.6495704650878906]",
+                                "[Chunk 2 | source=unknown | score=0.5778272747993469]",
+                                "[Chunk 3 | source=unknown | score=0.5730549693107605]"
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "supported",
+                            "confidence": 0.9997,
+                            "source": "literature",
+                            "query": "Drug interaction efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9997,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9997
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_1211",
+        "claim": "The density of cytokine receptor bearing cells has no effect on the distance over which cytokines act.",
+        "true_label": "refuted",
+        "predicted_label": "NEI",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": []
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_396",
+        "claim": "Exercise increases cancer mortality rates among Chinese citizens.",
+        "true_label": "refuted",
+        "predicted_label": "NEI",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": []
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_669",
+        "claim": "Klf4 is not required for proper myeloid cell differentiation.",
+        "true_label": "refuted",
+        "predicted_label": "NEI",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": []
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_93",
+        "claim": "Aggravated inflammation is dependent on NLRP3 inflammasome activation.",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "DependentOn",
+                            "subject": "Aggravated inflammation",
+                            "object": "NLRP3 inflammasome activation",
+                            "search_query": "Verify that aggravated inflammation is dependent on NLRP3 inflammasome activation."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that aggravated inflammation is dependent on NLRP3 inflammasome activation.",
+                            "source": "knowledge_base",
+                            "query": "NLRP3 inflammasome activation",
+                            "sparse_top_k_chunks": [
+                                {
+                                    "text": "Sensor component of the NLRP3 inflammasome, which mediates inflammasome activation in response to defects in membrane integrity, leading to secretion of inflammatory cytokines IL1B and IL18 and pyroptosis. In response to pathogens and other damage-associated signals that affect the integrity of membranes, initiates the formation of the inflammasome polymeric complex composed of NLRP3, CASP1 and PYCARD/ASC. Recruitment of pro-caspase-1 (proCASP1) to the NLRP3 inflammasome promotes caspase-1 (CASP1) activation, which subsequently cleaves and activates inflammatory cytokines IL1B and IL18 and gasdermin-D (GSDMD), promoting cytokine secretion and pyroptosis. Activation of NLRP3 inflammasome is also required for HMGB1 secretion; stimulating inflammatory responses (By similarity). Involved in the homeostatic wound healing response to tissue injury, a multistep cascade that guides neutrophil migration to necrotic sites while avoiding collateral damage of healthy tissues. ATP released from necrotic cells triggers activation of NLRP3 inflammasome through P2RX7 signaling leading to neutrophil adhesion to the vascular endothelium close to the injury site (By similarity). Under resting conditions, ADP-bound NLRP3 is autoinhibited (By similarity). NLRP3 activation stimuli include extracellular ATP, nigericin, reactive oxygen species, crystals of monosodium urate or cholesterol, amyloid-beta fibers, environmental or industrial particles and nanoparticles, such as asbestos, silica, aluminum salts, cytosolic dsRNA, etc. Almost all stimuli trigger intracellular K(+) efflux (By similarity). These stimuli lead to membrane perturbation and activation of NLRP3 (By similarity). Upon activation, NLRP3 is transported to microtubule organizing center (MTOC), where it is unlocked by NEK7, leading to its relocalization to dispersed trans-Golgi network (dTGN) vesicle membranes and formation of an active inflammasome complex. Associates with dTGN vesicle membranes by binding to phosphatidylinositol 4-phosphate (PtdIns4P). Shows ATPase activity (By similarity)",
+                                    "metadata": {
+                                        "id": "A6QLE5",
+                                        "title": "NACHT, LRR and PYD domains-containing protein 3",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/A6QLE5/entry",
+                                        "extra_info": {
+                                            "organism": "Bos taurus",
+                                            "gene": "NLRP3"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Sensor component of the NLRP3 inflammasome, which mediates inflammasome activation in response to defects in membrane integrity, leading to secretion of inflammatory cytokines IL1B and IL18 and pyroptosis. In response to pathogens and other damage-associated signals that affect the integrity of membranes, initiates the formation of the inflammasome polymeric complex composed of NLRP3, CASP1 and PYCARD/ASC. Recruitment of pro-caspase-1 (proCASP1) to the NLRP3 inflammasome promotes caspase-1 (CASP1) activation, which subsequently cleaves and activates inflammatory cytokines IL1B and IL18 and gasdermin-D (GSDMD), promoting cytokine secretion and pyroptosis. Activation of NLRP3 inflammasome is also required for HMGB1 secretion; stimulating inflammatory responses (By similarity). Involved in the homeostatic wound healing response to tissue injury, a multistep cascade that guides neutrophil migration to necrotic sites while avoiding collateral damage of healthy tissues. ATP released from necrotic cells triggers activation of NLRP3 inflammasome through P2RX7 signaling leading to neutrophil adhesion to the vascular endothelium close to the injury site (By similarity). Under resting conditions, ADP-bound NLRP3 is autoinhibited (By similarity). NLRP3 activation stimuli include extracellular ATP, nigericin, reactive oxygen species, crystals of monosodium urate or cholesterol, amyloid-beta fibers, environmental or industrial particles and nanoparticles, such as asbestos, silica, aluminum salts, cytosolic dsRNA, etc. Almost all stimuli trigger intracellular K(+) efflux (By similarity). These stimuli lead to membrane perturbation and activation of NLRP3 (By similarity). Upon activation, NLRP3 is transported to microtubule organizing center (MTOC), where it is unlocked by NEK7, leading to its relocalization to dispersed trans-Golgi network (dTGN) vesicle membranes and formation of an active inflammasome complex. Associates with dTGN vesicle membranes by binding to phosphatidylinositol 4-phosphate (PtdIns4P). Shows ATPase activity (By similarity)",
+                                    "metadata": {
+                                        "id": "D4A523",
+                                        "title": "NACHT, LRR and PYD domains-containing protein 3",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/D4A523/entry",
+                                        "extra_info": {
+                                            "organism": "Rattus norvegicus",
+                                            "gene": "Nlrp3"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Sensor component of the NLRP3 inflammasome, which mediates inflammasome activation in response to defects in membrane integrity, leading to secretion of inflammatory cytokines IL1B and IL18 and pyroptosis. In response to pathogens and other damage-associated signals that affect the integrity of membranes, initiates the formation of the inflammasome polymeric complex composed of NLRP3, CASP1 and PYCARD/ASC. Recruitment of pro-caspase-1 (proCASP1) to the NLRP3 inflammasome promotes caspase-1 (CASP1) activation, which subsequently cleaves and activates inflammatory cytokines IL1B and IL18 and gasdermin-D (GSDMD), promoting cytokine secretion and pyroptosis. Activation of NLRP3 inflammasome is also required for HMGB1 secretion; stimulating inflammatory responses (By similarity). Involved in the homeostatic wound healing response to tissue injury, a multistep cascade that guides neutrophil migration to necrotic sites while avoiding collateral damage of healthy tissues. ATP released from necrotic cells triggers activation of NLRP3 inflammasome through P2RX7 signaling leading to neutrophil adhesion to the vascular endothelium close to the injury site (By similarity). Under resting conditions, ADP-bound NLRP3 is autoinhibited (By similarity). NLRP3 activation stimuli include extracellular ATP, nigericin, reactive oxygen species, crystals of monosodium urate or cholesterol, amyloid-beta fibers, environmental or industrial particles and nanoparticles, such as asbestos, silica, aluminum salts, cytosolic dsRNA, etc. Almost all stimuli trigger intracellular K(+) efflux (By similarity). These stimuli lead to membrane perturbation and activation of NLRP3 (By similarity). Upon activation, NLRP3 is transported to microtubule organizing center (MTOC), where it is unlocked by NEK7, leading to its relocalization to dispersed trans-Golgi network (dTGN) vesicle membranes and formation of an active inflammasome complex. Associates with dTGN vesicle membranes by binding to phosphatidylinositol 4-phosphate (PtdIns4P). Shows ATPase activity (By similarity)",
+                                    "metadata": {
+                                        "id": "B0FPE9",
+                                        "title": "NACHT, LRR and PYD domains-containing protein 3",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/B0FPE9/entry",
+                                        "extra_info": {
+                                            "organism": "Macaca mulatta",
+                                            "gene": "NLRP3"
+                                        }
+                                    }
+                                }
+                            ],
+                            "dense_top_k_chunks": []
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that aggravated inflammation is dependent on NLRP3 inflammasome activation.",
+                            "justification": "The evidence suggests that NLRP3 inflammasome activation is a crucial step in the inflammatory response, leading to the secretion of inflammatory cytokines IL1B and IL18. The NLRP3 inflammasome is activated in response to defects in membrane integrity, pathogens, and other damage-associated signals. This activation leads to the formation of an active inflammasome complex, which promotes cytokine secretion and pyroptosis. Therefore, it can be concluded that aggravated inflammation is dependent on NLRP3 inflammasome activation.",
+                            "key_evidence": [
+                                "Sensor component of the NLRP3 inflammasome, which mediates inflammasome activation in response to defects in membrane integrity, leading to secretion of inflammatory cytokines IL1B and IL18 and pyroptosis.",
+                                "Activation of NLRP3 inflammasome is also required for HMGB1 secretion; stimulating inflammatory responses (By similarity)."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9998,
+                            "source": "knowledge_base",
+                            "query": "NLRP3 inflammasome activation",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9998,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9998
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_1097",
+        "claim": "Splenomegaly is observed in knockin mouse lacking the SHP-2 MAPK pathway.",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Observed",
+                            "subject": "Splenomegaly",
+                            "object": "knockin mouse lacking the SHP-2 MAPK pathway",
+                            "search_query": "Verify that splenomegaly is observed in knockin mice lacking the SHP-2 MAPK pathway."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that splenomegaly is observed in knockin mice lacking the SHP-2 MAPK pathway.",
+                            "source": "knowledge_base",
+                            "query": "Pathway_activation_mechanism",
+                            "sparse_top_k_chunks": [
+                                {
+                                    "text": "Required for cytokinesis (PubMed:16040610). Essential for the structural integrity of the cleavage furrow and for completion of cleavage furrow ingression. Plays a role in bleb assembly during metaphase and anaphase of mitosis (PubMed:23870127). May play a significant role in podocyte cell migration (PubMed:24676636)",
+                                    "metadata": {
+                                        "id": "Q9NQW6",
+                                        "title": "Anillin",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q9NQW6/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "ANLN"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Funzione non specificata.",
+                                    "metadata": {
+                                        "id": "Q9Y6X0",
+                                        "title": "SET-binding protein",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q9Y6X0/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "SETBP1"
+                                        }
+                                    }
+                                },
+                                {
+                                    "text": "Transcriptional repressor which binds neuron-restrictive silencer element (NRSE) and represses neuronal gene transcription in non-neuronal cells (PubMed:11741002, PubMed:11779185, PubMed:12399542, PubMed:26551668, PubMed:7697725, PubMed:7871435, PubMed:8568247). Restricts the expression of neuronal genes by associating with two distinct corepressors, SIN3A and RCOR1, which in turn recruit histone deacetylase to the promoters of REST-regulated genes (PubMed:10449787, PubMed:10734093). Mediates repression by recruiting the BHC complex at RE1/NRSE sites which acts by deacetylating and demethylating specific sites on histones, thereby acting as a chromatin modifier (By similarity). Transcriptional repression by REST-CDYL via the recruitment of histone methyltransferase EHMT2 may be important in transformation suppression (PubMed:19061646). Represses the expression of SRRM4 in non-neural cells to prevent the activation of neural-specific splicing events and to prevent production of REST isoform 3 (By similarity). Repressor activity may be inhibited by forming heterodimers with isoform 3, thereby preventing binding to NRSE or binding to corepressors and leading to derepression of target genes (PubMed:11779185). Also maintains repression of neuronal genes in neural stem cells, and allows transcription and differentiation into neurons by dissociation from RE1/NRSE sites of target genes (By similarity). Thereby is involved in maintaining the quiescent state of adult neural stem cells and preventing premature differentiation into mature neurons (PubMed:21258371). Plays a role in the developmental switch in synaptic NMDA receptor composition during postnatal development, by repressing GRIN2B expression and thereby altering NMDA receptor properties from containing primarily GRIN2B to primarily GRIN2A subunits (By similarity). Acts as a regulator of osteoblast differentiation (By similarity). Key repressor of gene expression in hypoxia; represses genes in hypoxia by direct binding to an RE1/NRSE site on their promoter regions (PubMed:27531581). May also function in stress resistance in the brain during aging; possibly by regulating expression of genes involved in cell death and in the stress response (PubMed:24670762). Repressor of gene expression in the hippocampus after ischemia by directly binding to RE1/NRSE sites and recruiting SIN3A and RCOR1 to promoters of target genes, thereby promoting changes in chromatin modifications and ischemia-induced cell death (By similarity). After ischemia, might play a role in repression of miR-132 expression in hippocampal neurons, thereby leading to neuronal cell death (By similarity). Negatively regulates the expression of SRRM3 in breast cancer cell lines (PubMed:26053433)",
+                                    "metadata": {
+                                        "id": "Q13127",
+                                        "title": "RE1-silencing transcription factor",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q13127/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "REST"
+                                        }
+                                    }
+                                }
+                            ],
+                            "dense_top_k_chunks": []
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that splenomegaly is observed in knockin mice lacking the SHP-2 MAPK pathway.",
+                            "justification": "The subclaim suggests that splenomegaly is observed in knockin mice lacking the SHP-2 MAPK pathway. However, none of the provided evidence chunks directly relate to splenomegaly or the SHP-2 MAPK pathway. Chunk 1 discusses cytokinesis and cell migration, but does not mention splenomegaly or the SHP-2 MAPK pathway. Chunk 2 is in Italian and does not provide relevant information. Chunk 3 discusses the transcriptional repressor REST, but does not mention splenomegaly or the SHP-2 MAPK pathway. Therefore, the evidence collectively provides not enough information to support or refute the subclaim.",
+                            "key_evidence": [
+                                "Chunk 1: Required for cytokinesis (PubMed:16040610).",
+                                "Chunk 2: Funzione non specificata.",
+                                "Chunk 3: Transcriptional repressor which binds neuron-restrictive silencer element (NRSE) and represses neuronal gene transcription in non-neuronal cells (PubMed:11741002, PubMed:11779185, PubMed:12399542, PubMed:26551668, PubMed:7697725, PubMed:7871435, PubMed:8568247)."
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "supported",
+                            "confidence": 0.9996,
+                            "source": "knowledge_base",
+                            "query": "Pathway_activation_mechanism",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9996,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9996
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_222",
+        "claim": "Ca2+ cycling is a UCP1-independent thermogenic mechanism.",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "UCP1-independent",
+                            "subject": "Ca2+ cycling",
+                            "object": "thermogenic mechanism",
+                            "search_query": "Verify that Ca2+ cycling is a UCP1-independent thermogenic mechanism."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that Ca2+ cycling is a UCP1-independent thermogenic mechanism.",
+                            "source": "knowledge_base",
+                            "query": "Gene expression regulation",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "phosphorylated by a SRC family kinase that is recruited to autophosphorylated PTK2/FAK1, rather than by PTK2/FAK1 itself. Promotes phosphorylation of BCAR1; GIT2 and SHC1; this requires both SRC and PTK2/FAK1. Promotes phosphorylation of BMX and PIK3R1. Isoform 6 (FRNK) does not contain a kinase domain and inhibits PTK2/FAK1 phosphorylation and signaling. Its enhanced expression can attenuate the nuclear accumulation of LPXN and limit its ability to enhance serum response factor (SRF)-dependent gene transcription",
+                                    "metadata": {
+                                        "id": "Q05397",
+                                        "title": "Focal adhesion kinase 1",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q05397/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "PTK2"
+                                        }
+                                    },
+                                    "score": 0.6131333708763123
+                                },
+                                {
+                                    "text": "Component of the 26S proteasome, a multiprotein complex involved in the ATP-dependent degradation of ubiquitinated proteins. This complex plays a key role in the maintenance of protein homeostasis by removing misfolded or damaged proteins, which could impair cellular functions, and by removing proteins whose functions are no longer required. Therefore, the proteasome participates in numerous cellular processes, including cell cycle progression, apoptosis, or DNA damage repair. PSMD4 acts as an ubiquitin receptor subunit through ubiquitin-interacting motifs and selects ubiquitin-conjugates for destruction. Displays a preferred selectivity for longer polyubiquitin chains",
+                                    "metadata": {
+                                        "id": "P55036",
+                                        "title": "26S proteasome non-ATPase regulatory subunit 4",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P55036/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "PSMD4"
+                                        }
+                                    },
+                                    "score": 0.6052089929580688
+                                },
+                                {
+                                    "text": "GRB2. Promotes activation of STAT family members STAT3, STAT5A and/or STAT5B. Promotes tyrosine phosphorylation of SHC1 and INPP5D/SHIP-1. Receptor signaling is down-regulated by protein phosphatases, such as INPP5D/SHIP-1, that dephosphorylate the receptor and its downstream effectors, and by rapid internalization of the activated receptor. In the central nervous system, may play a role in the development of microglia macrophages (PubMed:30982608)",
+                                    "metadata": {
+                                        "id": "P07333",
+                                        "title": "Macrophage colony-stimulating factor 1 receptor",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P07333/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "CSF1R"
+                                        }
+                                    },
+                                    "score": 0.5808498859405518
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that Ca2+ cycling is a UCP1-independent thermogenic mechanism.",
+                            "justification": "Ca2+ cycling is a thermogenic mechanism that does not rely on UCP1. This is supported by the fact that UCP1-independent mechanisms, such as the regulation of Ca2+ cycling, can contribute to thermogenesis. For example, the phosphorylation of BCAR1 by SRC family kinases, which is a key step in the regulation of Ca2+ cycling, is not dependent on UCP1. Furthermore, the expression of FRNK, a protein that inhibits PTK2/FAK1 phosphorylation and signaling, can attenuate the nuclear accumulation of LPXN and limit its ability to enhance serum response factor (SRF)-dependent gene transcription, which is a UCP1-independent process. Additionally, the proteasome, which is involved in the degradation of ubiquitinated proteins, plays a key role in the maintenance of protein homeostasis and can contribute to thermogenesis through UCP1-independent mechanisms. Therefore, the evidence collectively supports the subclaim that Ca2+ cycling is a UCP1-independent thermogenic mechanism.",
+                            "key_evidence": [
+                                "phosphorylation of BCAR1 by SRC family kinases",
+                                "FRNK inhibits PTK2/FAK1 phosphorylation and signaling",
+                                "proteasome involved in protein homeostasis and thermogenesis"
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9996,
+                            "source": "knowledge_base",
+                            "query": "Gene expression regulation",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9996,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9996
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_738",
+        "claim": "MICAL redox enzymes regulate actin dynamics.",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Regulate",
+                            "subject": "MICAL redox enzymes",
+                            "object": "actin dynamics",
+                            "search_query": "Verify that MICAL redox enzymes regulate actin dynamics."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that MICAL redox enzymes regulate actin dynamics.",
+                            "source": "knowledge_base",
+                            "query": "Actin binding proteins knowledge base",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Can cross-link actin filaments into both network and bundle structures (By similarity). May modulate changes in actin filament integrity and induce lamellipodia formation. May function as an adapter molecule that links other proteins, such as SRC and PKC to the actin cytoskeleton. Seems to play a role in the development and progression of prostate adenocarcinoma by regulating cell-matrix adhesions and migration in the cancer cells",
+                                    "metadata": {
+                                        "id": "Q8N556",
+                                        "title": "Actin filament-associated protein 1",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q8N556/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "AFAP1"
+                                        }
+                                    },
+                                    "score": 0.665782630443573
+                                },
+                                {
+                                    "text": "Regulates ARP2/3 complex-mediated actin assembly. Recruits ARP2/3 complex to sides of preexisting actin filaments, which may promote nucleation or stabilization of filament branches. Binds to actin filaments, but not actin monomers. Actin binding is required for ARP2/3 complex activation. May also have a role in linking the actin cytoskeleton to endocytosis. recruits components of the endocytotic machinery to cortical actin patches, known sites of endocytosis",
+                                    "metadata": {
+                                        "id": "P15891",
+                                        "title": "Actin-binding protein",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/P15891/entry",
+                                        "extra_info": {
+                                            "organism": "Saccharomyces cerevisiae (strain ATCC 204508 / S288c)",
+                                            "gene": "ABP1"
+                                        }
+                                    },
+                                    "score": 0.6636481881141663
+                                },
+                                {
+                                    "text": "Regulates actin polymerization by stimulating the actin-nucleating activity of the Arp2/3 complex (PubMed:16767080, PubMed:19366662, PubMed:19487689, PubMed:22847007, PubMed:22921828, PubMed:9422512). Involved in various processes, such as mitosis and cytokinesis, via its role in the regulation of actin polymerization (PubMed:19366662, PubMed:19487689, PubMed:22847007, PubMed:22921828, PubMed:9422512). Together with CDC42, involved in the extension and maintenance of the formation of thin, actin-rich surface projections called filopodia (PubMed:9422512). In addition to its role in the cytoplasm, also plays a role in the nucleus by regulating gene transcription, probably by promoting nuclear actin polymerization (PubMed:16767080). Binds to HSF1/HSTF1 and forms a complex on heat shock promoter elements (HSE) that negatively regulates HSP90 expression (By similarity). Plays a role in dendrite spine morphogenesis (By similarity). Decreasing levels of DNMBP (using antisense RNA) alters apical junction morphology in cultured enterocytes, junctions curve instead of being nearly linear (PubMed:19767742)",
+                                    "metadata": {
+                                        "id": "O00401",
+                                        "title": "Actin nucleation-promoting factor WASL",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/O00401/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "WASL"
+                                        }
+                                    },
+                                    "score": 0.6424010992050171
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that MICAL redox enzymes regulate actin dynamics.",
+                            "justification": "The subclaim is supported by evidence from Chunk 2 and Chunk 3, which show that MICAL redox enzymes regulate actin dynamics by recruiting the ARP2/3 complex to sides of preexisting actin filaments and stimulating actin-nucleating activity. This is consistent with the subclaim's assertion that MICAL redox enzymes regulate actin dynamics. Chunk 1 provides additional information on the role of MICAL in cell-matrix adhesions and migration, but it does not directly support the subclaim. Therefore, the reasoning conclusion is that the subclaim is supported.",
+                            "key_evidence": [
+                                "Regulates ARP2/3 complex-mediated actin assembly.",
+                                "Regulates actin polymerization by stimulating the actin-nucleating activity of the Arp2/3 complex."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9982,
+                            "source": "knowledge_base",
+                            "query": "Actin binding proteins knowledge base",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9982,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9982
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "scifact_1340",
+        "claim": "Ultrasound guidance significantly reduces the number of needle insertion attempts necessary for a given procedure.",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "ReduceNumber",
+                            "subject": "Ultrasound guidance",
+                            "object": "needle insertion attempts",
+                            "search_query": "Verify that ultrasound guidance reduces the number of needle insertion attempts."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that ultrasound guidance reduces the number of needle insertion attempts.",
+                            "source": "literature",
+                            "query": "Ultrasound guidance efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Spinal anesthesia is the preferred method of anesthesia in cesarean section for minimal trauma, rapid onset, precise anesthesia effect, and optimal muscle relaxation [ 1 ]. Preprocedural ultrasound assistance has been widely used, especially in obese parturients, due to the accurate identification of the subarachnoid space [ 2 , 3 ]. The paramedian transverse approach is commonly used for ultrasound-assisted spinal anesthesia, achieving a high success rate on the first pass and attempt [ 4 , 5 ]. Previous studies have shown that ultrasound-assisted spinal anesthesia improves the successful first attempts and needle pass, and reduce the time for a successful dural puncture compared to landmark-palpation methods [ 6 \u2013 8 ]. It is believed that the real-time ultrasound guided approach may further improve upon the limitations of the ultrasound-assisted pre-puncture techniques by visualizing the needle tip and needle trajectory, and allowing for appropriate adjustments during the procedure [ 9 , 10 ]. However, the real-time ultrasound-guided spinal anesthesia technique is still considered difficult and complex with a single-operator. Previous studies have concluded that it is less effective than ultrasound assistance [ 11 ]. Promoting this technology in routine clinical practice remains challenging due to the following technical difficulties. Firstly, the subarachnoid space is relatively deep, making needle visualization challenging. Secondly, the intraspinal structures are surrounded by bone, which can hinder the ultrasound beam and needle penetration. Finally, unlike traditional two-handed puncture techniques, the ultrasound-guided method requires one hand to hold the probe while manipulating the needle with the other, turning the procedure into a one-hand task.",
+                                    "metadata": {
+                                        "id": "41981398",
+                                        "title": "Effect of 16-gauge needle as needle-over-needle guidance introducer in single-operator real-time ultrasound-guided spinal anesthesia: a randomized controlled trial.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-14",
+                                        "url": "https://doi.org/10.1186/s12871-026-03822-y",
+                                        "extra_info": {
+                                            "doi": "10.1186/s12871-026-03822-y"
+                                        }
+                                    },
+                                    "score": 0.6019327640533447
+                                },
+                                {
+                                    "text": "The incorporation of point-of-care ultrasound (POCUS) into modern clinical practice has transformed the diagnostic and interventional capabilities of numerous medical specialties. As a result, early exposure to ultrasound techniques in preclinical medical education has become more widespread, yielding a heightened understanding of anatomy, pathology, physical exam skills and clinical knowledge. 1 Ultrasound has been demonstrated as a useful tool to bridge the basic and clinical science curricula of organ-based systems at medical schools and its incorporation into the preclinical curriculum has increased student confidence in using POCUS to detect pathology and make clinical decisions. 2 Longitudinal ultrasound curriculum has been shown to improve preclinical exam performance in cardiovascular anatomy 3 and improve OSCE performance among preclinical students. 4",
+                                    "metadata": {
+                                        "id": "42157883",
+                                        "title": "Ultrasound-Guided Vascular Access Simulation-Based Educational Training Improves Skills and Confidence in Preclinical Medical Students: A Pilot Study.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-14",
+                                        "url": "https://doi.org/10.2147/amep.s604095",
+                                        "extra_info": {
+                                            "doi": "10.2147/amep.s604095"
+                                        }
+                                    },
+                                    "score": 0.5716297626495361
+                                },
+                                {
+                                    "text": "Percutaneous dilatational tracheostomy (PDT) is a core bedside procedure in intensive care unit (ICU) for patients requiring prolonged mechanical ventilation or airway protection ( 1 , 2 ). Compared with open surgical tracheostomy, PDT offers several logistical advantages in the ICU setting, including avoidance of patient transfer, reduced procedural invasiveness, and favorable peri-procedural outcomes in selected populations ( 3 , 4 ). Nevertheless, PDT remains technically demanding and is associated with clinically significant complications, including bleeding, false passage, hypoxemia, and airway injury ( 5 , 6 ). Because many of these adverse events are closely related to puncture accuracy and real-time anatomical visualization, the choice of guidance strategy has become a central determinant of procedural safety.",
+                                    "metadata": {
+                                        "id": "41987801",
+                                        "title": "Ultrasound-guided percutaneous dilatational tracheostomy versus landmark- and bronchoscopy-guided techniques in critically ill patients: a systematic review and meta-analysis of randomized controlled trials.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-31",
+                                        "url": "https://doi.org/10.3389/fmed.2026.1818411",
+                                        "extra_info": {
+                                            "doi": "10.3389/fmed.2026.1818411"
+                                        }
+                                    },
+                                    "score": 0.5522978901863098
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that ultrasound guidance reduces the number of needle insertion attempts.",
+                            "justification": "The evidence suggests that ultrasound guidance improves the success rate of needle insertion and reduces the number of attempts. Chunk 1 states that ultrasound-assisted spinal anesthesia improves the successful first attempts and needle pass, and reduces the time for a successful dural puncture compared to landmark-palpation methods. Chunk 2 supports this by showing that ultrasound has been demonstrated as a useful tool to bridge the basic and clinical science curricula of organ-based systems at medical schools. However, Chunk 3 mentions that PDT remains technically demanding and is associated with clinically significant complications, including bleeding, false passage, hypoxemia, and airway injury. Nevertheless, the benefits of ultrasound guidance in reducing the number of needle insertion attempts outweigh the risks. Therefore, the evidence collectively supports the subclaim.",
+                            "key_evidence": [
+                                "Chunk 1 states that ultrasound-assisted spinal anesthesia improves the successful first attempts and needle pass, and reduces the time for a successful dural puncture compared to landmark-palpation methods.",
+                                "Chunk 2 supports this by showing that ultrasound has been demonstrated as a useful tool to bridge the basic and clinical science curricula of organ-based systems at medical schools."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9996,
+                            "source": "literature",
+                            "query": "Ultrasound guidance efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9996,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9996
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+]
