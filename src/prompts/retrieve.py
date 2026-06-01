@@ -74,26 +74,29 @@ Tailor the queries to the selected source:
 Do not invent evidence.
 """
 
-retrieval_query_generation_schema = {
-    "name": "retrieval_query_generation",
-    "description": "Generates concise search queries for a selected medical database source.",
-    "strict": True,
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "reasoning": {
-                "type": "string",
-                "description": "Brief explanation for the generated queries."
-            },
-            "search_queries": {
-                "type": "array",
-                "items": {
-                    "type": "string"
+def get_retrieval_query_generation_schema(num_queries: int) -> dict:
+    return {
+        "name": "retrieval_query_generation",
+        "description": "Generates concise search queries for a selected medical database source.",
+        "strict": True,
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "reasoning": {
+                    "type": "string",
+                    "description": "Brief explanation for the generated queries."
                 },
-                "description": "The exact number of English search queries requested."
-            }
-        },
-        "additionalProperties": False,
-        "required": ["reasoning", "search_queries"]
+                "search_queries": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": f"The exact number of English search queries requested ({num_queries}).",
+                    "minItems": num_queries,
+                    "maxItems": num_queries
+                }
+            },
+            "additionalProperties": False,
+            "required": ["reasoning", "search_queries"]
+        }
     }
-}

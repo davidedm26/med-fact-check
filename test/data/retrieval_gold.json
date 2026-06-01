@@ -1,6 +1,6 @@
 {
-  "_description": "Gold set for Retrieval Team nodes ablation study. Each subclaim is annotated with the expected source, 3 expected search queries, and the expected retrieval strategy.",
-  "_version": "1.0",
+  "_description": "Gold set for Retrieval Team nodes ablation study. Each subclaim is annotated with the expected source, 1 expected search query (because dynamic_coins is 1), and the expected retrieval strategy.",
+  "_version": "1.1",
   "gold_subclaims": [
     {
       "subclaim_id": "ret_01",
@@ -8,9 +8,7 @@
       "expected_target_source": "literature",
       "expected_strategy": "dense",
       "expected_queries": [
-        "Metformin thyroxine absorption interaction",
-        "Metformin effect on thyroxine levels",
-        "Thyroxine absorption inhibition by metformin"
+        "Metformin thyroxine absorption interaction"
       ]
     },
     {
@@ -19,9 +17,7 @@
       "expected_target_source": "knowledge_base",
       "expected_strategy": "sparse",
       "expected_queries": [
-        "Glycyl-tRNA synthetase Charcot-Marie-Tooth disease",
-        "GARS gene mutations CMT",
-        "Charcot-Marie-Tooth disease genetic basis"
+        "Glycyl-tRNA synthetase Charcot-Marie-Tooth disease"
       ]
     },
     {
@@ -30,9 +26,7 @@
       "expected_target_source": "clinical_trials",
       "expected_strategy": "dense",
       "expected_queries": [
-        "Varenicline vs bupropion combination therapy",
-        "nicotine replacement therapy clinical trial",
-        "varenicline monotherapy 12 weeks efficacy"
+        "Varenicline vs bupropion combination therapy"
       ]
     },
     {
@@ -41,9 +35,7 @@
       "expected_target_source": "literature",
       "expected_strategy": "sparse",
       "expected_queries": [
-        "liver transplantation methadone discontinuation 2001",
-        "methadone treatment protocols liver transplant",
-        "liver transplant programs drug policy"
+        "liver transplantation methadone discontinuation 2001"
       ]
     },
     {
@@ -52,9 +44,7 @@
       "expected_target_source": "literature",
       "expected_strategy": "dense",
       "expected_queries": [
-        "microerythrocyte count severe anemia risk",
-        "homozygous alpha thalassemia trait anemia",
-        "microcytosis vulnerability to anemia"
+        "microerythrocyte count severe anemia risk"
       ]
     },
     {
@@ -63,9 +53,7 @@
       "expected_target_source": "clinical_trials",
       "expected_strategy": "dense",
       "expected_queries": [
-        "Trastuzumab prostate cancer clinical trials",
-        "Herceptin efficacy in prostate cancer patients",
-        "Trastuzumab treatment outcomes prostate cancer"
+        "Trastuzumab prostate cancer clinical trials"
       ]
     },
     {
@@ -74,9 +62,7 @@
       "expected_target_source": "knowledge_base",
       "expected_strategy": "sparse",
       "expected_queries": [
-        "Amiodarone drug class",
-        "anti-arrhythmic drugs class I",
-        "Amiodarone pharmacological classification"
+        "Amiodarone drug class"
       ]
     },
     {
@@ -85,9 +71,7 @@
       "expected_target_source": "literature",
       "expected_strategy": "dense",
       "expected_queries": [
-        "glial progenitor cells neural network formation",
-        "human glial cells host animal neurons",
-        "transplanted glial progenitor cell integration"
+        "glial progenitor cells neural network formation"
       ]
     },
     {
@@ -96,9 +80,7 @@
       "expected_target_source": "clinical_trials",
       "expected_strategy": "dense",
       "expected_queries": [
-        "Transcranial pulse stimulation Alzheimer's dementia trials",
-        "TPS mental performance Alzheimer's patients",
-        "Transcranial pulse stimulation cognitive outcomes"
+        "Transcranial pulse stimulation Alzheimer's dementia trials"
       ]
     },
     {
@@ -107,9 +89,7 @@
       "expected_target_source": "knowledge_base",
       "expected_strategy": "sparse",
       "expected_queries": [
-        "Arthrobacter complete genome",
-        "genus Arthrobacter genome sequencing",
-        "Arthrobacter genetic database"
+        "Arthrobacter complete genome"
       ]
     }
   ]

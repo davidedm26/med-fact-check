@@ -50,7 +50,7 @@ from utils.llm_factory import get_llm_with_tools
 # pyrefly: ignore [missing-import]
 from prompts.retrieve import (
     retrieval_source_selection_schema,
-    retrieval_query_generation_schema
+    get_retrieval_query_generation_schema
 )
 from langchain_core.messages import HumanMessage
 # pyrefly: ignore [missing-import]
@@ -202,9 +202,6 @@ def main() -> None:
     source_selector_agent = base_llm.with_structured_output(
         retrieval_source_selection_schema, method="function_calling"
     )
-    query_generator_agent = base_llm.with_structured_output(
-        retrieval_query_generation_schema, method="function_calling"
-    )
 
     all_results: list[dict] = []
     total_time = 0.0
@@ -241,11 +238,14 @@ def main() -> None:
             sys_prompt_query = retrieval_query_generation_prompt.format(
                 num_queries=dynamic_coins, target_source=expected_source
             )
+            query_generator_agent = base_llm.with_structured_output(
+                get_retrieval_query_generation_schema(dynamic_coins), method="function_calling"
+            )
             query_res = query_generator_agent.invoke([
                 {"role": "system", "content": sys_prompt_query},
                 {"role": "user", "content": subclaim_text}
             ])
-            pred_queries = query_res.get("search_queries", [])
+            pred_queries = query_res.get("search_queries", []) if isinstance(query_res, dict) else getattr(query_res, "search_queries", [])
 
         except Exception as exc:
             print(f"  ERROR invoking agents: {exc}")

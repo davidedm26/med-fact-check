@@ -45,16 +45,20 @@ class IngestionNode:
             "duplicates_removed": 0,
         }
 
-        # 1. Loop through each query
-        for query_index, single_query in enumerate(
-            tqdm(search_queries, desc=f"[{sub_id} | {target.upper()}] queries", unit="query"),
+        from collections import Counter
+        query_counts = Counter(search_queries)
+
+        # 1. Loop through each unique query
+        for query_index, (single_query, count) in enumerate(
+            tqdm(query_counts.items(), desc=f"[{sub_id} | {target.upper()}] queries", unit="query"),
             1,
         ):
             query_tag = f"[{sub_id} | {target.upper()} | query_{query_index}]"
-            log.info(f"{query_tag} 🔎 Searching data for variant: '{single_query}'")
-            stats["queries_processed"] += 1
+            log.info(f"{query_tag} 🔎 Searching data for variant: '{single_query}' (Count: {count})")
+            stats["queries_processed"] += count
             
-            api_limit = config.get("retrieval.max_results_per_query", 5)
+            base_limit = config.get("retrieval.max_results_per_query", 5)
+            api_limit = base_limit * count
             
             if target == "clinical_trials":
                 extracted_trials = search_trials(query=single_query, limit=api_limit) 

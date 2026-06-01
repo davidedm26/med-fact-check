@@ -8,7 +8,6 @@ from utils.llm_factory import get_llm_with_tools
 from prompts.decompose import *  
 from prompts.retrieve import (
     retrieval_source_selection_schema,
-    retrieval_query_generation_schema,
 )
 from prompts.evaluate import (
     reasoning_schema,
@@ -127,9 +126,6 @@ class FactAgent:
         self.source_selector_agent = self.base_llm.with_structured_output(
             retrieval_source_selection_schema, method="function_calling"
         )
-        self.query_generator_agent = self.base_llm.with_structured_output(
-            retrieval_query_generation_schema, method="function_calling"
-        )
 
         # ── Evaluation Team agents ──
         self.reasoning_agent = self.base_llm.with_structured_output(
@@ -162,7 +158,7 @@ class FactAgent:
         from stages.retrieval_team import build_retrieval_graph
         self.retrieval_graph = build_retrieval_graph(
             self.source_selector_agent,
-            self.query_generator_agent,
+            self.base_llm,
         )
 
     def _build_evaluation_graph(self):

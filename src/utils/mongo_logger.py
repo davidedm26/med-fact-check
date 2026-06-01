@@ -133,10 +133,8 @@ def _serialize_for_mongo(obj: Any) -> Any:
         serialized = {}
         for k, v in obj.items():
             key = str(k)
-            if key in {"text", "content"} and isinstance(v, str):
-                serialized[key] = v[:50]
-            else:
-                serialized[key] = _serialize_for_mongo(v)
+            # We no longer truncate 'text' or 'content' so that full chunks are visible in MongoDB
+            serialized[key] = _serialize_for_mongo(v)
         return serialized
 
     if isinstance(obj, (list, tuple)):

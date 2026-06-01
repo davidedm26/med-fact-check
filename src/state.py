@@ -21,6 +21,7 @@ class State(MessagesState):
     retrieval_query: Optional[str]
     retrieval_source: Optional[Dict[str, int]]
     all_search_queries: Optional[List[str]]
+    queries_by_source: Optional[Dict[str, List[str]]]
     subclaim_id: Optional[str]
     subclaim: Optional[str]
     downloaded_chunks: Optional[List[Dict[str, object]]]

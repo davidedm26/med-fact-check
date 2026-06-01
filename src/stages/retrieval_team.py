@@ -8,6 +8,7 @@ from state import State, _message_text
 from prompts.retrieve import (
     retrieval_source_selection_prompt,
     retrieval_query_generation_prompt,
+    get_retrieval_query_generation_schema,
 )
 from tools.retrieve.download import (
     download_documents,
@@ -20,7 +21,7 @@ from utils.config import config
 
 log = get_logger("RetrievalTeam")
 
-def build_retrieval_graph(source_selector_llm, query_generator_llm):
+def build_retrieval_graph(source_selector_llm, base_llm):
     """Build the unified retrieval subgraph."""
 
     RETRIEVAL_STRATEGY_TO_NODE = {
@@ -111,6 +112,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm):
         
         all_downloaded_chunks = []
         all_search_queries = []
+        queries_by_source = {}
         reasonings = []
 
         def process_source(source, num_coins):
@@ -122,6 +124,9 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm):
             ))
             messages = [sys_msg, HumanMessage(content=query)]
             
+            query_generator_llm = base_llm.with_structured_output(
+                get_retrieval_query_generation_schema(num_coins), method="function_calling"
+            )
             response = query_generator_llm.invoke(messages)
             generated_queries = []
             rsn = ""
@@ -152,6 +157,7 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm):
                 try:
                     sq, docs, rsn = future.result()
                     all_search_queries.extend(sq)
+                    queries_by_source[src] = sq
                     all_downloaded_chunks.extend(docs)
                     if rsn:
                         reasonings.append(f"{src}: {rsn}")
@@ -165,12 +171,13 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm):
             "retrieval_source": allocated_coins,
             "retrieval_query": primary_query,
             "all_search_queries": all_search_queries,
+            "queries_by_source": queries_by_source,
             "downloaded_chunks": all_downloaded_chunks,
             "messages": [
                 HumanMessage(
                     content=str({
                         "retrieval_source_coins": allocated_coins,
-                        "all_search_queries": all_search_queries,
+                        "queries_by_source": queries_by_source,
                         "subclaim_id": subclaim_id,
                         "reasoning": combined_reasoning,
                         "downloaded_chunks_count": len(all_downloaded_chunks),
@@ -183,45 +190,47 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm):
     @log_node("retrieval")
     def hybrid_retriever_node(state: State):
         log.info("hybrid_retriever start")
+        # We MUST use the full subclaim for semantic (dense) retrieval, not the short keyword queries.
+        subclaim = state.get("subclaim") or _message_text(state["messages"][0])
         all_search_queries = state.get("all_search_queries") or []
-        if not all_search_queries:
-            fallback = state.get("subclaim") or _message_text(state["messages"][0])
-            all_search_queries = [fallback]
             
         chunks = state.get("downloaded_chunks") or []
         chunks_json = json.dumps(chunks)
         
         top_k = config.get("retrieval.hybrid.top_k", 5)
         alpha = float(config.get("retrieval.hybrid.alpha", 0.5))
-        log.info(f"hybrid_retriever using alpha={alpha} across {len(all_search_queries)} queries")
+        log.info(f"hybrid_retriever using alpha={alpha} for subclaim: {subclaim}")
         
         chunk_scores: dict[str, float] = {}
         chunk_data: dict[str, dict] = {}
         
-        for q in all_search_queries:
-            if alpha > 0.0:
-                try:
-                    dense_results = dense_retrieve_tool.invoke({"query": q, "chunks": chunks_json, "top_k": top_k})
-                    for rank, chunk in enumerate(dense_results, 1):
-                        cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
-                        if cid not in chunk_data:
-                            chunk_data[cid] = chunk
-                        score_increment = alpha * (1.0 / (60.0 + rank))
-                        chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
-                except Exception as exc:
-                    log.error(f"Dense retrieve failed for query '{q}': {exc}")
-                    
-            if alpha < 1.0:
-                try:
-                    sparse_results = sparse_retrieve_tool.invoke({"query": q, "chunks": chunks_json, "top_k": top_k})
-                    for rank, chunk in enumerate(sparse_results, 1):
-                        cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
-                        if cid not in chunk_data:
-                            chunk_data[cid] = chunk
-                        score_increment = (1.0 - alpha) * (1.0 / (60.0 + rank))
-                        chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
-                except Exception as exc:
-                    log.error(f"Sparse retrieve failed for query '{q}': {exc}")
+        # We only need to run the retrievers once using the full subclaim
+        if alpha > 0.0:
+            try:
+                dense_results = dense_retrieve_tool.invoke({"query": subclaim, "chunks": chunks_json, "top_k": top_k})
+                for rank, chunk in enumerate(dense_results, 1):
+                    cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
+                    if cid not in chunk_data:
+                        chunk_data[cid] = chunk
+                    score_increment = alpha * (1.0 / (60.0 + rank))
+                    chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
+            except Exception as exc:
+                log.error(f"Dense retrieve failed for subclaim '{subclaim}': {exc}")
+                
+        if alpha < 1.0:
+            # For sparse (BM25), keyword queries are much better than the verbose subclaim,
+            # especially since our BM25 doesn't filter stopwords.
+            sparse_query = " ".join(all_search_queries) if all_search_queries else subclaim
+            try:
+                sparse_results = sparse_retrieve_tool.invoke({"query": sparse_query, "chunks": chunks_json, "top_k": top_k})
+                for rank, chunk in enumerate(sparse_results, 1):
+                    cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
+                    if cid not in chunk_data:
+                        chunk_data[cid] = chunk
+                    score_increment = (1.0 - alpha) * (1.0 / (60.0 + rank))
+                    chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
+            except Exception as exc:
+                log.error(f"Sparse retrieve failed for sparse_query '{sparse_query}': {exc}")
 
         sorted_cids = sorted(chunk_scores.keys(), key=lambda c: chunk_scores[c], reverse=True)
         final_chunks = [chunk_data[cid] for cid in sorted_cids[:top_k]]

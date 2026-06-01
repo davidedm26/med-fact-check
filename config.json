@@ -21,7 +21,7 @@
         }
     },
     "retrieval": {
-        "dynamic_coins": 0,
+        "dynamic_coins": 1,
         "base_coins_per_source": 1,
         "max_results_per_query": 5,
         "hybrid": {

@@ -52,7 +52,6 @@ from utils.llm_factory import get_llm_with_tools
 # pyrefly: ignore [missing-import]
 from prompts.retrieve import (
     retrieval_source_selection_schema,
-    retrieval_query_generation_schema
 )
 # pyrefly: ignore [missing-import]
 from stages.retrieval_team import build_retrieval_graph
@@ -163,11 +162,8 @@ def main():
     source_selector_agent = base_llm.with_structured_output(
         retrieval_source_selection_schema, method="function_calling"
     )
-    query_generator_agent = base_llm.with_structured_output(
-        retrieval_query_generation_schema, method="function_calling"
-    )
 
-    retrieval_graph = build_retrieval_graph(source_selector_agent, query_generator_agent)
+    retrieval_graph = build_retrieval_graph(source_selector_agent, base_llm)
 
     print(f"{C.GREEN}Ready!{C.RESET}\n")
     print(f"  Type a subclaim and press Enter. Empty input or Ctrl+C to quit.\n")
