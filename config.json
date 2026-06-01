@@ -26,7 +26,8 @@
         "max_results_per_query": 5,
         "hybrid": {
             "alpha": 0.5,
-            "top_k": 5
+            "top_k": 5,
+            "max_chunks_per_doc": 2
         },
         "chunking": {
             "chunk_size": 300,

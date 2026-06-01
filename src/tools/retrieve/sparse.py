@@ -56,8 +56,21 @@ def extract_relevant_paragraphs(query: str, paragraphs_with_metadata: List[Dict]
     # 3. Tokenize the query
     tokenized_query = tokenize_text(query)
     
-    # 4. Get the best chunks
-    top_results = bm25.get_top_n(tokenized_query, chunked_corpus, n=top_k)
+    # 4. Get the scores
+    scores = bm25.get_scores(tokenized_query)
+    
+    import numpy as np
+    top_indices = np.argsort(scores)[::-1][:top_k]
+    
+    top_results = []
+    for idx in top_indices:
+        score = float(scores[idx])
+        if score > 0.0:  # Only return chunks that actually match
+            chunk = chunked_corpus[idx]
+            if "extra_info" not in chunk:
+                chunk["extra_info"] = {}
+            chunk["extra_info"]["score"] = score
+            top_results.append(chunk)
     
     log.info(f"[BM25] Extracted {len(top_results)} most relevant paragraphs for query '{query}'.")
     return top_results

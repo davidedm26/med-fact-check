@@ -7,6 +7,20 @@ log = get_logger("TextCleaner")
 
 # 1. Unstructured data cleaning (XML from Europe PMC)
 
+def _is_glossary_or_noise(text: str) -> bool:
+    """Detect abbreviation lists, glossaries, and other non-argumentative noise."""
+    # High ratio of semicolons or commas relative to text length → likely a list of abbreviations
+    semicolons = text.count(";") + text.count(",")
+    words = text.split()
+    if len(words) > 0 and semicolons / len(words) > 0.25:
+        return True
+    # High ratio of uppercase words → likely acronym-heavy glossary
+    upper_words = sum(1 for w in words if w.isupper() and len(w) > 1)
+    if len(words) > 5 and upper_words / len(words) > 0.3:
+        return True
+    return False
+
+
 def clean_europe_pmc_xml(xml_string: str, article_metadata: Dict) -> List[Dict]:
     """
     Cleans Europe PMC XML and returns a list of dictionaries.
@@ -27,7 +41,7 @@ def clean_europe_pmc_xml(xml_string: str, article_metadata: Dict) -> List[Dict]:
         paragraphs_with_metadata = []
         for p_tag in body.find_all("p"):
             text = p_tag.get_text(separator=" ", strip=True)
-            if len(text) > 50: 
+            if len(text) > 100 and not _is_glossary_or_noise(text): 
                 paragraphs_with_metadata.append({
                     "text": text,
                     "metadata": article_metadata

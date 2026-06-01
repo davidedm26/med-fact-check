@@ -23,7 +23,7 @@ Your task is to produce a **structured justification** that:
 Rules:
 - Do NOT invent facts that are not present in the evidence chunks.
 - If no chunk is relevant, say so explicitly and conclude "not enough information".
-- In your `justification`, refer to chunks by their index or source.
+- In your `justification`, cite evidence using proper scientific references (e.g., 'A recent clinical trial demonstrated...' or 'According to literature [PMID/NCT ID]...'). DO NOT use phrases like 'Chunk 1', 'Evidence 2', or 'Document 3'.
 - In the `key_evidence` array, you MUST extract the EXACT verbatim sentences from the text. DO NOT just write 'Chunk 1', copy-paste the actual text sentence!
 - Keep the justification concise but thorough (3–8 sentences).
 - Use precise medical/scientific language.

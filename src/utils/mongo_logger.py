@@ -133,8 +133,18 @@ def _serialize_for_mongo(obj: Any) -> Any:
         serialized = {}
         for k, v in obj.items():
             key = str(k)
-            # We no longer truncate 'text' or 'content' so that full chunks are visible in MongoDB
-            serialized[key] = _serialize_for_mongo(v)
+            # Truncate text only for the massive 'downloaded_chunks' array to save Mongo space.
+            # 'retrieved_chunks' will still be logged in full.
+            if key == "downloaded_chunks" and isinstance(v, list):
+                serialized[key] = [
+                    {
+                        **{chunk_k: _serialize_for_mongo(chunk_v) for chunk_k, chunk_v in chunk.items() if chunk_k != "text"},
+                        "text": str(chunk.get("text", ""))[:50] + "..."
+                    } if isinstance(chunk, dict) else _serialize_for_mongo(chunk)
+                    for chunk in v
+                ]
+            else:
+                serialized[key] = _serialize_for_mongo(v)
         return serialized
 
     if isinstance(obj, (list, tuple)):
@@ -221,6 +231,7 @@ def log_node(stage: str) -> Callable:
                     "node_name": func.__name__,
                     "stage": stage,
                     "subclaim_id": state.get("subclaim_id") if isinstance(state, dict) else getattr(state, "subclaim_id", None),
+                    "subclaim": state.get("subclaim") if isinstance(state, dict) else getattr(state, "subclaim", None),
                     "timestamp": datetime.now(timezone.utc),
                     "output": _extract_output(result),
                 }

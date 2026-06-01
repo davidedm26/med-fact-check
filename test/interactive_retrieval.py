@@ -81,10 +81,11 @@ def print_header():
 
 def print_results(response: dict, elapsed: float):
     source = response.get("retrieval_source", {})
-    queries = response.get("all_search_queries", [])
+    queries_by_source = response.get("queries_by_source", {})
+    all_queries = [q for qs in queries_by_source.values() for q in qs]
     downloaded_chunks = response.get("downloaded_chunks", [])
     chunks = response.get("retrieved_chunks", [])
-    alpha = config.get("retrieval.hybrid_alpha", 0.5)
+    alpha = config.get("retrieval.hybrid.alpha", 0.5)
 
     # ── Source Allocation ──
     print(f"\n{C.CYAN}{'-' * 66}")
@@ -99,9 +100,12 @@ def print_results(response: dict, elapsed: float):
     print(f"{C.CYAN}{'-' * 66}")
     print(f"  STEP 2 — Queries & Downloading")
     print(f"{'-' * 66}{C.RESET}")
-    print(f"  {C.BOLD}Generated {len(queries)} queries:{C.RESET}")
-    for i, q in enumerate(queries, 1):
-        print(f"    {C.YELLOW}{i}. {q}{C.RESET}")
+    print(f"  {C.BOLD}Generated queries by source:{C.RESET}")
+    for src, queries in queries_by_source.items():
+        if queries:
+            print(f"    {C.BOLD}{src}:{C.RESET}")
+            for i, q in enumerate(queries, 1):
+                print(f"      {C.YELLOW}{i}. {q}{C.RESET}")
     print(f"\n  {C.DIM}Downloaded {len(downloaded_chunks)} distinct chunks from sources.{C.RESET}")
     print()
 
@@ -117,13 +121,13 @@ def print_results(response: dict, elapsed: float):
             meta = chunk.get("metadata", {})
             doc_id = meta.get("id", "Unknown")
             print(f"  {C.BOLD}[Rank {i}] From Doc ID: {doc_id}{C.RESET}")
-            print(f"  {text[:150]}...\n")
+            print(f"  {text}\n")
 
     # ── Summary ──
     print(f"{C.CYAN}{'-' * 66}")
     print(f"  SUMMARY")
     print(f"{'─' * 66}{C.RESET}")
-    print(f"  Queries generated:       {C.BOLD}{len(queries)}{C.RESET}")
+    print(f"  Queries generated:       {C.BOLD}{len(all_queries)}{C.RESET}")
     print(f"  Chunks downloaded:       {C.BOLD}{len(downloaded_chunks)}{C.RESET}")
     print(f"  Chunks retrieved:        {C.GREEN}{len(chunks)}{C.RESET}")
     print(f"  Time:                    {elapsed:.1f}s")

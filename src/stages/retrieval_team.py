@@ -111,8 +111,8 @@ def build_retrieval_graph(source_selector_llm, base_llm):
         allocated_coins = state.get("retrieval_source") or {"literature": config.get("retrieval.dynamic_coins", 3) + config.get("retrieval.base_coins_per_source", 1)}
         
         all_downloaded_chunks = []
-        all_search_queries = []
         queries_by_source = {}
+        download_stats = {}
         reasonings = []
 
         def process_source(source, num_coins):
@@ -141,10 +141,10 @@ def build_retrieval_graph(source_selector_llm, base_llm):
             search_queries = search_queries[:num_coins]
             
             log.info(f"downloader_agent downloading from {source} with args: {search_queries}")
-            docs = download_documents.invoke(
+            result = download_documents.invoke(
                 {"sub_id": subclaim_id, "search_queries": search_queries, "target_source": source}
             )
-            return search_queries, docs, rsn
+            return search_queries, result["chunks"], rsn, result.get("stats", {})
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future_to_source = {
@@ -155,23 +155,21 @@ def build_retrieval_graph(source_selector_llm, base_llm):
             for future in concurrent.futures.as_completed(future_to_source):
                 src = future_to_source[future]
                 try:
-                    sq, docs, rsn = future.result()
-                    all_search_queries.extend(sq)
+                    sq, docs, rsn, stats = future.result()
                     queries_by_source[src] = sq
                     all_downloaded_chunks.extend(docs)
+                    download_stats[src] = stats
                     if rsn:
                         reasonings.append(f"{src}: {rsn}")
                 except Exception as exc:
                     log.error(f"downloader_agent error for {src}: {exc}")
 
         combined_reasoning = " | ".join(reasonings) or "fallback to input query"
-        primary_query = all_search_queries[0] if all_search_queries else query
 
         return {
             "retrieval_source": allocated_coins,
-            "retrieval_query": primary_query,
-            "all_search_queries": all_search_queries,
             "queries_by_source": queries_by_source,
+            "download_stats": download_stats,
             "downloaded_chunks": all_downloaded_chunks,
             "messages": [
                 HumanMessage(
@@ -192,7 +190,10 @@ def build_retrieval_graph(source_selector_llm, base_llm):
         log.info("hybrid_retriever start")
         # We MUST use the full subclaim for semantic (dense) retrieval, not the short keyword queries.
         subclaim = state.get("subclaim") or _message_text(state["messages"][0])
-        all_search_queries = state.get("all_search_queries") or []
+        queries_by_source = state.get("queries_by_source") or {}
+        
+        # Flatten the dictionary to get all keyword queries for sparse retrieval
+        all_search_queries = [q for queries in queries_by_source.values() for q in queries]
             
         chunks = state.get("downloaded_chunks") or []
         chunks_json = json.dumps(chunks)
@@ -233,9 +234,22 @@ def build_retrieval_graph(source_selector_llm, base_llm):
                 log.error(f"Sparse retrieve failed for sparse_query '{sparse_query}': {exc}")
 
         sorted_cids = sorted(chunk_scores.keys(), key=lambda c: chunk_scores[c], reverse=True)
-        final_chunks = [chunk_data[cid] for cid in sorted_cids[:top_k]]
         
-        log.info(f"hybrid_retriever extracted {len(final_chunks)} total unique chunks via RRF.")
+        # Diversity constraint: limit chunks per document to avoid a single paper dominating the results
+        max_per_doc = config.get("retrieval.hybrid.max_chunks_per_doc", 2)
+        doc_counts: dict[str, int] = {}
+        final_chunks = []
+        for cid in sorted_cids:
+            if len(final_chunks) >= top_k:
+                break
+            chunk = chunk_data[cid]
+            doc_id = str(chunk.get("metadata", {}).get("id", ""))
+            current_count = doc_counts.get(doc_id, 0)
+            if current_count < max_per_doc:
+                final_chunks.append(chunk)
+                doc_counts[doc_id] = current_count + 1
+        
+        log.info(f"hybrid_retriever extracted {len(final_chunks)} chunks via RRF (max {max_per_doc}/doc, {len(doc_counts)} unique docs).")
         return {
             "retrieved_chunks": final_chunks,
             "messages": [

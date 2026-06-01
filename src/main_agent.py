@@ -223,13 +223,14 @@ class FactAgent:
             response = self.retrieval_graph.invoke({
                 "messages": [("user", subclaim)],
                 "subclaim_id": subclaim_id,
+                "subclaim": subclaim,
                 "run_id": state.get("run_id"),
             })
             retrieval_summary = {
                 "subclaim_id": subclaim_id,
                 "subclaim": subclaim,
                 "source": response.get("retrieval_source"),
-                "queries": response.get("all_search_queries", []),
+                "queries_by_source": response.get("queries_by_source", {}),
                 "retrieved_chunks": response.get("retrieved_chunks", []),
             }
             return {

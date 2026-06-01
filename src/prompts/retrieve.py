@@ -65,6 +65,7 @@ Follow these guidelines:
 3. Create diverse queries (e.g. one specific, one broader) based on the number of requested queries.
 4. Keep each query concise, maximum 5 words in English.
 5. All generated `search_queries` MUST be strictly in ENGLISH, even if the sub-claim is written in Italian or any other language.
+6. CRITICAL: NEVER drop the primary subject, disease, or core entity from the original claim (e.g. if the claim is about 'COVID-19', 'Alzheimer', or 'Metformin', that exact entity MUST be present in every generated query).
 
 Tailor the queries to the selected source:
 - `clinical_trials`: emphasize trial identifiers, phases, recruitment, enrollment, or interruption.

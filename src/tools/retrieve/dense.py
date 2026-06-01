@@ -152,9 +152,11 @@ class DenseRetriever:
             raw_meta = item.get("metadata") or {}
             doc_id = raw_meta.get("id", "")
 
-            if not text or doc_id in seen_ids:
+            if not text:
                 continue
-            seen_ids.add(doc_id)
+            
+            # We must NOT filter by doc_id here, because EuropePMC returns multiple different <p> paragraphs
+            # for the same doc_id. Filtering by doc_id destroys 90% of the article context!
             records.append((text, SourceMetadata.from_dict(raw_meta)))
 
         return records
