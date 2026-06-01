@@ -19,13 +19,12 @@ class State(MessagesState):
     verifiable_subclaims: Optional[List[Dict[str, str]]] # A list of filtered predicate objects that survived classification.
     subclaim_results: Annotated[List[Dict[str, object]], operator.add]
     retrieval_query: Optional[str]
-    retrieval_source: Optional[str]
-    retrieval_strategy: Optional[str]
+    retrieval_source: Optional[Dict[str, int]]
+    all_search_queries: Optional[List[str]]
     subclaim_id: Optional[str]
     subclaim: Optional[str]
-    downloaded_documents: Optional[List[Dict[str, object]]]
-    sparse_top_k_chunks: Optional[List[Dict[str, object]]]
-    dense_top_k_chunks: Optional[List[Dict[str, object]]]
+    downloaded_chunks: Optional[List[Dict[str, object]]]
+    retrieved_chunks: Optional[List[Dict[str, object]]]
     # ── Evaluation Team fields ──
     evaluation_results: Annotated[List[Dict[str, object]], operator.add]  # Aggregated evaluation results (label + confidence + justification) for each subclaim
     subclaim_justification: Optional[str]  # Output of the Reasoning Agent (used internally by the evaluation subgraph)

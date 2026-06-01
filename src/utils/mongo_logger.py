@@ -32,6 +32,7 @@ log = get_logger("MongoLogger")
 
 _mongo_client = None
 _mongo_db = None
+_mongo_failed = False
 
 
 def _get_mongo_db():
@@ -40,7 +41,10 @@ def _get_mongo_db():
     Returns ``None`` when the connection cannot be established so that
     callers can degrade gracefully.
     """
-    global _mongo_client, _mongo_db
+    global _mongo_client, _mongo_db, _mongo_failed
+
+    if _mongo_failed:
+        return None
 
     if _mongo_db is not None:
         return _mongo_db
@@ -58,6 +62,7 @@ def _get_mongo_db():
         log.info(f"Connected to MongoDB: {uri} / {db_name}")
         return _mongo_db
     except Exception as exc:
+        _mongo_failed = True
         log.warning(f"MongoDB connection failed ({exc}). Logging disabled.")
         return None
 

@@ -54,7 +54,7 @@ class IngestionNode:
             log.info(f"{query_tag} 🔎 Searching data for variant: '{single_query}'")
             stats["queries_processed"] += 1
             
-            api_limit = config.get("retrieval.api_search_limit", 5)
+            api_limit = config.get("retrieval.max_results_per_query", 5)
             
             if target == "clinical_trials":
                 extracted_trials = search_trials(query=single_query, limit=api_limit) 
@@ -123,15 +123,9 @@ class IngestionNode:
         stats["duplicates_removed"] = max(0, len(raw_chunks) - len(final_chunks))
         self.last_stats = stats
 
-        # 3. Save shared export into the data folder
-        if final_chunks:
-            # e.g. "data/export_sc_01_literature.json"
-            export_filename = os.path.join("data", f"export_{sub_id}_{target}.json")
-            with open(export_filename, "w", encoding="utf-8") as f_out:
-                json.dump(final_chunks, f_out, indent=2, ensure_ascii=False)
-            log.info(f"[{target.upper()}] 📦 Saved deduplicated export ({len(final_chunks)} chunks) to: '{export_filename}'")
-        else:
-            log.warning(f"No data found for '{sub_id}'. No export created.")
+        # 3. Log extraction summary without saving to disk
+        if not final_chunks:
+            log.warning(f"No data found for '{sub_id}'.")
 
         log.info(
             f"[{sub_id} | {target.upper()}] Stats: "

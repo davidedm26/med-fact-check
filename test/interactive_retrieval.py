@@ -1,11 +1,11 @@
 """
-Interactive Decompose Tester
+Interactive Retrieval Tester
 ============================
-REPL that lets you manually feed claims to the decompose subgraph
-and inspect the full output (predicates, classification, filter).
+REPL that lets you manually feed a subclaim to the retrieval subgraph
+and inspect the full output (coins, queries, chunks).
 
 Usage:
-    python tests/interactive_decompose.py
+    python test/interactive_retrieval.py
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Path setup (same as test_decompose_stage.py)
+# Path setup
 # ---------------------------------------------------------------------------
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -50,9 +50,12 @@ from utils.config import config
 # pyrefly: ignore [missing-import]
 from utils.llm_factory import get_llm_with_tools
 # pyrefly: ignore [missing-import]
-from prompts.decompose import claim_decomposition, claim_classification
+from prompts.retrieve import (
+    retrieval_source_selection_schema,
+    retrieval_query_generation_schema
+)
 # pyrefly: ignore [missing-import]
-from stages.decomposing_team import build_decompose_graph
+from stages.retrieval_team import build_retrieval_graph
 
 # ---------------------------------------------------------------------------
 # Colors
@@ -74,80 +77,58 @@ class C:
 
 def print_header():
     print(f"\n{C.CYAN}{'=' * 66}")
-    print(f"       INTERACTIVE DECOMPOSE TESTER")
+    print(f"       INTERACTIVE RETRIEVAL TESTER")
     print(f"{'=' * 66}{C.RESET}\n")
 
-
 def print_results(response: dict, elapsed: float):
-    predicates = response.get("predicates") or []
-    predicate_type_dict = response.get("predicate_type_dict") or []
-    verifiable_subclaims = response.get("verifiable_subclaims") or []
+    source = response.get("retrieval_source", {})
+    queries = response.get("all_search_queries", [])
+    downloaded_chunks = response.get("downloaded_chunks", [])
+    chunks = response.get("retrieved_chunks", [])
+    alpha = config.get("retrieval.hybrid_alpha", 0.5)
 
-    # ── Extracted predicates ──
+    # ── Source Allocation ──
     print(f"\n{C.CYAN}{'-' * 66}")
-    print(f"  STEP 1 — Decomposition   ({len(predicates)} predicates extracted)")
+    print(f"  STEP 1 — Source Selection")
     print(f"{'-' * 66}{C.RESET}")
-
-    for i, p in enumerate(predicates, 1):
-        if isinstance(p, dict):
-            rel = p.get("relation", "?")
-            subj = p.get("subject", "?")
-            obj = p.get("object", "?")
-            query = p.get("search_query", "")
-            print(f"  {C.BOLD}[{i}]{C.RESET} {C.DIM}relation:{C.RESET} {rel}")
-            print(f"      {C.DIM}subject:{C.RESET}  {subj}")
-            print(f"      {C.DIM}object:{C.RESET}   {obj}")
-            print(f"      {C.DIM}query:{C.RESET}    {C.YELLOW}{query}{C.RESET}")
-        else:
-            print(f"  {C.BOLD}[{i}]{C.RESET} {p}")
-        print()
-
-    # ── Classification ──
-    print(f"{C.CYAN}{'-' * 66}")
-    print(f"  STEP 2 — Classification")
-    print(f"{'-' * 66}{C.RESET}")
-
-    for i, entry in enumerate(predicate_type_dict, 1):
-        if isinstance(entry, dict):
-            q = entry.get("query", "?")
-            t = entry.get("type", "?")
-            if t == "verifiable":
-                color = C.GREEN
-            elif t == "out-of-domain":
-                color = C.YELLOW
-            else:
-                color = C.RED
-            label = f"{color}{t.upper()}{C.RESET}"
-            print(f"  {C.BOLD}[{i}]{C.RESET} {label}  {q}")
-        else:
-            print(f"  {C.BOLD}[{i}]{C.RESET} {entry}")
+    for src, coins in source.items():
+        color = C.GREEN if coins > 0 else C.DIM
+        print(f"  {color}{src}: {coins} coins{C.RESET}")
     print()
 
-    # ── Final verifiable subclaims ──
+    # ── Query Generation & Download ──
     print(f"{C.CYAN}{'-' * 66}")
-    print(f"  STEP 3 — Filter   ({len(verifiable_subclaims)} verifiable subclaims)")
+    print(f"  STEP 2 — Queries & Downloading")
     print(f"{'-' * 66}{C.RESET}")
+    print(f"  {C.BOLD}Generated {len(queries)} queries:{C.RESET}")
+    for i, q in enumerate(queries, 1):
+        print(f"    {C.YELLOW}{i}. {q}{C.RESET}")
+    print(f"\n  {C.DIM}Downloaded {len(downloaded_chunks)} distinct chunks from sources.{C.RESET}")
+    print()
 
-    if verifiable_subclaims:
-        for i, sc in enumerate(verifiable_subclaims, 1):
-            print(f"  {C.GREEN}[OK]{C.RESET} {sc}")
+    # ── Universal Retriever ──
+    print(f"{C.CYAN}{'-' * 66}")
+    print(f"  STEP 3 — Universal RRF Retriever (alpha={alpha})")
+    print(f"{'-' * 66}{C.RESET}")
+    if not chunks:
+        print(f"  {C.RED}No chunks retrieved.{C.RESET}")
     else:
-        print(f"  {C.RED}[X] No verifiable subclaims survived the filter.{C.RESET}")
-    print()
+        for i, chunk in enumerate(chunks, 1):
+            text = chunk.get("text", "")
+            meta = chunk.get("metadata", {})
+            doc_id = meta.get("id", "Unknown")
+            print(f"  {C.BOLD}[Rank {i}] From Doc ID: {doc_id}{C.RESET}")
+            print(f"  {text[:150]}...\n")
 
     # ── Summary ──
     print(f"{C.CYAN}{'-' * 66}")
     print(f"  SUMMARY")
     print(f"{'─' * 66}{C.RESET}")
-    n_pred = len(predicates)
-    n_verif = len(verifiable_subclaims)
-    n_dropped = len(predicate_type_dict) - n_verif
-    print(f"  Predicates extracted:    {C.BOLD}{n_pred}{C.RESET}")
-    print(f"  Verifiable (kept):       {C.GREEN}{n_verif}{C.RESET}")
-    print(f"  Non-verifiable (dropped):{C.RED} {n_dropped}{C.RESET}")
+    print(f"  Queries generated:       {C.BOLD}{len(queries)}{C.RESET}")
+    print(f"  Chunks downloaded:       {C.BOLD}{len(downloaded_chunks)}{C.RESET}")
+    print(f"  Chunks retrieved:        {C.GREEN}{len(chunks)}{C.RESET}")
     print(f"  Time:                    {elapsed:.1f}s")
     print(f"{C.CYAN}{'-' * 66}{C.RESET}\n")
-
 
 # ---------------------------------------------------------------------------
 # Main REPL
@@ -168,7 +149,7 @@ def main():
     print(f"  {C.DIM}Provider:{C.RESET}    {provider}")
     print(f"  {C.DIM}Model:{C.RESET}       {model_name}")
     print(f"  {C.DIM}Temperature:{C.RESET} {temperature}")
-    print(f"\n  Initializing LLM...", end=" ", flush=True)
+    print(f"\n  Initializing LLMs...", end=" ", flush=True)
 
     base_llm = get_llm_with_tools(
         [],
@@ -179,27 +160,27 @@ def main():
         allow_tools=False,
     )
 
-    decomposition_agent = base_llm.with_structured_output(
-        claim_decomposition, method="function_calling"
+    source_selector_agent = base_llm.with_structured_output(
+        retrieval_source_selection_schema, method="function_calling"
     )
-    classification_agent = base_llm.with_structured_output(
-        claim_classification, method="function_calling"
+    query_generator_agent = base_llm.with_structured_output(
+        retrieval_query_generation_schema, method="function_calling"
     )
 
-    decompose_graph = build_decompose_graph(decomposition_agent, classification_agent)
+    retrieval_graph = build_retrieval_graph(source_selector_agent, query_generator_agent)
 
     print(f"{C.GREEN}Ready!{C.RESET}\n")
-    print(f"  Type a claim and press Enter. Empty input or Ctrl+C to quit.\n")
+    print(f"  Type a subclaim and press Enter. Empty input or Ctrl+C to quit.\n")
 
     # ── REPL loop ──
     while True:
         try:
-            claim = input(f"{C.MAGENTA}> Claim:{C.RESET} ").strip()
+            subclaim = input(f"{C.MAGENTA}> Subclaim:{C.RESET} ").strip()
         except (KeyboardInterrupt, EOFError):
             print(f"\n{C.DIM}Bye!{C.RESET}")
             break
 
-        if not claim:
+        if not subclaim:
             print(f"{C.DIM}Bye!{C.RESET}")
             break
 
@@ -207,8 +188,12 @@ def main():
 
         t0 = time.time()
         try:
-            response = decompose_graph.invoke(
-                {"messages": [("user", claim)]}
+            response = retrieval_graph.invoke(
+                {
+                    "subclaim_id": "interactive_test",
+                    "subclaim": subclaim,
+                    "messages": [("user", subclaim)]
+                }
             )
         except Exception as exc:
             print(f"\n  {C.RED}ERROR: {exc}{C.RESET}\n")
@@ -216,7 +201,6 @@ def main():
 
         elapsed = time.time() - t0
         print_results(response, elapsed)
-
 
 if __name__ == "__main__":
     main()

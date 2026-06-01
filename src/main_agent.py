@@ -9,7 +9,6 @@ from prompts.decompose import *
 from prompts.retrieve import (
     retrieval_source_selection_schema,
     retrieval_query_generation_schema,
-    retrieval_strategy_router_schema,
 )
 from prompts.evaluate import (
     reasoning_schema,
@@ -131,9 +130,6 @@ class FactAgent:
         self.query_generator_agent = self.base_llm.with_structured_output(
             retrieval_query_generation_schema, method="function_calling"
         )
-        self.strategy_router_agent = self.base_llm.with_structured_output(
-            retrieval_strategy_router_schema, method="function_calling"
-        )
 
         # ── Evaluation Team agents ──
         self.reasoning_agent = self.base_llm.with_structured_output(
@@ -167,7 +163,6 @@ class FactAgent:
         self.retrieval_graph = build_retrieval_graph(
             self.source_selector_agent,
             self.query_generator_agent,
-            self.strategy_router_agent,
         )
 
     def _build_evaluation_graph(self):
@@ -238,9 +233,8 @@ class FactAgent:
                 "subclaim_id": subclaim_id,
                 "subclaim": subclaim,
                 "source": response.get("retrieval_source"),
-                "query": response.get("retrieval_query"),
-                "sparse_top_k_chunks": response.get("sparse_top_k_chunks", []),
-                "dense_top_k_chunks": response.get("dense_top_k_chunks", []),
+                "queries": response.get("all_search_queries", []),
+                "retrieved_chunks": response.get("retrieved_chunks", []),
             }
             return {
                 "subclaim_results": [retrieval_summary],
@@ -266,11 +260,7 @@ class FactAgent:
                 log.info(f"evaluating {subclaim_id}: {subclaim[:60]}...")
 
                 # Format evidence chunks for the Reasoning Agent prompt
-                chunks = (
-                    result.get("sparse_top_k_chunks") or []
-                ) + (
-                    result.get("dense_top_k_chunks") or []
-                )
+                chunks = result.get("retrieved_chunks") or []
                 evidence_lines = []
                 for idx, chunk in enumerate(chunks, 1):
                     if isinstance(chunk, dict):

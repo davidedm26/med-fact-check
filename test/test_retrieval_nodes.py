@@ -50,8 +50,7 @@ from utils.llm_factory import get_llm_with_tools
 # pyrefly: ignore [missing-import]
 from prompts.retrieve import (
     retrieval_source_selection_schema,
-    retrieval_query_generation_schema,
-    retrieval_strategy_router_schema
+    retrieval_query_generation_schema
 )
 from langchain_core.messages import HumanMessage
 # pyrefly: ignore [missing-import]
@@ -62,10 +61,10 @@ import numpy as np
 # Constants
 # ---------------------------------------------------------------------------
 
-GOLD_SET_PATH = _PROJECT_ROOT / "tests" / "data" / "retrieval_gold.json"
-REPORTS_DIR = _PROJECT_ROOT / "tests" / "reports"
+GOLD_SET_PATH = _PROJECT_ROOT / "test" / "data" / "retrieval_gold.json"
+REPORTS_DIR = _PROJECT_ROOT / "test" / "reports"
 
-print("Loading BiomedicalEmbedder for semantic tests...")
+print("Loading BiomedicalEmbedder for semantic test...")
 _embedder = BiomedicalEmbedder(model_name="medcpt", device="cpu")
 print("Embedder loaded.")
 
@@ -105,31 +104,30 @@ def _best_match_overlap(
 
 
 def compute_metrics(
-    pred_source: str, 
+    pred_coins: dict[str, int], 
     pred_queries: list[str], 
     pred_strategy: str, 
-    gold_entry: dict[str, Any]
+    gold_entry: dict[str, Any],
+    dynamic_coins: int
 ) -> dict[str, Any]:
     expected_source = gold_entry["expected_target_source"]
     expected_queries = gold_entry["expected_queries"]
-    expected_strategy = gold_entry["expected_strategy"]
 
-    source_match = (pred_source == expected_source)
-    strategy_match = (pred_strategy == expected_strategy)
+    assigned_coins = pred_coins.get(expected_source, 0)
+    source_score = assigned_coins / max(dynamic_coins, 1)
+    source_score = min(1.0, max(0.0, source_score))
+
     semantic_overlap = _best_match_overlap(pred_queries, expected_queries)
 
     return {
         "subclaim_id": gold_entry["subclaim_id"],
         "subclaim": gold_entry["subclaim"],
         "expected_source": expected_source,
-        "predicted_source": pred_source,
-        "source_match": source_match,
+        "predicted_coins": pred_coins,
+        "source_accuracy_score": round(source_score, 4),
         "expected_queries": expected_queries,
         "predicted_queries": pred_queries,
-        "semantic_overlap_score": round(semantic_overlap, 4),
-        "expected_strategy": expected_strategy,
-        "predicted_strategy": pred_strategy,
-        "strategy_match": strategy_match
+        "semantic_overlap_score": round(semantic_overlap, 4)
     }
 
 def print_claim_report(gold_entry: dict, metrics: dict) -> None:
@@ -137,11 +135,9 @@ def print_claim_report(gold_entry: dict, metrics: dict) -> None:
     print(f"  Subclaim: {gold_entry['subclaim_id']}")
     print(f"  Text:     {gold_entry['subclaim'][:100]}...")
     print(f"{'-' * 70}")
-    print(f"  Source:   expected={metrics['expected_source']} predicted={metrics['predicted_source']} "
-          f"{'OK' if metrics['source_match'] else 'FAIL'}")
+    print(f"  Source:   expected={metrics['expected_source']} allocated={metrics['predicted_coins']} "
+          f"(Score: {metrics['source_accuracy_score']:.2f})")
     print(f"  Queries:  semantic overlap={metrics['semantic_overlap_score']:.2f}")
-    print(f"  Strategy: expected={metrics['expected_strategy']} predicted={metrics['predicted_strategy']} "
-          f"{'OK' if metrics['strategy_match'] else 'FAIL'}")
 
 def compute_aggregate_metrics(results: list[dict]) -> dict[str, Any]:
     n = len(results)
@@ -156,9 +152,8 @@ def compute_aggregate_metrics(results: list[dict]) -> dict[str, Any]:
 
     return {
         "total_subclaims": n,
-        "source_accuracy": _rate("source_match"),
-        "avg_queries_semantic_overlap": _avg("semantic_overlap_score"),
-        "strategy_accuracy": _rate("strategy_match")
+        "source_accuracy": _avg("source_accuracy_score"),
+        "avg_queries_semantic_overlap": _avg("semantic_overlap_score")
     }
 
 def print_aggregate_report(agg: dict) -> None:
@@ -168,7 +163,6 @@ def print_aggregate_report(agg: dict) -> None:
     print(f"  Total subclaims tested:      {agg.get('total_subclaims', 0)}")
     print(f"  Source selector accuracy:    {agg.get('source_accuracy', 0):.2%}")
     print(f"  Avg queries overlap score:   {agg.get('avg_queries_semantic_overlap', 0):.2%}")
-    print(f"  Strategy router accuracy:    {agg.get('strategy_accuracy', 0):.2%}")
     print(f"{'=' * 70}")
 
 def main() -> None:
@@ -211,12 +205,13 @@ def main() -> None:
     query_generator_agent = base_llm.with_structured_output(
         retrieval_query_generation_schema, method="function_calling"
     )
-    strategy_router_agent = base_llm.with_structured_output(
-        retrieval_strategy_router_schema, method="function_calling"
-    )
 
     all_results: list[dict] = []
     total_time = 0.0
+
+    dynamic_coins = config.get("retrieval.dynamic_coins", 3)
+    # pyre-ignore [58]
+    from prompts.retrieve import retrieval_source_selection_prompt, retrieval_query_generation_prompt
 
     for idx, gold_entry in enumerate(gold_subclaims, 1):
         subclaim_text = gold_entry["subclaim"]
@@ -230,32 +225,39 @@ def main() -> None:
         
         try:
             # 1. Test Source Selector
-            source_res = source_selector_agent.invoke([HumanMessage(content=subclaim_text)])
-            pred_source = source_res.get("target_source", "")
+            sys_prompt_source = retrieval_source_selection_prompt.format(total_coins=dynamic_coins)
+            source_res = source_selector_agent.invoke([
+                {"role": "system", "content": sys_prompt_source},
+                {"role": "user", "content": subclaim_text}
+            ])
+            
+            pred_coins = {"clinical_trials": 0, "knowledge_base": 0, "literature": 0}
+            if isinstance(source_res, dict):
+                pred_coins["clinical_trials"] = max(0, int(source_res.get("clinical_trials_coins", 0)))
+                pred_coins["knowledge_base"] = max(0, int(source_res.get("knowledge_base_coins", 0)))
+                pred_coins["literature"] = max(0, int(source_res.get("literature_coins", 0)))
 
             # 2. Test Query Generator
-            # Note: We provide the expected_source in the prompt to keep tests isolated.
-            system_msg = f"Selected source: {expected_source}"
+            sys_prompt_query = retrieval_query_generation_prompt.format(
+                num_queries=dynamic_coins, target_source=expected_source
+            )
             query_res = query_generator_agent.invoke([
-                {"role": "system", "content": system_msg},
+                {"role": "system", "content": sys_prompt_query},
                 {"role": "user", "content": subclaim_text}
             ])
             pred_queries = query_res.get("search_queries", [])
 
-            # 3. Test Strategy Router
-            # We provide one expected query to test the router in isolation
-            strategy_res = strategy_router_agent.invoke([HumanMessage(content=expected_query_for_strategy)])
-            pred_strategy = strategy_res.get("retrieval_strategy", "")
-
         except Exception as exc:
             print(f"  ERROR invoking agents: {exc}")
-            pred_source, pred_queries, pred_strategy = "", [], ""
+            pred_coins, pred_queries = {}, []
 
         elapsed = time.time() - t0
         total_time += elapsed
         print(f"  Completed in {elapsed:.1f}s")
 
-        metrics = compute_metrics(pred_source, pred_queries, pred_strategy, gold_entry)
+        metrics = compute_metrics(
+            pred_coins, pred_queries, "hybrid", gold_entry, dynamic_coins
+        )
         all_results.append(metrics)
         print_claim_report(gold_entry, metrics)
 

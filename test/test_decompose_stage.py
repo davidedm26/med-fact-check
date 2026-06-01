@@ -61,10 +61,10 @@ import numpy as np
 # Constants
 # ---------------------------------------------------------------------------
 
-GOLD_SET_PATH = _PROJECT_ROOT / "tests" / "data" / "decompose_gold.json"
-REPORTS_DIR = _PROJECT_ROOT / "tests" / "reports"
+GOLD_SET_PATH = _PROJECT_ROOT / "test" / "data" / "decompose_gold.json"
+REPORTS_DIR = _PROJECT_ROOT / "test" / "reports"
 
-print("Loading BiomedicalEmbedder for semantic tests...")
+print("Loading BiomedicalEmbedder for semantic test...")
 _embedder = BiomedicalEmbedder(model_name="medcpt", device="cpu")
 print("Embedder loaded.")
 

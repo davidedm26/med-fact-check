@@ -1,7 +1,7 @@
 {
     "llm": {
         "provider": "nvidia",
-        "temperature": 0.1,
+        "temperature": 0.2,
         "providers": {
             "nvidia": {
                 "model_name": "meta/llama-3.1-8b-instruct",
@@ -21,14 +21,18 @@
         }
     },
     "retrieval": {
-        "api_search_limit": 3,
-        "sparse": {
-            "top_k": 3
+        "dynamic_coins": 0,
+        "base_coins_per_source": 1,
+        "max_results_per_query": 5,
+        "hybrid": {
+            "alpha": 0.5,
+            "top_k": 5
+        },
+        "chunking": {
+            "chunk_size": 300,
+            "overlap": 50
         },
         "dense": {
-            "top_k": 3,
-            "chunk_size": 300,
-            "overlap": 50,
             "model_name": "medcpt"
         }
     },
