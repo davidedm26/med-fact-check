@@ -1,0 +1,367 @@
+{
+  "_description": "Gold set for Decompose stage ablation study. Each claim is annotated with expected predicates (relation, subject, object), their verifiability type, and the expected count. Review and correct annotations before running tests.",
+  "_version": "1.0",
+  "_created": "2026-05-28",
+  "gold_claims": [
+    {
+      "claim_id": "scifact_1320",
+      "source_dataset": "scifact",
+      "claim": "Transplanted human glial progenitor cells are incapable of forming a neural network with host animals' neurons.",
+      "true_label": "Refuted",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single atomic claim about cell differentiation capability. Should not be decomposed further.",
+      "expected_queries": [
+        {
+          "query": "Transplanted human glial progenitor cells incapable of forming a neural network with host animals' neurons.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_42",
+      "source_dataset": "scifact",
+      "claim": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single factual claim about a clinical association. Atomic, one predicate.",
+      "expected_queries": [
+        {
+          "query": "A high microerythrocyte count raises vulnerability severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_113",
+      "source_dataset": "scifact",
+      "claim": "Angiotensin converting enzyme inhibitors are associated with increased risk for functional renal insufficiency.",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single drug-risk association. Atomic claim.",
+      "expected_queries": [
+        {
+          "query": "Angiotensin converting enzyme inhibitors associated with increased risk for functional renal insufficiency.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_1259",
+      "source_dataset": "scifact",
+      "claim": "The relationship between a breast cancer patient's capacity to metabolize tamoxifen and treatment outcome is dependent on the patient's genetic make-up.",
+      "true_label": "Supported",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Compound claim describing two dependencies: capacity to metabolize tamoxifen, and treatment outcome.",
+      "expected_queries": [
+        {
+          "query": "The breast cancer patient's capacity to metabolize tamoxifen is dependent on the patient's genetic make-up.",
+          "type": "verifiable"
+        },
+        {
+          "query": "The treatment outcome is dependent on the breast cancer patient's genetic make-up.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_1359",
+      "source_dataset": "scifact",
+      "claim": "Varenicline monotherapy is more effective after 12 weeks of treatment compared to combination nicotine replacement therapies with varenicline or bupropion.",
+      "true_label": "Refuted",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Compound claim comparing varenicline to two different combination therapies. Should decompose into 2 separate comparisons.",
+      "expected_queries": [
+        {
+          "query": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with varenicline.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with bupropion.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_1298",
+      "source_dataset": "scifact",
+      "claim": "Thigh-length graduated compression stockings (GCS) did not reduce deep vein thrombosis in patients admitted to hospital who are immobile because of acute stroke.",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single negated clinical effectiveness claim. Atomic despite complex phrasing.",
+      "expected_queries": [
+        {
+          "query": "Thigh-length graduated compression stockings (GCS) did not reduce deep vein thrombosis in patients immobile due to acute stroke.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "scifact_9",
+      "source_dataset": "scifact",
+      "claim": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Specific quantitative claim with date. Atomic, single verifiable fact.",
+      "expected_queries": [
+        {
+          "query": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_3",
+      "source_dataset": "bioasq",
+      "claim": "Does metformin interfere thyroxine absorption?",
+      "true_label": "Refuted",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Simple drug-interaction question. Single predicate. Question form should be converted to factual statement.",
+      "expected_queries": [
+        {
+          "query": "Metformin interferes thyroxine absorption.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_5",
+      "source_dataset": "bioasq",
+      "claim": "Is the monoclonal antibody Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single drug-disease treatment claim in question form.",
+      "expected_queries": [
+        {
+          "query": "Trastuzumab (Herceptin) potential use in treatment of prostate cancer.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_11",
+      "source_dataset": "bioasq",
+      "claim": "Is irritable bowel syndrome more common in women with endometriosis?",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single epidemiological association claim.",
+      "expected_queries": [
+        {
+          "query": "Irritable bowel syndrome more common in women with endometriosis.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_8",
+      "source_dataset": "bioasq",
+      "claim": "Proteomic analyses need prior knowledge of the organism complete genome. Is the complete genome of the bacteria of the genus Arthrobacter available?",
+      "true_label": "Supported",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Two distinct factual claims combined in one sentence. Should decompose into 2 predicates.",
+      "expected_queries": [
+        {
+          "query": "Proteomic analyses requires prior knowledge of the organism complete genome.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Complete genome of bacteria of the genus Arthrobacter is available availability status.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_37",
+      "source_dataset": "bioasq",
+      "claim": "Is amiodarone a class I anti-arrhythmic drug?",
+      "true_label": "Refuted",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Simple drug classification question. Atomic, single predicate.",
+      "expected_queries": [
+        {
+          "query": "Amiodarone belongs to class class I anti-arrhythmic drugs.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_43",
+      "source_dataset": "bioasq",
+      "claim": "Is glycyl-tRNA synthetase gene involved in the development of Charcot-Marie-Tooth disease?",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single gene-disease association claim.",
+      "expected_queries": [
+        {
+          "query": "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_5",
+      "source_dataset": "healthfc",
+      "claim": "Does the F.X. Mayr cure have health benefits? Can it prevent diseases or treat them?",
+      "true_label": "Refuted",
+      "expected_predicate_count": 3,
+      "expected_verifiable_count": 3,
+      "complexity": "compound",
+      "notes": "Three related but distinct claims about the same treatment. Should produce 3 predicates.",
+      "expected_queries": [
+        {
+          "query": "F.X. Mayr cure has benefits health benefits.",
+          "type": "verifiable"
+        },
+        {
+          "query": "F.X. Mayr cure can prevent diseases.",
+          "type": "verifiable"
+        },
+        {
+          "query": "F.X. Mayr cure can treat diseases.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_9",
+      "source_dataset": "healthfc",
+      "claim": "Does regular HPV testing in addition to the recommended Pap smear detect more precancerous lesions than just the Pap smear alone?",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single comparative effectiveness claim. Despite complex phrasing, it's one comparison.",
+      "expected_queries": [
+        {
+          "query": "Regular HPV testing in addition to Pap smear detects more precancerous lesions compared to Pap smear alone.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_24",
+      "source_dataset": "healthfc",
+      "claim": "Can extract from St. John's wort relieve the symptoms of depression? Is it similarly effective as drugs against depression (antidepressants)?",
+      "true_label": "Supported",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Two distinct claims: (1) effectiveness of SJW for depression, (2) comparison with antidepressants.",
+      "expected_queries": [
+        {
+          "query": "St. John's wort extract relieves symptoms of depression.",
+          "type": "verifiable"
+        },
+        {
+          "query": "St. John's wort extract similarly effective antidepressants for treating depression.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_31",
+      "source_dataset": "healthfc",
+      "claim": "Does covid vaccination reduce the likelihood of getting long-lasting symptoms (long covid) in case of corona infection?",
+      "true_label": "Supported",
+      "expected_predicate_count": 1,
+      "expected_verifiable_count": 1,
+      "complexity": "atomic",
+      "notes": "Single public health effectiveness claim.",
+      "expected_queries": [
+        {
+          "query": "COVID vaccination reduces likelihood long-lasting symptoms (long COVID) after corona infection.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_25",
+      "source_dataset": "healthfc",
+      "claim": "Does the Zisano bracelet strengthen the immune system, increase endurance and performance or reduce fatigue?",
+      "true_label": "Refuted",
+      "expected_predicate_count": 3,
+      "expected_verifiable_count": 3,
+      "complexity": "compound",
+      "notes": "Three distinct claims about the same product. Should decompose into 3 separate predicates.",
+      "expected_queries": [
+        {
+          "query": "Zisano bracelet strengthens the immune system.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Zisano bracelet increases endurance and performance.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Zisano bracelet reduces fatigue.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_36",
+      "source_dataset": "healthfc",
+      "claim": "Does transcranial pulse stimulation (TPS) improve mental performance in people with Alzheimer's dementia? Can the treatment improve the quality of life of those affected?",
+      "true_label": "Refuted",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Two distinct outcome claims about the same treatment: (1) mental performance, (2) quality of life.",
+      "expected_queries": [
+        {
+          "query": "Transcranial pulse stimulation (TPS) improves mental performance in people with Alzheimer's dementia.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Transcranial pulse stimulation (TPS) improves quality of life of Alzheimer's dementia patients.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_43",
+      "source_dataset": "healthfc",
+      "claim": "Do sedatives and sleeping pills such as benzodiazepines and related substances increase the risk of Alzheimer's disease or other forms of dementia?",
+      "true_label": "Supported",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Two related risk claims: (1) Alzheimer's specifically, (2) other dementia forms. Could also be treated as a single predicate with 'dementia' as object — LLM discretion.",
+      "expected_queries": [
+        {
+          "query": "Sedatives and sleeping pills (benzodiazepines and related substances) increases risk Alzheimer's disease.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Sedatives and sleeping pills (benzodiazepines and related substances) increases risk other forms of dementia.",
+          "type": "verifiable"
+        }
+      ]
+    }
+  ]
+}
