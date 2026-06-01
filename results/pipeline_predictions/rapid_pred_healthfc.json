@@ -1,0 +1,1103 @@
+[
+    {
+        "claim_id": "healthfc_431",
+        "claim": "Does pelvic floor training help women with stress-related urinary incontinence?",
+        "true_label": "refuted",
+        "predicted_label": "refuted",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Help",
+                            "subject": "Pelvic floor training",
+                            "object": "women with stress-related urinary incontinence",
+                            "search_query": "Verify that pelvic floor training helps women with stress-related urinary incontinence."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that pelvic floor training helps women with stress-related urinary incontinence.",
+                            "source": "literature",
+                            "query": "Literature on treatment efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Receiving information from a healthcare professional, whether relating to a newly diagnosed condition or plans for a treatment like surgery, can evoke a significant amount of anxiety in patients. Patient understanding of the presented information is not always prioritised and consultations can leave patients feeling dissatisfied and with questions left unanswered [ 1 ]. Anxiety levels during clinical consultations can be particularly elevated amongst populations facing a life-threatening illness such as cancer, with an estimated 10\u201350% of cancer patients experiencing high anxiety in these consultations [ 2 ]. Effective communication around diagnosis and treatment planning is essential for reducing patient anxiety and improving patient wellbeing.",
+                                    "metadata": {
+                                        "id": "42141236",
+                                        "title": "The psychological impact of using 3D printing and imaging technology for patient education: a scoping review.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-15",
+                                        "url": "https://doi.org/10.1186/s41205-026-00327-9",
+                                        "extra_info": {
+                                            "doi": "10.1186/s41205-026-00327-9"
+                                        }
+                                    },
+                                    "score": 0.6033444404602051
+                                },
+                                {
+                                    "text": "Neck pain is one of the four common diseases worldwide and has become a significant public health issue that threatens personal health and reduces the quality of life [ 1 2 ]. The symptoms of neck pain are diverse, including restricted movement of the cervical spine and muscle spasms, which may also cause headaches, numbness in the upper limbs, and in severe cases, even affect sleep quality and work ability [ 3 4 ]. The causes of the disease are complex and are mostly related to muscle strain, soft tissue injuries, cervical joint disorders, and degeneration of cervical intervertebral discs [ 5 6 ]. At present, there is still no standardized treatment plan for this disease, and clinical practice mainly relies on drug therapy [ 7 8 ]. In this context, the course of neck pain often shows a high degree of protracted nature. Approximately half of the patients\u2019 acute pain will turn into chronic pain, which makes it urgent for clinicians to find treatment options that can effectively control neck pain for a long term [ 9 10 ].",
+                                    "metadata": {
+                                        "id": "42150155",
+                                        "title": "Efficacy and Safety of Traditional Chinese Medicine Exercise Versus Oral Medication in the Treatment of Neck Pain: Study Protocol for a Systematic Review and Meta-Analysis.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-18",
+                                        "url": "https://doi.org/10.2196/86168",
+                                        "extra_info": {
+                                            "doi": "10.2196/86168"
+                                        }
+                                    },
+                                    "score": 0.5964949131011963
+                                },
+                                {
+                                    "text": "The MDMA-Assisted Psychotherapy Side Effects Tool (M-SET) was developed using a robust Delphi technique with a diverse panel of experts in the field.",
+                                    "metadata": {
+                                        "id": "42114863",
+                                        "title": "Development of the MDMA-Assisted Psychotherapy Side Effects Tool (M-SET): a Delphi study.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-11",
+                                        "url": "https://doi.org/10.1136/bmjopen-2025-105630",
+                                        "extra_info": {
+                                            "doi": "10.1136/bmjopen-2025-105630"
+                                        }
+                                    },
+                                    "score": 0.5906497836112976
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that pelvic floor training helps women with stress-related urinary incontinence.",
+                            "justification": "The evidence does not directly address the subclaim about pelvic floor training and stress-related urinary incontinence. However, it can be inferred that effective communication and understanding of information from healthcare professionals may help reduce anxiety and improve patient wellbeing, which could be beneficial for patients with stress-related urinary incontinence. Nevertheless, this is not directly related to the subclaim, and there is not enough information to support or refute it.",
+                            "key_evidence": [
+                                "Receiving information from a healthcare professional, whether relating to a newly diagnosed condition or plans for a treatment like surgery, can evoke a significant amount of anxiety in patients.",
+                                "Effective communication around diagnosis and treatment planning is essential for reducing patient anxiety and improving patient wellbeing."
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "refuted",
+                            "confidence": 0.9042,
+                            "source": "literature",
+                            "query": "Literature on treatment efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "refuted",
+                        "confidence": 0.9042,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "refuted",
+                                "confidence": 0.9042
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_90",
+        "claim": "Do probiotics alleviate the symptoms of irritable bowel syndrome?",
+        "true_label": "refuted",
+        "predicted_label": "refuted",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Alleviate",
+                            "subject": "Probiotics",
+                            "object": "symptoms of irritable bowel syndrome",
+                            "search_query": "Verify that probiotics alleviate the symptoms of irritable bowel syndrome."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that probiotics alleviate the symptoms of irritable bowel syndrome.",
+                            "source": "literature",
+                            "query": "Medical condition treatment efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Keloids are a challenging dermatologic condition characterized by excessive scar formation. Traditional treatments, including intralesional corticosteroids, surgical excision, and conventional cryotherapy, frequently result in an incomplete response.[ 1 ] Cryotherapy, delivered through cryo-spray or single-needle application, has shown limited efficacy due to inconsistent freezing and inadequate depth of penetration. These limitations necessitate a more effective and precise therapeutic approach.[ 2 ]",
+                                    "metadata": {
+                                        "id": "41984580",
+                                        "title": "Cryotherapy for Keloids Redefined: The Role of Injector Plate in Large Keloid Treatment.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-15",
+                                        "url": "https://doi.org/10.4103/idoj.idoj_520_25",
+                                        "extra_info": {
+                                            "doi": "10.4103/idoj.idoj_520_25"
+                                        }
+                                    },
+                                    "score": 0.6644875407218933
+                                },
+                                {
+                                    "text": "In this issue of the European Heart Journal Supplement , the thematic focus is dedicated to tricuspid regurgitation (TR): diagnosis, prognosis, and treatment. The Supplement comprises eight articles, each addressing a critical component of this increasingly relevant valvular disease.",
+                                    "metadata": {
+                                        "id": "42064872",
+                                        "title": "The treatment of tricuspid regurgitation.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-19",
+                                        "url": "https://doi.org/10.1093/eurheartjsupp/suag053",
+                                        "extra_info": {
+                                            "doi": "10.1093/eurheartjsupp/suag053"
+                                        }
+                                    },
+                                    "score": 0.6360765099525452
+                                },
+                                {
+                                    "text": "Receiving information from a healthcare professional, whether relating to a newly diagnosed condition or plans for a treatment like surgery, can evoke a significant amount of anxiety in patients. Patient understanding of the presented information is not always prioritised and consultations can leave patients feeling dissatisfied and with questions left unanswered [ 1 ]. Anxiety levels during clinical consultations can be particularly elevated amongst populations facing a life-threatening illness such as cancer, with an estimated 10\u201350% of cancer patients experiencing high anxiety in these consultations [ 2 ]. Effective communication around diagnosis and treatment planning is essential for reducing patient anxiety and improving patient wellbeing.",
+                                    "metadata": {
+                                        "id": "42141236",
+                                        "title": "The psychological impact of using 3D printing and imaging technology for patient education: a scoping review.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-15",
+                                        "url": "https://doi.org/10.1186/s41205-026-00327-9",
+                                        "extra_info": {
+                                            "doi": "10.1186/s41205-026-00327-9"
+                                        }
+                                    },
+                                    "score": 0.6314930319786072
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that probiotics alleviate the symptoms of irritable bowel syndrome.",
+                            "justification": "The subclaim is not supported by any of the provided evidence chunks, as none of them mention probiotics or irritable bowel syndrome. Chunk 1 discusses keloids and their treatment, Chunk 2 focuses on tricuspid regurgitation, and Chunk 3 addresses patient anxiety during clinical consultations. Therefore, the reasoning conclusion is 'not_enough_information'.",
+                            "key_evidence": [
+                                "Chunk 1 discusses keloids and their treatment.",
+                                "Chunk 2 focuses on tricuspid regurgitation.",
+                                "Chunk 3 addresses patient anxiety during clinical consultations."
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "refuted",
+                            "confidence": 0.9987,
+                            "source": "literature",
+                            "query": "Medical condition treatment efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "refuted",
+                        "confidence": 0.9987,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "refuted",
+                                "confidence": 0.9987
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_172",
+        "claim": "Is music therapy with rhythmic training helpful for people with Parkinson's who have trouble walking?",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "HelpfulFor",
+                            "subject": "music therapy with rhythmic training",
+                            "object": "people with Parkinson's who have trouble walking",
+                            "search_query": "Verify that music therapy with rhythmic training is helpful for people with Parkinson's who have trouble walking."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that music therapy with rhythmic training is helpful for people with Parkinson's who have trouble walking.",
+                            "source": "literature",
+                            "query": "Parkinson's walking efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Physical exercise has been proven to improve motor and non-motor symptoms in patients with Parkinson\u2019s disease (PD) and positively affect PD prevention and treatment.",
+                                    "metadata": {
+                                        "id": "41853800",
+                                        "title": "Effects of daily walking exercise on constipation in patients with Parkinson's disease.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-03-13",
+                                        "url": "https://doi.org/10.1136/bmjsem-2025-002696",
+                                        "extra_info": {
+                                            "doi": "10.1136/bmjsem-2025-002696"
+                                        }
+                                    },
+                                    "score": 0.6414017677307129
+                                },
+                                {
+                                    "text": "Parkinson's disease (PD) is a prevalent neurodegenerative disorder marked by progressive dopaminergic neuron loss in the substantia nigra, which leads to tremor, bradykinesia, rigidity, gait disturbances, and postural instability, among other symptoms [ 1 ]. These motor impairments substantially diminish quality of life and elevate the risk of falls, fractures, and immobility. Physical therapy (PT) can improve motor function in patients with PD, but access to this treatment remains limited in many parts of the world. Tangible alleviation of motor dysfunction typically requires four weeks of PT or longer [ [2] , [3] , [4] ], which further restricts its feasibility for the fast-growing PD population [ 5 ].",
+                                    "metadata": {
+                                        "id": "41926908",
+                                        "title": "Intermittent theta-burst stimulation to enhance physical therapy in Parkinson's disease: The STEP-PD randomized trial.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-01",
+                                        "url": "https://doi.org/10.1016/j.neurot.2026.e00897",
+                                        "extra_info": {
+                                            "doi": "10.1016/j.neurot.2026.e00897"
+                                        }
+                                    },
+                                    "score": 0.6289057731628418
+                                },
+                                {
+                                    "text": "Gait and balance impairment are among the most disabling manifestations of Parkinson\u2019s disease and represent a major contributor to falls, loss of independence, institutionalization, and mortality. Although dopaminergic therapy can improve gait in earlier stages of the disease, after some time, the gait and balance issues worsen and become progressively resistant to medication, reflecting the increasing involvement of non-dopaminergic and multisystem pathology [1] , [2] , [3] .",
+                                    "metadata": {
+                                        "id": "42058451",
+                                        "title": "Gait and balance deterioration following deep brain stimulation in Parkinson's disease: a counterfactual review.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-20",
+                                        "url": "https://doi.org/10.1016/j.prdoa.2026.100444",
+                                        "extra_info": {
+                                            "doi": "10.1016/j.prdoa.2026.100444"
+                                        }
+                                    },
+                                    "score": 0.6136395931243896
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that music therapy with rhythmic training is helpful for people with Parkinson's who have trouble walking.",
+                            "justification": "The evidence suggests that physical exercise, including physical therapy, can improve motor symptoms in patients with Parkinson's disease. However, the effectiveness of music therapy with rhythmic training is not explicitly stated in the provided chunks. The chunks do mention the importance of physical therapy in improving motor function, but also highlight its limitations, such as the need for a prolonged period of treatment. Therefore, while the evidence supports the idea that physical exercise can be beneficial for patients with Parkinson's, it does not provide enough information to conclude that music therapy with rhythmic training is helpful for people with Parkinson's who have trouble walking. The key evidence is: 'Physical exercise has been proven to improve motor and non-motor symptoms in patients with Parkinson\u2019s disease (PD) and positively affect PD prevention and treatment.' and 'Tangible alleviation of motor dysfunction typically requires four weeks of PT or longer'. The reasoning conclusion is: 'not_enough_information'.",
+                            "key_evidence": [
+                                "Physical exercise has been proven to improve motor and non-motor symptoms in patients with Parkinson\u2019s disease (PD) and positively affect PD prevention and treatment.",
+                                "Tangible alleviation of motor dysfunction typically requires four weeks of PT or longer"
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "supported",
+                            "confidence": 0.9131,
+                            "source": "literature",
+                            "query": "Parkinson's walking efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9131,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9131
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_645",
+        "claim": "Are movement exercises useful for back pain?",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Useful",
+                            "subject": "movement exercises",
+                            "object": "back pain",
+                            "search_query": "Verify that movement exercises are useful for back pain."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that movement exercises are useful for back pain.",
+                            "source": "literature",
+                            "query": "Efficacy of treatment claims",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "I read with interest the recently published open-label randomized trial comparing a single ivy extract with two herbal combination therapies (ivy/thyme and thyme/primrose) for the treatment of acute bronchitis [ 1 ]. Although bronchitis is a self-limiting illness, patients may benefit from herbal therapies, which have been shown to reduce cough severity and symptom burden [ 2 ]. In this trial, 325 adult patients were randomized 3:2:2 to receive ivy, ivy/thyme, or thyme/primrose for 7 days, followed by a 7-day observation period. The primary endpoint was the assessment of non-inferiority, and the secondary endpoint was the assessment of the superiority of ivy compared to each combination therapy, regarding the change from baseline in the Bronchitis Severity Score (BSS) at Day 7. The authors reported non-inferiority of the single ivy extract compared with both combination therapies and statistical superiority over ivy/thyme [ 1 ]. While the findings have value for hypothesis generation, I believe that the data are overinterpreted and require further validation, particularly given the emphasis on cross-study comparisons to support claims of comparative efficacy. The purpose of this letter is to provide a constructive appraisal of the study design, randomization strategy, and analytical approach, with a view to supporting a balanced understanding and informing future research.",
+                                    "metadata": {
+                                        "id": "42075848",
+                                        "title": "Comment on Kardos et al. Efficacy and Safety of a Single Ivy Extract Versus Two Herbal Extract Combinations in Patients with Acute Bronchitis: A Multi-Center, Randomized, Open-Label Clinical Trial. &lt;i&gt;Pharmaceuticals&lt;/i&gt; 2025, &lt;i&gt;18&lt;/i&gt;, 754.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-08",
+                                        "url": "https://doi.org/10.3390/ph19040592",
+                                        "extra_info": {
+                                            "doi": "10.3390/ph19040592"
+                                        }
+                                    },
+                                    "score": 0.6468871235847473
+                                },
+                                {
+                                    "text": "In recent decades, there has been a consistent upward trend in life expectancy in the most developed countries. From 1950 to 2021, global life expectancy at birth increased by 22.7 years, rising from 49.0 to 71.7 years [ 1 ]. However, this persistent rise in global life expectancy does not correspond with improvements in population health [ 2 , 3 , 4 ]. Consequently, the global consumption of pharmaceuticals for treating both acute and chronic diseases has continued to rise. This is especially evident among the rapidly expanding group of individuals aged 65 years and over. This demographic is predisposed to multimorbidity and the concomitant use of multiple medications (polypharmacy) [ 5 , 6 ]. The presence of two or more chronic health conditions is a widely adopted definition of multimorbidity [ 7 ]. In a global and regional systematic review and meta-analysis, Chowdhury et al. revealed that the overall global prevalence of multimorbidity was 37.2% [ 8 ]. The highest prevalence of multimorbidity was exhibited in South America (45.7%), followed by North America (43.1%) and Europe (39.2%). As people age, the likelihood of developing multiple persistent conditions increases. A substantial proportion of the global adult population over the age of 60 years has multimorbid conditions, with a prevalence of 51% [ 8 ]. An analysis of nearly 31 million Medicare fee-for-service beneficiaries revealed that 67% of the sample exhibited multimorbidity, a proportion which increased with age: 50% for persons under 65 years of age, 62% for those aged 65\u201374, and 81.5% for those aged 85 years and over [ 9 ].",
+                                    "metadata": {
+                                        "id": "41744921",
+                                        "title": "Oral Side Effects of the Most Commonly Prescribed Drugs in Germany.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-02-02",
+                                        "url": "https://doi.org/10.3390/dj14020083",
+                                        "extra_info": {
+                                            "doi": "10.3390/dj14020083"
+                                        }
+                                    },
+                                    "score": 0.6194270849227905
+                                },
+                                {
+                                    "text": "Chronic obstructive pulmonary disease (COPD), a common respiratory disorder, is characterized by persistent respiratory symptoms and airflow limitation, which are primarily caused by structural abnormalities of the airways and/or alveoli [ 1 , 2 ]. COPD is globally prevalent among approximately 10% individuals aged 40 years and above [ 3 ]. It is the third leading cause of death worldwide and imposes a substantial burden on the economy and society [ 4 , 5 ]. Patients hospitalized in the ICU have an even higher mortality rate associated with COPD [ 6 ]. Therefore, it is crucial to identify a simple, readily available, and cost-effective biomarker at an early stage for identifying high-risk patients with COPD and then conducting individual intervention and improving the prognosis.",
+                                    "metadata": {
+                                        "id": "42157169",
+                                        "title": "Correlation between urea-to-creatinine ratio and poor prognosis of intensive care unit patients with chronic obstructive pulmonary disease: a study based on the MIMIC-IV database.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-19",
+                                        "url": "https://doi.org/10.1186/s12890-026-04304-0",
+                                        "extra_info": {
+                                            "doi": "10.1186/s12890-026-04304-0"
+                                        }
+                                    },
+                                    "score": 0.5780296921730042
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that movement exercises are useful for back pain.",
+                            "justification": "The evidence suggests that movement exercises are beneficial for back pain. Chunk 1 mentions that herbal therapies have been shown to reduce symptom burden, which implies that movement exercises could be useful for back pain. Chunk 2 discusses the rise in global life expectancy and the increasing prevalence of multimorbidity, but it does not provide direct evidence for the effectiveness of movement exercises for back pain. Chunk 3 mentions COPD, but it does not provide relevant information for the subclaim. Therefore, the reasoning conclusion is that the evidence supports the subclaim.",
+                            "key_evidence": [
+                                "Chunk 1 mentions that herbal therapies have been shown to reduce symptom burden."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.99,
+                            "source": "literature",
+                            "query": "Efficacy of treatment claims",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.99,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.99
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_695",
+        "claim": "Do gastrointestinal surgeries (bariatric surgeries) improve symptoms of type 2 diabetes?",
+        "true_label": "refuted",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Improve",
+                            "subject": "gastrointestinal surgeries",
+                            "object": "symptoms of type 2 diabetes",
+                            "search_query": "Verify that gastrointestinal surgeries improve symptoms of type 2 diabetes."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that gastrointestinal surgeries improve symptoms of type 2 diabetes.",
+                            "source": "literature",
+                            "query": "Surgery non invasive complications",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Minimally-invasive surgery is, by definition, a surgical technique which facilitates same day discharge (SDD) of the patient. Over the last decade, several studies have evaluated the safety and acceptance of SDD in gynecology.",
+                                    "metadata": {
+                                        "id": "42012538",
+                                        "title": "Same day discharge (SDD) after surgery for gynecologic cancer patients in Germany?",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-21",
+                                        "url": "https://doi.org/10.1007/s00432-026-06475-z",
+                                        "extra_info": {
+                                            "doi": "10.1007/s00432-026-06475-z"
+                                        }
+                                    },
+                                    "score": 0.5942906141281128
+                                },
+                                {
+                                    "text": "the cumulative incidence of invasive candidiasis was 7.07 per 1000 ICU admissions, with candidemia and intraabdominal candidiasis accounting for 5.52/1000 and 1.84/1000 episodes, respectively. 8 According to inpatient data from 2009 through 2017, the incidence of invasive candidiasis (IC) was 90 per 100,000 hospitalized patients. 9 Candidemia, intra-abdominal candidiasis (IAC), and non-abdominal sterile site IC accounted for 51/100,000, 32/100,000, and 5.7/100,000 hospitalizations, respectively. 9 While the incidence of candidemia has declined and remained stable over the past decade, the incidence of intraabdominal candidiasis has increased, becoming the second most common form of IC among ICU patients. 9 , 10 However, an increase in the incidence of candidemia was observed during the COVID-19 pandemic. 10 Lapses in infection control practices, increased healthcare exposures in patients with COVID-19 and high acuity conditions, leading to prolonged hospital stays and placement of invasive devices, are probable risk factors resulting in an increase in hospital-acquired cases of candidemia during the COVID-19 pandemic. 10",
+                                    "metadata": {
+                                        "id": "42003962",
+                                        "title": "The Upcoming Antifungal Drugs in Clinical Development for the Treatment of Invasive Candidiasis.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-13",
+                                        "url": "https://doi.org/10.2147/idr.s547511",
+                                        "extra_info": {
+                                            "doi": "10.2147/idr.s547511"
+                                        }
+                                    },
+                                    "score": 0.5573108196258545
+                                },
+                                {
+                                    "text": "Minimally invasive gastrectomy is established in curative gastric cancer surgery, aiming to reduce perioperative morbidity compared to open gastrectomy, without compromising oncologic adequacy in appropriately selected patients treated in high-volume experienced centers [ 1 , 2 ]. Total gastrectomy remains technically demanding because suprapancreatic D2 lymphadenectomy and intracorporeal esophagojejunostomy are performed in constrained anatomy, with outcomes influenced by case volume, patient habitus, and perioperative pathways\u2014factors that differ substantially between East Asian and Western practice [ 1 , 3 \u2013 5 ].",
+                                    "metadata": {
+                                        "id": "42156604",
+                                        "title": "Robot-assisted versus laparoscopic total gastrectomy: a western high-volume tertiary referral center experience.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-20",
+                                        "url": "https://doi.org/10.1007/s11701-026-03451-0",
+                                        "extra_info": {
+                                            "doi": "10.1007/s11701-026-03451-0"
+                                        }
+                                    },
+                                    "score": 0.5484256148338318
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that gastrointestinal surgeries improve symptoms of type 2 diabetes.",
+                            "justification": "The evidence suggests that gastrointestinal surgeries may improve symptoms of type 2 diabetes, but the relationship is not explicitly stated. Minimally-invasive surgery is known to reduce perioperative morbidity, which could potentially improve symptoms of type 2 diabetes. However, the evidence does not provide a clear link between gastrointestinal surgeries and improved symptoms of type 2 diabetes. Therefore, the conclusion is that the evidence provides not enough information to support or refute the subclaim.",
+                            "key_evidence": [
+                                "Minimally-invasive surgery is, by definition, a surgical technique which facilitates same day discharge (SDD) of the patient.",
+                                "Minimally invasive gastrectomy is established in curative gastric cancer surgery, aiming to reduce perioperative morbidity compared to open gastrectomy"
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "supported",
+                            "confidence": 0.9991,
+                            "source": "literature",
+                            "query": "Surgery non invasive complications",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9991,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9991
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_234",
+        "claim": "Can the state of health be assessed as reliably with a \"cell check\" analysis as with other diagnostic tests (for example, blood or urine analyses)?",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Reliability",
+                            "subject": "cell check analysis",
+                            "object": "other diagnostic tests",
+                            "search_query": "Verify that the reliability of cell check analysis is comparable to other diagnostic tests."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that the reliability of cell check analysis is comparable to other diagnostic tests.",
+                            "source": "literature",
+                            "query": "Cell check analysis efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "For commercially viable cell-based products, the entire production process must follow the same rigorous safety standards as conventional foods [ 1 \u2013 3 ]. In the coming decade, compliance with established food safety management systems, such as HACCP and FSSC 22000, will likely be required [ 4 ]. These standards apply not only to final products but also to all raw materials including cell-based food. Therefore, comprehensive reassessment of manufacturing processes is essential. Recent reports on cell-based product safety emphasize that strictly controlling and characterizing all production inputs \u2014including the composition of cell manipulation reagents\u2014 is a critical challenge for regulatory compliance [ 5 , 6 ]. This necessitates a fundamental shift in development philosophy from the earliest stages of product design; however, such a comprehensive approach has yet to be widely adopted in practice.",
+                                    "metadata": {
+                                        "id": "41973685",
+                                        "title": "A food-grade cell dissociation agent via regulatory pre-check framework.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-13",
+                                        "url": "https://doi.org/10.1371/journal.pone.0345921",
+                                        "extra_info": {
+                                            "doi": "10.1371/journal.pone.0345921"
+                                        }
+                                    },
+                                    "score": 0.5980812907218933
+                                },
+                                {
+                                    "text": "Mesenchymal stromal cells (MSCs) hold significant potential in regenerative medicine, wound healing, immunomodulation, orthopedic applications, cardiovascular disease, and neurological disorders (Malekpour et al. 2022 ; Margiana et al. 2022 ). These benefits are due to their unique properties of differentiating into various cell types, promoting tissue repair and regeneration, and having immunosuppressive properties (Ayala-Cuellar et al. 2019 ; Wang et al. 2018 ). Additionally, MSCs can be genetically modified to deliver therapeutic genes and targeted drugs, offering a novel approach to treating genetic disorders and cancer (Takayama et al. 2021 ). While the potential is huge, challenges remain, including issues related to sourcing, scalability, banking, and ensuring safety and efficacy in clinical applications. Among these factors, MSC banking is pivotal for enhancing the accessibility, safety, and efficacy of MSC-based therapies, ultimately contributing to the advancement of regenerative medicine.",
+                                    "metadata": {
+                                        "id": "42018202",
+                                        "title": "Contamination rates in umbilical cord Mesenchymal stromal cell cryopreservation: a report from Vinmec tissue bank.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-22",
+                                        "url": "https://doi.org/10.1007/s10561-026-10221-7",
+                                        "extra_info": {
+                                            "doi": "10.1007/s10561-026-10221-7"
+                                        }
+                                    },
+                                    "score": 0.5619561076164246
+                                },
+                                {
+                                    "text": "The intricate interplay between cancer and its microbial residents, collectively termed the tumor microbiota, is emerging as a pivotal force within the cancer ecosystem ( 1 \u2013 5 ). Recent large-scale analyses have broadened our understanding, revealing bacteria, archaea, viruses, and fungi residing within tumors and metastases, potentially influencing oncogenesis ( 6 , 7 ), progression ( 8 , 9 ), tumor microenvironment ( 10 , 11 ), therapeutic responses ( 12 \u2013 15 ), and patient survival ( 15 , 16 ).",
+                                    "metadata": {
+                                        "id": "42017663",
+                                        "title": "Systematic evaluation of TCGA tumor microbiota reveals context-dependent reliability.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-22",
+                                        "url": "https://doi.org/10.1128/msystems.00180-26",
+                                        "extra_info": {
+                                            "doi": "10.1128/msystems.00180-26"
+                                        }
+                                    },
+                                    "score": 0.5270032286643982
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that the reliability of cell check analysis is comparable to other diagnostic tests.",
+                            "justification": "The reliability of cell check analysis is comparable to other diagnostic tests because it has been shown to be effective in various applications, such as regenerative medicine, wound healing, and cancer treatment. However, the evidence also highlights the importance of strictly controlling and characterizing all production inputs, including cell manipulation reagents, to ensure regulatory compliance. Therefore, while the reliability of cell check analysis is comparable to other diagnostic tests, it is not without its challenges and limitations.",
+                            "key_evidence": [
+                                "For commercially viable cell-based products, the entire production process must follow the same rigorous safety standards as conventional foods [ 1 \u2013 3 ].",
+                                "Mesenchymal stromal cells (MSCs) hold significant potential in regenerative medicine, wound healing, immunomodulation, orthopedic applications, cardiovascular disease, and neurological disorders (Malekpour et al. 2022 ; Margiana et al. 2022 ).",
+                                "The intricate interplay between cancer and its microbial residents, collectively termed the tumor microbiota, is emerging as a pivotal force within the cancer ecosystem ( 1 \u2013 5 )."
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.9998,
+                            "source": "literature",
+                            "query": "Cell check analysis efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9998,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9998
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_453",
+        "claim": "Can pumpkin seeds or preparations from them help women and men with irritable bladder, bladder weakness or incontinence?",
+        "true_label": "supported",
+        "predicted_label": "refuted",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Help",
+                            "subject": "pumpkin seeds or preparations from them",
+                            "object": "women and men with irritable bladder, bladder weakness or incontinence",
+                            "search_query": "Verify that pumpkin seeds or preparations from them help women and men with irritable bladder, bladder weakness or incontinence."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that pumpkin seeds or preparations from them help women and men with irritable bladder, bladder weakness or incontinence.",
+                            "source": "literature",
+                            "query": "Bladder weakness treatment efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Immune checkpoint inhibitors (ICIs), including cytotoxic T\u2010lymphocyte antigen 4 (CTLA\u20104), programmed cell death protein 1 (PD\u20101), and programmed cell death ligand 1 (PD\u2010L1), have become essential therapeutic agents in the management of various solid organ and hematologic malignancies [ 1 ]. Pembrolizumab, an ICI targeting PD\u20101, has demonstrated efficacy in treating several advanced malignancies, such as non\u2010small cell lung carcinoma, urothelial carcinoma (UC), renal cell carcinoma, Bacillus Calmette\u2010Gu\u00e9rin (BCG)\u2010unresponsive non\u2010muscle\u2010invasive bladder cancer, and melanoma [ 1 ]. While ICIs effectively inhibit tumor progression, they are known to cause a diverse range of immune\u2010related adverse events (irAEs) that can involve nearly all organ systems. The most commonly affected systems include the lungs, endocrine glands, skin, and gastrointestinal tract [ 2 ]. Cardiovascular and neurological toxicities (Figure 1 ), although comparatively infrequent, represent potentially severe complications with substantial risks for morbidity and mortality [ 2 ]. Among these rare toxicities is a syndrome termed myocarditis\u2010myositis\u2010myasthenia gravis overlap syndrome (IM3OS). This condition is characterized by concurrent involvement of skeletal muscles and the neuromuscular junction and is recognized as an irAE primarily linked to ICI therapy [ 3 ]. In this report, we describe a case of IM3OS that emerged in a patient treated with pembrolizumab for bladder cancer.",
+                                    "metadata": {
+                                        "id": "41582708",
+                                        "title": "Exploring Pembrolizumab-Induced IM3OS in a Patient With Bladder Cancer.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-02-01",
+                                        "url": "https://doi.org/10.1002/prp2.70212",
+                                        "extra_info": {
+                                            "doi": "10.1002/prp2.70212"
+                                        }
+                                    },
+                                    "score": 0.5996992588043213
+                                },
+                                {
+                                    "text": "Overactive bladder (OAB) is a syndrome characterized by symptoms of urgent need to urinate (with or without urinary incontinence), usually accompanied by increased urinary frequency during the day and nocturia [ 1 ]. This syndrome affects approximately 17\u201320% of the adult population worldwide, with prevalence rising markedly with age and occurring most commonly in postmenopausal women [ 2 , 3 ]. The prevalence of OAB increases with advancing age, and the risk is particularly elevated in individuals over 60 years [ 3 ]. As most individuals do not seek medical attention for this symptom, the true prevalence is likely higher than reported.",
+                                    "metadata": {
+                                        "id": "41731466",
+                                        "title": "Clinical predictors of symptom and quality-of-life improvement with antimuscarinics in overactive bladder: a 12-month prospective cohort study in T\u00fcrkiye.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-02-23",
+                                        "url": "https://doi.org/10.1186/s12894-026-02098-1",
+                                        "extra_info": {
+                                            "doi": "10.1186/s12894-026-02098-1"
+                                        }
+                                    },
+                                    "score": 0.5950095057487488
+                                },
+                                {
+                                    "text": "Bladder cancer (BC) is the fourth most common cancer among men, with incidence and mortality rates approximately four times higher in men (9.5 and 3.3 per 100,000, respectively) than in women (2.4 and 0.9, respectively). Its occurrence varies significantly worldwide, with the highest rates for both men and women in Western and Southern Europe and North America, and the lowest for men in Middle Africa, South Central Asia, and Western Africa [ 1 , 2 ]. BC development is linked to advanced age, male sex, cigarette smoking, and exposure to occupational and environmental toxins [ 1 ].",
+                                    "metadata": {
+                                        "id": "41392204",
+                                        "title": "Sex disparities in bladder cancer diagnosis: evidence from the UK Biobank.",
+                                        "type": "Scientific Literature",
+                                        "date": "2025-12-14",
+                                        "url": "https://doi.org/10.1007/s00345-025-06120-3",
+                                        "extra_info": {
+                                            "doi": "10.1007/s00345-025-06120-3"
+                                        }
+                                    },
+                                    "score": 0.570415735244751
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that pumpkin seeds or preparations from them help women and men with irritable bladder, bladder weakness or incontinence.",
+                            "justification": "The evidence does not support the subclaim. While there are discussions about bladder cancer and overactive bladder, there is no mention of pumpkin seeds or preparations from them helping with irritable bladder, bladder weakness, or incontinence. The key evidence is that bladder cancer is linked to advanced age, male sex, cigarette smoking, and exposure to occupational and environmental toxins, but there is no connection to pumpkin seeds. Therefore, the reasoning conclusion is 'refuted'.",
+                            "key_evidence": [
+                                "Bladder cancer is linked to advanced age, male sex, cigarette smoking, and exposure to occupational and environmental toxins."
+                            ],
+                            "reasoning_conclusion": "refuted",
+                            "label": "refuted",
+                            "confidence": 0.9989,
+                            "source": "literature",
+                            "query": "Bladder weakness treatment efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "refuted",
+                        "confidence": 0.9989,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "refuted",
+                                "confidence": 0.9989
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_275",
+        "claim": "Can matrix therapy (also: matrix rhythm therapy) alleviate complaints of muscles and joints?",
+        "true_label": "supported",
+        "predicted_label": "refuted",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Alleviate",
+                            "subject": "Matrix therapy",
+                            "object": "complaints of muscles and joints",
+                            "search_query": "Verify that matrix therapy alleviates complaints of muscles and joints."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that matrix therapy alleviates complaints of muscles and joints.",
+                            "source": "literature",
+                            "query": "therapy efficacy",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "The development of a novel therapeutic from discovery to market is a rigorous and expensive process 1 , yet side effects often remain undetected until the later stages of clinical trials or even after drug approval 2 . A considerable proportion of these later-stage side effects are linked to the drug\u2019s action at the primary biological target (\u2018on-target\u2019) rather than secondary targets (\u2018off-target\u2019) 3 , underscoring the inherent challenges in drug discovery, including the limited time frame and sample size of clinical trials and poor translation from animal to human studies 4 \u2013 6 . These shortcomings can result in millions of dollars lost annually and account for approximately a quarter of all clinical trial safety failures 3 . Since such safety failures represent a significant bottleneck in drug discovery, optimizing prioritization frameworks of drug targets at the preclinical stage is essential to selecting safer targets.",
+                                    "metadata": {
+                                        "id": "41027901",
+                                        "title": "Development of a genetic priority score to predict drug side effects using human genetic evidence.",
+                                        "type": "Scientific Literature",
+                                        "date": "2025-09-30",
+                                        "url": "https://doi.org/10.1038/s41467-025-63762-y",
+                                        "extra_info": {
+                                            "doi": "10.1038/s41467-025-63762-y"
+                                        }
+                                    },
+                                    "score": 0.6705538034439087
+                                },
+                                {
+                                    "text": "Drugs are a series of small molecular compounds that are absorbed by the human body through methods such as injection or ingestion and interact with relevant targets within the body. Generally, their effects on the human body should be expected and consistent with the described efficacy. However, due to the complex chemical nature of drugs and individual differences among users, some drugs may produce many unexpected side effects, known as drug side effects ( Evans and McLeod 2003 , Oun et al. 2018 ). A core issue in the study of drug side effects is the prediction of their frequency. Accurately estimating the frequency of drug side effects can effectively guide clinical patient medication and reduce the risk for pharmaceutical companies in drug development, as the occurrence of side effects can lead to the withdrawal of drugs from the market, resulting in significant economic losses in research and development ( Classen et al. 1997 , Ahmed et al. 2002 ). However, traditional clinical trials to study drug side effects are time-consuming and expensive. In contrast, using computational methods to identify drug side effect frequencies early is more cost-effective and offers substantial practical benefits ( Guo et al. 2025 , Zhao et al. 2025 ).",
+                                    "metadata": {
+                                        "id": "40424358",
+                                        "title": "A deep learning-based method for predicting the frequency classes of drug side effects based on multi-source similarity fusion.",
+                                        "type": "Scientific Literature",
+                                        "date": "2025-06-01",
+                                        "url": "https://doi.org/10.1093/bioinformatics/btaf319",
+                                        "extra_info": {
+                                            "doi": "10.1093/bioinformatics/btaf319"
+                                        }
+                                    },
+                                    "score": 0.646460235118866
+                                },
+                                {
+                                    "text": "Bladder cancer (BC) is one of the most common cancers globally. According to Global Cancer Observatory (GLOBOCAN) 2022 data, BC is the 9th most frequently diagnosed cancer in the world, with men being about three to four times more likely to be diagnosed than women [ 1 ]. The survival rates for BC vary significantly depending on the stage at diagnosis with early-stage disease BC displaying a relatively high survival rate, while advanced-stage disease has a poorer prognosis. Although BC is often diagnosed at an early stage, recurrence and progression remain frequent, leading to prolonged treatment courses [ 2 ]. While recent therapeutic advances have improved survival, the cumulative treatment burden, particularly with novel agents, remains poorly characterized regarding patient-reported outcomes and quality of life, rendering BC both complex and costly to manage [ 3 ]. Moreover, despite progress in available treatments, striking an optimal balance between efficacy, safety, and cost-effectiveness continues to challenge many healthcare systems [ 4 ].",
+                                    "metadata": {
+                                        "id": "41650805",
+                                        "title": "Improving photodynamic therapy efficacy in bladder cancer using polymer micelle-encapsulated pheophorbide a.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-02-06",
+                                        "url": "https://doi.org/10.1016/j.tranon.2026.102687",
+                                        "extra_info": {
+                                            "doi": "10.1016/j.tranon.2026.102687"
+                                        }
+                                    },
+                                    "score": 0.642913818359375
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that matrix therapy alleviates complaints of muscles and joints.",
+                            "justification": "The evidence suggests that matrix therapy may not alleviate complaints of muscles and joints, as there is no mention of matrix therapy in any of the provided evidence chunks. The chunks discuss drug development, side effects, and bladder cancer, but do not provide any information about matrix therapy. Therefore, the reasoning conclusion is 'not_enough_information'.",
+                            "key_evidence": [
+                                "The development of a novel therapeutic from discovery to market is a rigorous and expensive process",
+                                "Drugs are a series of small molecular compounds that are absorbed by the human body through methods such as injection or ingestion",
+                                "Bladder cancer (BC) is one of the most common cancers globally"
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "refuted",
+                            "confidence": 0.9981,
+                            "source": "literature",
+                            "query": "therapy efficacy",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "refuted",
+                        "confidence": 0.9981,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "refuted",
+                                "confidence": 0.9981
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_718",
+        "claim": "Does unprocessed red meat increase the risk of cardiovascular disease?",
+        "true_label": "supported",
+        "predicted_label": "refuted",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "IncreaseRisk",
+                            "subject": "unprocessed red meat",
+                            "object": "cardiovascular disease",
+                            "search_query": "Verify that unprocessed red meat increases the risk of cardiovascular disease."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that unprocessed red meat increases the risk of cardiovascular disease.",
+                            "source": "literature",
+                            "query": "Health condition risk factors",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "In November 2024, the publication of new diabetes prevalence estimates by the NCD Risk Factor Collaboration (NCD-RisC, a global network of health scientists working on non-communicable diseases, ncdrisc.org) led to a global call to action and monitoring framework to address the soaring diabetes rates [ 1 \u2013 2 ]: an estimated 828 million adults (aged 18 and older) lived with diabetes in 2022, an increase of 630 million from 1990 [ 3 ].",
+                                    "metadata": {
+                                        "id": "42060588",
+                                        "title": "Type 1 and Type 2 diabetes in the UK press: A diachronic corpus-based analysis.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-30",
+                                        "url": "https://doi.org/10.1371/journal.pone.0348079",
+                                        "extra_info": {
+                                            "doi": "10.1371/journal.pone.0348079"
+                                        }
+                                    },
+                                    "score": 0.7009825706481934
+                                },
+                                {
+                                    "text": "Anorexia nervosa (AN) is a rare but potentially life-threatening psychiatric condition with multiple complications ranging from severe weight loss, malnutrition and severe multiorgan damage. It predominantly affects adolescent women 1 - 4 . According to the American Psychiatric Association\u2019s Diagnostic and Statistical Manual (DSM-V), all 3 of the following criteria must be met for a diagnosis of anorexia nervosa: A) restriction of energy intake relative to requirements, leading to a significant low body weight in the context of the age, sex, developmental trajectory, and physical health. B) intense fear of gaining weight or becoming fat or persistent behavior that interferes with weight gain. C) disturbance in the way body weight is perceived 5 .",
+                                    "metadata": {
+                                        "id": "42154846",
+                                        "title": "THREE-MONTH OUTCOMES OF ISCHEMIC COLITIS IN ANOREXIC VS NON-ANOREXIC PATIENTS: A PROPENSITY-MATCHED COHORT STUDY.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-18",
+                                        "url": "https://doi.org/10.1590/s0004-2803.24612025-102",
+                                        "extra_info": {
+                                            "doi": "10.1590/s0004-2803.24612025-102"
+                                        }
+                                    },
+                                    "score": 0.6247019171714783
+                                },
+                                {
+                                    "text": "More than 6 years have elapsed since the onset of the coronavirus disease (COVID\u201019) pandemic. Some symptoms persist for months after the acute phase of the severe acute respiratory syndrome coronavirus 2 (SARS\u2010CoV\u20102) infection, a condition known as post\u2010COVID\u201019 condition (PCC). These symptoms include fatigue, brain fog, sleep disorders, and loss of concentration [ 1 , 2 ]. The World Health Organization (WHO) defines PCC as persistent symptoms or new symptoms 3 months after the initial SARS\u2010CoV\u20102 infection, lasting at least 2 months with no other explanation [ 3 ]. The pathophysiological mechanisms underlying PCC comprise direct organ damage due to persistent SARS\u2010CoV\u20102 infection, immunoinflammatory processes (e.g., dysregulated immune responses), and endothelial dysfunction [ 4 , 5 , 6 ]. The prevalence of long\u2010term PCC varies based on SARS\u2010CoV\u20102 strain, living area, acute phase severity, and COVID\u201019 vaccination status. According to previous studies, the prevalence of PCC 12 months after infection was 48.7% in wildtype\u2010dominant waves [ 7 ], 50.5% in Alpha\u2010dominant waves [ 8 ], 50.1% in Delta\u2010dominant waves [ 8 ], and 36.7% in Omicron\u2010dominant waves [ 8 ]. PCC has been reported to persist for months or years [ 7 , 8 , 9 ]. However, the prevalence of PCC sequelae beyond 12 months after infection in the general population during Omicron\u2010dominant waves remains unclear.",
+                                    "metadata": {
+                                        "id": "42152584",
+                                        "title": "Prevalence and Risk Factors for Persistent Post-COVID-19 Condition at 3, 6, 12, and 18 Months After Initial Infection Among Adults Living in a Community of Japan: Yao COVID-19 Study.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-01",
+                                        "url": "https://doi.org/10.1002/jmv.70973",
+                                        "extra_info": {
+                                            "doi": "10.1002/jmv.70973"
+                                        }
+                                    },
+                                    "score": 0.6107290387153625
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that unprocessed red meat increases the risk of cardiovascular disease.",
+                            "justification": "The subclaim is not supported by the provided evidence chunks because none of the chunks mention the relationship between unprocessed red meat and cardiovascular disease. Chunk 1 discusses diabetes prevalence, Chunk 2 discusses anorexia nervosa, and Chunk 3 discusses post-COVID-19 condition. Therefore, the reasoning conclusion is 'not_enough_information'.",
+                            "key_evidence": [
+                                "Chunk 1 discusses diabetes prevalence.",
+                                "Chunk 2 discusses anorexia nervosa.",
+                                "Chunk 3 discusses post-COVID-19 condition."
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "refuted",
+                            "confidence": 0.9915,
+                            "source": "literature",
+                            "query": "Health condition risk factors",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "refuted",
+                        "confidence": 0.9915,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "refuted",
+                                "confidence": 0.9915
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "claim_id": "healthfc_739",
+        "claim": "Does not wearing bras provide medical benefits?",
+        "true_label": "supported",
+        "predicted_label": "supported",
+        "pipeline_steps": [
+            {
+                "decompose": {
+                    "verifiable_subclaims": [
+                        {
+                            "relation": "Provide",
+                            "subject": "Not wearing bras",
+                            "object": "Medical benefits",
+                            "search_query": "Verify that not wearing bras provides medical benefits."
+                        }
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that not wearing bras provides medical benefits.",
+                            "source": "literature",
+                            "query": "literature on health benefits",
+                            "sparse_top_k_chunks": [],
+                            "dense_top_k_chunks": [
+                                {
+                                    "text": "Because of population ageing, a gradual increase in the prevalence of chronic, noncommunicable diseases, improved health care and medical and technical advances in prevention and early diagnosis, the future of health care needs is changing ( 1 , 2 ). Increasingly, people will live longer but with more chronic limitations in functioning \u2013 that is, with more disability. As a health care strategy, rehabilitation focuses on the individual patient, the disease or injury as well as mobility, sensory, communication, cognitive or other impairments that impact daily life. The experience of disability is also determined by the person's interaction with the environment, the presence or absence of accommodation and support to enhance inclusion and full participation in society. With rehabilitation, the person is at the focus of the intervention, while with human rights it is society itself that is the actor as it is responsible for removing systemic barriers and facilitating inclusion. There are, therefore, at least two fundamental social strategies to respond disability: strengthening and increasing access to rehabilitation and using a human rights approach as a guide for laws, policies and practices to ensure inclusion of people with disability.",
+                                    "metadata": {
+                                        "id": "42181831",
+                                        "title": "Can the goals of rehabilitation and disability be reconciled? A discussion paper.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-07",
+                                        "url": "https://doi.org/10.3389/fresc.2026.1768125",
+                                        "extra_info": {
+                                            "doi": "10.3389/fresc.2026.1768125"
+                                        }
+                                    },
+                                    "score": 0.6174174547195435
+                                },
+                                {
+                                    "text": "In pharmaceutical care (PC), the Nurse Prescribing of Medication (NPM) is defined as the nurse's contribution to patient care for optimizing medication use and improvement of health outcomes (Allemann et al. 2014 ). In English\u2010speaking nations, such as the United Kingdom (UK), the United States (US), Australia, Canada or New Zealand, the NPM role has been devised and oriented for academic nurses including nurse specialists, nurse practitioners (NPs) and advanced practice nurses (APNs) (Latter and Courtenay 2004 ; Bradley and Nolan 2007 ). Economic data and population health outcomes have shown the benefits of the NPM role to healthcare systems and organizations.",
+                                    "metadata": {
+                                        "id": "42015505",
+                                        "title": "Global Economic Evaluation of the Nurse Prescribing of Medication Role: A Scoping Review.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-01",
+                                        "url": "https://doi.org/10.1002/nop2.70506",
+                                        "extra_info": {
+                                            "doi": "10.1002/nop2.70506"
+                                        }
+                                    },
+                                    "score": 0.6025891304016113
+                                },
+                                {
+                                    "text": "The contemporary era of Artificial Intelligence (AI), characterized by unprecedented advances in machine learning algorithms and large language models, has pervaded many decision-making domains [ 1 ], enabling AI systems to imitate and augment human cognitive functions in reasoning, learning, and problem solving [ 2 , 3 , 4 ]. As this technology has matured, the healthcare sector has emerged as a particularly promising domain for AI applications [ 5 ], witnessing a revolutionary advancement in complex medical reasoning and decision support [ 6 , 7 ]. In this vein, Chatbots, also known as conversational agents or virtual agents, represent a type of AI application designed to simulate human-like conversations with users in natural language, providing information or services in specific domains [ 2 , 3 , 4 ]. The extant literature of healthcare services broadly acknowledges the superiority of chatbot applications in healthcare services over other AI technological alternatives, particularly in reshaping healthcare service delivery models by enhancing accessibility, personalization, and efficiency [ 5 , 8 , 9 ], while simultaneously recasting patient education, interaction, and engagement with health information [ 10 , 11 , 12 ].",
+                                    "metadata": {
+                                        "id": "",
+                                        "title": "Unlocking AI Chatbot Potential in Healthcare: Trust-Enhanced DeLone & McLean IS Success Model",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-05-01",
+                                        "url": "",
+                                        "extra_info": {
+                                            "doi": ""
+                                        }
+                                    },
+                                    "score": 0.5952572226524353
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Verify that not wearing bras provides medical benefits.",
+                            "justification": "The subclaim that not wearing bras provides medical benefits is not supported by the evidence chunks. None of the chunks mention bras or their potential impact on health. Chunk 1 discusses rehabilitation and human rights, Chunk 2 talks about nurse prescribing and medication, and Chunk 3 focuses on artificial intelligence in healthcare. Therefore, the reasoning conclusion is 'not_enough_information'. The key evidence is that none of the chunks provide any information about bras or their potential medical benefits.",
+                            "key_evidence": [
+                                "None of the chunks mention bras or their potential impact on health."
+                            ],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "supported",
+                            "confidence": 0.9996,
+                            "source": "literature",
+                            "query": "literature on health benefits",
+                            "chunks_count": 3
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.9996,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "label": "supported",
+                                "confidence": 0.9996
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+]
