@@ -43,12 +43,11 @@ def _provider_api_key_name(provider: str) -> Optional[str]:
     return None
   
 class FactAgent:
-    def __init__(self, dataset: str):
+    def __init__(self):
 
         """
         Initialize the FactAgent, reading LLM parameters from configuration.
         """
-        self.dataset = dataset  # Provide the dataset as part of the agent's context for better grounding in responses (not used in the current implementation but can be useful for future enhancements)
         self.provider = config.get("llm.provider", "google")
         provider_settings = config.get(f"llm.providers.{self.provider}", {})
         self.base_url = provider_settings.get("base_url")
@@ -79,7 +78,7 @@ class FactAgent:
         options = ["FINISH"] + members # We can route to any worker or finish the workflow
         system_prompt = (
             "You are a supervisor tasked with managing a conversation between the"
-            f" following workers: {members}. Given the following user request and dataset {self.dataset},"
+             f" following workers: {members}. Given the following user request,"
             " respond with the worker to act next. Each worker will perform a"
             " task and respond with their results and status. When finished,"
             " respond with FINISH."
@@ -369,7 +368,7 @@ class FactAgent:
 
 
 if __name__ == "__main__":
-    agent = FactAgent(dataset="covid19_claims")  
+    agent = FactAgent()
 
     
     #claim = "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis."
