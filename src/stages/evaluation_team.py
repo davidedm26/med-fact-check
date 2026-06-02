@@ -169,38 +169,44 @@ def build_evaluation_graph(reasoning_agent):
         subclaim = state.get("subclaim") or ""
         justification = state.get("subclaim_justification") or ""
         subclaim_id = state.get("subclaim_id") or ""
+        
+        # Recuperiamo la decisione dell'LLM!
+        reasoning_conclusion = state.get("reasoning_conclusion", "")
 
-        # Build premise (justification) and hypothesis (subclaim)
-        premise = justification if justification else "(No justification available.)"
-        hypothesis = subclaim
+        # ----------------------------------------------------------------- #
+        # IL FIX: Se l'LLM ha detto "not enough info", NON usiamo l'NLI!    #
+        # ----------------------------------------------------------------- #
+        if reasoning_conclusion == "not_enough_information":
+            log.info("Bypassing NLI model: Reasoning Agent found 'not_enough_information'.")
+            label = "nei"
+            confidence = 1.0  # Siamo sicuri al 100% che mancano le info
+            
+        else:
+            # Se invece ci sono le info, usiamo il modello NLI normalmente
+            premise = justification if justification else "(No justification available.)"
+            hypothesis = subclaim
+            nli_input = f"{premise} </s></s> {hypothesis}"
 
-        # NLI pipeline input format: "premise </s></s> hypothesis"
-        nli_input = f"{premise} </s></s> {hypothesis}"
+            try:
+                nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
+                log.debug(f"NLI raw output: {nli_results}")
 
-        try:
-            nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
-            log.debug(f"NLI raw output: {nli_results}")
+                if isinstance(nli_results, list) and len(nli_results) > 0:
+                    if isinstance(nli_results[0], list):
+                        nli_results = nli_results[0]
+                    
+                    top = max(nli_results, key=lambda x: x.get("score", 0))
+                    raw_label = top.get("label", "NEUTRAL").upper()
+                    confidence = round(top.get("score", 0.0), 4)
+                    label = _NLI_LABEL_MAP.get(raw_label, "nei")
+                else:
+                    label = "nei"
+                    confidence = 0.0
 
-            # nli_results is a list of dicts: [{"label": "ENTAILMENT", "score": 0.87}, ...]
-            # Pick the top prediction
-            if isinstance(nli_results, list) and len(nli_results) > 0:
-                # Handle both single-label (top_k=1) and multi-label outputs
-                if isinstance(nli_results[0], list):
-                    # Some pipelines return [[{...}, {...}, ...]]
-                    nli_results = nli_results[0]
-                
-                top = max(nli_results, key=lambda x: x.get("score", 0))
-                raw_label = top.get("label", "NEUTRAL").upper()
-                confidence = round(top.get("score", 0.0), 4)
-                label = _NLI_LABEL_MAP.get(raw_label, "nei")
-            else:
+            except Exception as exc:
+                log.error(f"NLI error: {exc}")
                 label = "nei"
                 confidence = 0.0
-
-        except Exception as exc:
-            log.error(f"NLI error: {exc}")
-            label = "nei"
-            confidence = 0.0
 
         log.info(f"label={label}, confidence={confidence}")
 
@@ -209,7 +215,7 @@ def build_evaluation_graph(reasoning_agent):
             "subclaim": subclaim,
             "justification": justification,
             "key_evidence": state.get("key_evidence", []),
-            "reasoning_conclusion": state.get("reasoning_conclusion", ""),
+            "reasoning_conclusion": reasoning_conclusion,
             "label": label,
             "confidence": confidence,
         }

@@ -23,9 +23,12 @@ def search_articles(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
         'pageSize': limit,
         'resultType': 'core' 
     }
+    header = {
+    "User-Agent": "MedFactCheck-UniversityProject/1.0 (tua_email_reale@studenti.unisa.it)"
+    }
     
     try:
-        response = requests.get(BASE_URL_SEARCH, params=params, timeout=30)
+        response = requests.get(BASE_URL_SEARCH, params=params, timeout=30, headers=header)
         response.raise_for_status()
         
         data = response.json()
