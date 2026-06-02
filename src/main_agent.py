@@ -284,6 +284,7 @@ class FactAgent:
                     er["source"] = result.get("source")
                     er["query"] = result.get("query")
                     er["chunks_count"] = len(chunks)
+                    er["retrieved_chunks"] = chunks
                 all_evaluation_results.extend(eval_results)
 
             return {
@@ -363,6 +364,29 @@ class FactAgent:
         log.info("graph stream finished")
         
         return results
+
+    def stream_claim(self, claim: str, recursion_limit: int = 150):
+        """
+        Generator that yields each step of the pipeline.
+        Strips 'messages' to ensure JSON serialization.
+        """
+        def _clean_step(data):
+            if isinstance(data, dict):
+                return {k: _clean_step(v) for k, v in data.items() if k != "messages"}
+            elif isinstance(data, list):
+                return [_clean_step(item) for item in data]
+            return data
+
+        messages = [("user", claim)]
+        run_id = str(uuid.uuid4())
+        log.info(f"pipeline stream run_id: {run_id}")
+        
+        for step in self.super_graph.stream(
+            {"messages": messages, "run_id": run_id},
+            {"recursion_limit": recursion_limit}
+        ):
+            yield _clean_step(step)
+
     
 
 
