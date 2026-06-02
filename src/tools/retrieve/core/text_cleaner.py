@@ -8,10 +8,16 @@ log = get_logger("TextCleaner")
 # 1. Unstructured data cleaning (XML from Europe PMC)
 
 def _is_glossary_or_noise(text: str) -> bool:
-    """Detect abbreviation lists, glossaries, and other non-argumentative noise."""
+    """Detect abbreviation lists, glossaries, bullet-point highlights, and other non-argumentative noise."""
+    stripped = text.strip()
+    words = stripped.split()
+    
+    # Shallow bullet points (•, –, -, *) with fewer than 30 words → highlight lines with no substance
+    if stripped and stripped[0] in '•–-*' and len(words) < 30:
+        return True
+    
     # High ratio of semicolons or commas relative to text length → likely a list of abbreviations
-    semicolons = text.count(";") + text.count(",")
-    words = text.split()
+    semicolons = stripped.count(";") + stripped.count(",")
     if len(words) > 0 and semicolons / len(words) > 0.25:
         return True
     # High ratio of uppercase words → likely acronym-heavy glossary
@@ -67,7 +73,7 @@ def clean_europe_pmc_xml(xml_string: str, article_metadata: Dict) -> List[Dict]:
 # 2. Structured data formatting (Clinical Trials and Uniprot)
 
 def format_clinical_trial(trial_dict: Dict) -> str:
-    
+    """Return the clinical trial summary text."""
     return trial_dict.get('clinical_text', '')
 
 def format_uniprot(protein_dict: Dict) -> str:
