@@ -45,6 +45,9 @@ def get_llm_with_tools(
     if resolved_temperature is None:
         resolved_temperature = float(_get_env("LLM_TEMPERATURE", "0"))
 
+    resolved_timeout = config.get("llm.timeout", 30)
+    resolved_retries = config.get("llm.retries", 5)
+
     provider_settings = config.get(f"llm.providers.{resolved_provider}", {})
 
     if resolved_provider == "groq":
@@ -59,8 +62,8 @@ def get_llm_with_tools(
             model_name=resolved_model,
             temperature=resolved_temperature,
             api_key=_require(resolved_key, "GROQ_API_KEY"),
-            timeout=30,
-            max_retries=5,
+            timeout=resolved_timeout,
+            max_retries=resolved_retries,
         )
 
     elif resolved_provider == "nvidia":
@@ -74,8 +77,8 @@ def get_llm_with_tools(
             temperature=resolved_temperature,
             api_key=_require(resolved_key, "NVIDIA_API_KEY"),
             base_url=resolved_base_url,
-            timeout=30,
-            max_retries=5,
+            timeout=resolved_timeout,
+            max_retries=resolved_retries,
         )
 
     elif resolved_provider == "google":
@@ -90,8 +93,8 @@ def get_llm_with_tools(
             model=resolved_model,
             temperature=resolved_temperature,
             google_api_key=_require(resolved_key, "GOOGLE_API_KEY"),
-            timeout=30,
-            max_retries=5,
+            timeout=resolved_timeout,
+            max_retries=resolved_retries,
         )
 
     elif resolved_provider == "ollama":
@@ -106,8 +109,8 @@ def get_llm_with_tools(
             model=resolved_model,
             temperature=resolved_temperature,
             base_url=resolved_base_url,
-            timeout=30,
-            max_retries=5,
+            timeout=resolved_timeout,
+            max_retries=resolved_retries,
         )
 
     else:
