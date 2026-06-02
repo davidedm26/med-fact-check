@@ -174,8 +174,8 @@ def build_evaluation_graph(reasoning_agent):
         premise = justification if justification else "(No justification available.)"
         hypothesis = subclaim
 
-        # NLI pipeline input format: "premise </s></s> hypothesis"
-        nli_input = f"{premise} </s></s> {hypothesis}"
+        # NLI pipeline input format: dict with text and text_pair for correct tokenizer handling (e.g. [SEP] for BERT)
+        nli_input = {"text": premise, "text_pair": hypothesis}
 
         try:
             nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)

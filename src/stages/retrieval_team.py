@@ -1,5 +1,6 @@
 import json
 import ast
+import concurrent.futures
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, SystemMessage
 
@@ -7,7 +8,7 @@ from state import State, _message_text
 from prompts.retrieve import (
     retrieval_source_selection_prompt,
     retrieval_query_generation_prompt,
-    retrieval_strategy_router_prompt,
+    get_retrieval_query_generation_schema,
 )
 from tools.retrieve.download import (
     download_documents,
@@ -20,7 +21,7 @@ from utils.config import config
 
 log = get_logger("RetrievalTeam")
 
-def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_router_llm):
+def build_retrieval_graph(source_selector_llm, base_llm):
     """Build the unified retrieval subgraph."""
 
     RETRIEVAL_STRATEGY_TO_NODE = {
@@ -53,33 +54,47 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
     @log_node("retrieval")
     def source_selector_node(state: State):
         log.info("source_selector start")
-        query = _message_text(state["messages"][-1]) #get last message text (each subclaim will be sent to the retrieval node one at a time, so we can assume the last message contains the subclaim to retrieve for)
+        query = state.get("subclaim") or _message_text(state["messages"][0])
         subclaim_id = state.get("subclaim_id") 
+        dynamic_coins = config.get("retrieval.dynamic_coins", 3)
+        formatted_prompt = retrieval_source_selection_prompt.format(total_coins=dynamic_coins)
+        
         messages = [
-            SystemMessage(content=retrieval_source_selection_prompt),
+            SystemMessage(content=formatted_prompt),
             HumanMessage(content=query)
         ]
 
         log.info("source_selector invoking llm")
         response = source_selector_llm.invoke(messages)
-        selected_source = "literature"
+        coins = {"clinical_trials": 0, "knowledge_base": 0, "literature": dynamic_coins}
         reasoning = "fallback to literature"
-        if isinstance(response, dict):
-            selected_source = str(response.get("target_source", "literature")).strip().lower()
-            reasoning = str(response.get("reasoning", reasoning))
-        else:
-            selected_source = str(getattr(response, "target_source", "literature")).strip().lower()
-            reasoning = str(getattr(response, "reasoning", reasoning))
-        if selected_source not in VALID_TARGET_SOURCES:
-            selected_source = "literature"
+        
+        try:
+            if isinstance(response, dict):
+                coins["clinical_trials"] = max(0, int(response.get("clinical_trials_coins", 0)))
+                coins["knowledge_base"] = max(0, int(response.get("knowledge_base_coins", 0)))
+                coins["literature"] = max(0, int(response.get("literature_coins", dynamic_coins)))
+                reasoning = str(response.get("reasoning", reasoning))
+            else:
+                coins["clinical_trials"] = max(0, int(getattr(response, "clinical_trials_coins", 0)))
+                coins["knowledge_base"] = max(0, int(getattr(response, "knowledge_base_coins", 0)))
+                coins["literature"] = max(0, int(getattr(response, "literature_coins", dynamic_coins)))
+                reasoning = str(getattr(response, "reasoning", reasoning))
+        except Exception as exc:
+            log.warning(f"Failed to parse source_selector coins: {exc}")
 
-        log.info(f"source_selector selected {selected_source} ({reasoning})")
+        base_coins = config.get("retrieval.base_coins_per_source", 1)
+        coins["clinical_trials"] += base_coins
+        coins["knowledge_base"] += base_coins
+        coins["literature"] += base_coins
+
+        log.info(f"source_selector allocated coins {coins} (LLM reasoning: {reasoning})")
         return {
-            "retrieval_source": selected_source,
+            "retrieval_source": coins,
             "messages": [
                 HumanMessage(
                     content=str({
-                        "retrieval_source": selected_source,
+                        "retrieval_source_coins": coins,
                         "reasoning": reasoning,
                         "subclaim_id": subclaim_id,
                     }),
@@ -91,45 +106,79 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
     @log_node("retrieval")
     def downloader_agent_node(state: State):
         log.info("downloader_agent start")
-        query = _message_text(state["messages"][-1]) # get last message text (the source selector node adds a message with the selected source and reasoning, but the content of the message is a dict in string format, so we need to parse it to extract the original query if needed for fallback)
-        
+        query = state.get("subclaim") or _message_text(state["messages"][0])
         subclaim_id = state.get("subclaim_id")
-        selected_source = state.get("retrieval_source") or "literature"
-        messages = [
-            SystemMessage(content=retrieval_query_generation_prompt.format(target_source=selected_source)),
-            HumanMessage(content=query)
-        ]
+        allocated_coins = state.get("retrieval_source") or {"literature": config.get("retrieval.dynamic_coins", 3) + config.get("retrieval.base_coins_per_source", 1)}
+        
+        all_downloaded_chunks = []
+        queries_by_source = {}
+        download_stats = {}
+        reasonings = []
 
-        log.info("downloader_agent invoking llm for query generation")
-        response = query_generator_llm.invoke(messages)
-        generated_queries = []
-        reasoning = "fallback to input query"
-        if isinstance(response, dict):
-            generated_queries = response.get("search_queries") or []
-            reasoning = str(response.get("reasoning", reasoning))
-        else:
-            generated_queries = getattr(response, "search_queries", []) or []
-            reasoning = str(getattr(response, "reasoning", reasoning))
+        def process_source(source, num_coins):
+            if num_coins <= 0:
+                return [], [], ""
+            
+            sys_msg = SystemMessage(content=retrieval_query_generation_prompt.format(
+                num_queries=num_coins, target_source=source
+            ))
+            messages = [sys_msg, HumanMessage(content=query)]
+            
+            query_generator_llm = base_llm.with_structured_output(
+                get_retrieval_query_generation_schema(num_coins), method="function_calling"
+            )
+            response = query_generator_llm.invoke(messages)
+            generated_queries = []
+            rsn = ""
+            if isinstance(response, dict):
+                generated_queries = response.get("search_queries") or []
+                rsn = str(response.get("reasoning", ""))
+            else:
+                generated_queries = getattr(response, "search_queries", []) or []
+                rsn = str(getattr(response, "reasoning", ""))
+                
+            search_queries = _normalize_search_queries(generated_queries, query)
+            search_queries = search_queries[:num_coins]
+            
+            log.info(f"downloader_agent downloading from {source} with args: {search_queries}")
+            result = download_documents.invoke(
+                {"sub_id": subclaim_id, "search_queries": search_queries, "target_source": source}
+            )
+            return search_queries, result["chunks"], rsn, result.get("stats", {})
 
-        search_queries = _normalize_search_queries(generated_queries, query)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future_to_source = {
+                executor.submit(process_source, src, coins_amt): src 
+                for src, coins_amt in allocated_coins.items() if coins_amt > 0
+            }
+            
+            for future in concurrent.futures.as_completed(future_to_source):
+                src = future_to_source[future]
+                try:
+                    sq, docs, rsn, stats = future.result()
+                    queries_by_source[src] = sq
+                    all_downloaded_chunks.extend(docs)
+                    download_stats[src] = stats
+                    if rsn:
+                        reasonings.append(f"{src}: {rsn}")
+                except Exception as exc:
+                    log.error(f"downloader_agent error for {src}: {exc}")
 
-        log.info(f"downloader_agent downloading from {selected_source} with args: {search_queries}")
-        downloaded_documents = download_documents.invoke(
-            {"sub_id": subclaim_id, "search_queries": search_queries, "target_source": selected_source}
-        )
+        combined_reasoning = " | ".join(reasonings) or "fallback to input query"
 
         return {
-            "retrieval_source": selected_source,
-            "retrieval_query": search_queries[0], # TO DO: we should ideally keep all the generated queries for downstream steps and not just the first one, but for simplicity we keep only the first one for now since that's the one we use for retrieval strategy routing and retrieval.
-            "downloaded_documents": downloaded_documents,
+            "retrieval_source": allocated_coins,
+            "queries_by_source": queries_by_source,
+            "download_stats": download_stats,
+            "downloaded_chunks": all_downloaded_chunks,
             "messages": [
                 HumanMessage(
                     content=str({
-                        "retrieval_source": selected_source,
-                        "retrieval_query": search_queries[0],
+                        "retrieval_source_coins": allocated_coins,
+                        "queries_by_source": queries_by_source,
                         "subclaim_id": subclaim_id,
-                        "reasoning": reasoning,
-                        "downloaded_documents_count": len(downloaded_documents),
+                        "reasoning": combined_reasoning,
+                        "downloaded_chunks_count": len(all_downloaded_chunks),
                     }),
                     name="downloader_agent",
                 )
@@ -137,113 +186,91 @@ def build_retrieval_graph(source_selector_llm, query_generator_llm, strategy_rou
         }
 
     @log_node("retrieval")
-    def retrieval_strategy_router_node(state: State):
-        log.info("retrieval_strategy_router start")
-        query = state.get("retrieval_query") or _message_text(state["messages"][-1])
-        messages = [
-            SystemMessage(content=retrieval_strategy_router_prompt),
-            HumanMessage(content=f"Query: {query}"),
-        ]
-
-        retrieval_strategy = "dense"
-        reasoning = "fallback to dense"
-        try:
-            response = strategy_router_llm.invoke(messages)
-            if isinstance(response, dict):
-                candidate_strategy = str(response.get("retrieval_strategy", "sparse")).strip().lower()
-                reasoning = str(response.get("reasoning", reasoning))
-            else:
-                candidate_strategy = str(getattr(response, "retrieval_strategy", "sparse")).strip().lower()
-                reasoning = str(getattr(response, "reasoning", reasoning))
-            if candidate_strategy in RETRIEVAL_STRATEGY_TO_NODE:
-                retrieval_strategy = candidate_strategy
-        except Exception as exc:
-            log.warning(f"retrieval_strategy_router fallback to dense due to: {exc}")
-
-        log.info(f"retrieval_strategy_router selected {retrieval_strategy} ({reasoning})")
-        return {
-            "retrieval_strategy": retrieval_strategy,
-            "messages": [
-                HumanMessage(
-                    content=str({
-                        "retrieval_query": query,
-                        "retrieval_strategy": retrieval_strategy,
-                        "reasoning": reasoning,
-                    }),
-                    name="retrieval_strategy_router", # next node
-                )
-            ],
-        }
-
-    @log_node("retrieval")
-    def sparse_retriever_node(state: State):
-        log.info("sparse_retriever start")
-        query = state.get("retrieval_query") or _message_text(state["messages"][-1])
-        documents = state.get("downloaded_documents") or []
-        docs_json = json.dumps(documents)
+    def hybrid_retriever_node(state: State):
+        log.info("hybrid_retriever start")
+        # We MUST use the full subclaim for semantic (dense) retrieval, not the short keyword queries.
+        subclaim = state.get("subclaim") or _message_text(state["messages"][0])
+        queries_by_source = state.get("queries_by_source") or {}
         
-        top_k = config.get("retrieval.sparse.top_k", 3)
-        sparse_chunks = sparse_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": top_k})
-        log.info("sparse_retriever complete")
-        return {
-            "retrieval_strategy": "sparse",
-            "sparse_top_k_chunks": sparse_chunks,
-            "dense_top_k_chunks": [],
-            "messages": [
-                HumanMessage(
-                    content=str({
-                        "retrieval_query": query,
-                        "retrieval_strategy": "sparse",
-                        "sparse_top_k_chunks_count": len(sparse_chunks),
-                    }),
-                    name="sparse_retriever",
-                )
-            ],
-        }
-
-    @log_node("retrieval")
-    def dense_retriever_node(state: State):
-        log.info("dense_retriever start")
-        query = state.get("retrieval_query") or _message_text(state["messages"][-1])
-        documents = state.get("downloaded_documents") or []
-        docs_json = json.dumps(documents)
+        # Flatten the dictionary to get all keyword queries for sparse retrieval
+        all_search_queries = [q for queries in queries_by_source.values() for q in queries]
+            
+        chunks = state.get("downloaded_chunks") or []
+        chunks_json = json.dumps(chunks)
         
-        top_k = config.get("retrieval.dense.top_k", 3)
-        dense_chunks = dense_retrieve_tool.invoke({"query": query, "documents": docs_json, "top_k": top_k})
-        log.info("dense_retriever complete")
+        top_k = config.get("retrieval.hybrid.top_k", 5)
+        alpha = float(config.get("retrieval.hybrid.alpha", 0.5))
+        log.info(f"hybrid_retriever using alpha={alpha} for subclaim: {subclaim}")
+        
+        chunk_scores: dict[str, float] = {}
+        chunk_data: dict[str, dict] = {}
+        
+        # We only need to run the retrievers once using the full subclaim
+        if alpha > 0.0:
+            try:
+                dense_results = dense_retrieve_tool.invoke({"query": subclaim, "chunks": chunks_json, "top_k": top_k})
+                for rank, chunk in enumerate(dense_results, 1):
+                    cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
+                    if cid not in chunk_data:
+                        chunk_data[cid] = chunk
+                    score_increment = alpha * (1.0 / (60.0 + rank))
+                    chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
+            except Exception as exc:
+                log.error(f"Dense retrieve failed for subclaim '{subclaim}': {exc}")
+                
+        if alpha < 1.0:
+            # For sparse (BM25), keyword queries are much better than the verbose subclaim,
+            # especially since our BM25 doesn't filter stopwords.
+            sparse_query = " ".join(all_search_queries) if all_search_queries else subclaim
+            try:
+                sparse_results = sparse_retrieve_tool.invoke({"query": sparse_query, "chunks": chunks_json, "top_k": top_k})
+                for rank, chunk in enumerate(sparse_results, 1):
+                    cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
+                    if cid not in chunk_data:
+                        chunk_data[cid] = chunk
+                    score_increment = (1.0 - alpha) * (1.0 / (60.0 + rank))
+                    chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
+            except Exception as exc:
+                log.error(f"Sparse retrieve failed for sparse_query '{sparse_query}': {exc}")
+
+        sorted_cids = sorted(chunk_scores.keys(), key=lambda c: chunk_scores[c], reverse=True)
+        
+        # Diversity constraint: limit chunks per document to avoid a single paper dominating the results
+        max_per_doc = config.get("retrieval.hybrid.max_chunks_per_doc", 2)
+        doc_counts: dict[str, int] = {}
+        final_chunks = []
+        for cid in sorted_cids:
+            if len(final_chunks) >= top_k:
+                break
+            chunk = chunk_data[cid]
+            doc_id = str(chunk.get("metadata", {}).get("id", ""))
+            current_count = doc_counts.get(doc_id, 0)
+            if current_count < max_per_doc:
+                final_chunks.append(chunk)
+                doc_counts[doc_id] = current_count + 1
+        
+        log.info(f"hybrid_retriever extracted {len(final_chunks)} chunks via RRF (max {max_per_doc}/doc, {len(doc_counts)} unique docs).")
         return {
-            "retrieval_strategy": "dense",
-            "sparse_top_k_chunks": [],
-            "dense_top_k_chunks": dense_chunks,
+            "retrieved_chunks": final_chunks,
             "messages": [
                 HumanMessage(
                     content=str({
-                        "retrieval_query": query,
-                        "retrieval_strategy": "dense",
-                        "dense_top_k_chunks_count": len(dense_chunks),
+                        "hybrid_alpha": alpha,
+                        "retrieved_chunks_count": len(final_chunks),
                     }),
-                    name="dense_retriever",
+                    name="hybrid_retriever",
                 )
             ],
         }
 
-    retrieval_builder = StateGraph(State)
-    retrieval_builder.add_node("source_selector", source_selector_node)
-    retrieval_builder.add_node("downloader_agent", downloader_agent_node)
-    retrieval_builder.add_node("retrieval_strategy_router", retrieval_strategy_router_node)
-    retrieval_builder.add_node("sparse_retriever", sparse_retriever_node)
-    retrieval_builder.add_node("dense_retriever", dense_retriever_node)
+    builder = StateGraph(State)
+    builder.add_node("source_selector", source_selector_node)
+    builder.add_node("downloader_agent", downloader_agent_node)
+    builder.add_node("hybrid_retriever", hybrid_retriever_node)
 
-    retrieval_builder.add_edge(START, "source_selector")
-    retrieval_builder.add_edge("source_selector", "downloader_agent")
-    retrieval_builder.add_edge("downloader_agent", "retrieval_strategy_router")
+    builder.add_edge(START, "source_selector")
+    builder.add_edge("source_selector", "downloader_agent")
+    builder.add_edge("downloader_agent", "hybrid_retriever")
+    builder.add_edge("hybrid_retriever", END)
 
-    def route_retrieval_strategy(state: State):
-        strategy = state.get("retrieval_strategy") or "dense"
-        return RETRIEVAL_STRATEGY_TO_NODE.get(strategy, "dense_retriever")
-
-    retrieval_builder.add_conditional_edges("retrieval_strategy_router", route_retrieval_strategy)
-    retrieval_builder.add_edge("sparse_retriever", END)
-    retrieval_builder.add_edge("dense_retriever", END)
-
-    return retrieval_builder.compile()
+    return builder.compile()

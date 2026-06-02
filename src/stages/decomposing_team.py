@@ -23,6 +23,7 @@ def build_decompose_graph(decomposition_agent, classification_agent):
         messages = [SystemMessage(content=claim_decomposition_prompt)] + state["messages"] # Pass the proper System Prompt along with the conversation history to the decomposition agent. The message should include the original claim that needs to be decomposed, which is typically the last message in the conversation history at this point. 
         structured = decomposition_agent.invoke(messages) 
         log.info("claim_decomposition agent response received")
+        log.debug(f"claim_decomposition agent response received: {structured}")
 
         predicates = structured.get("predicates") if isinstance(structured, dict) else None
 

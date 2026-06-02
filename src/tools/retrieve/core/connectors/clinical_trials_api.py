@@ -15,8 +15,7 @@ def search_trials(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
     params = {
         "query.term": query,
         "pageSize": limit,
-        #"fields": "NCTId,BriefTitle,OverallStatus,Phase,StartDate,CompletionDate,BriefSummary"
-        "fields": "NCTId,BriefTitle,OverallStatus,Phase,StartDate,CompletionDate,BriefSummary,protocolSection.eligibilityModule"
+        "fields": "NCTId,BriefTitle,OverallStatus,Phase,StartDate,CompletionDate,BriefSummary"
     }
     
     
@@ -36,11 +35,7 @@ def search_trials(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
             description_module = protocol.get('descriptionModule', {})
             summary = description_module.get('briefSummary', '')
             
-            eligibility_module = protocol.get('eligibilityModule', {})
-            eligibility = eligibility_module.get('eligibilityCriteria', 'Eligibility criteria not specified.')
-            
-            # Combine summary and eligibility into a single narrative text block for BM25
-            clinical_text = f"Summary: {summary} | Eligibility: {eligibility}".strip()
+            clinical_text = summary.strip()
             
             status_module = protocol.get('statusModule', {})
             status = status_module.get('overallStatus', 'Status unknown')

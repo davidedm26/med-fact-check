@@ -1,10 +1,6 @@
 from __future__ import annotations
-
-import hashlib
 import json
 import os
-import re
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -13,190 +9,12 @@ from langchain_core.tools import tool
 
 from utils.logger import get_logger
 from utils.config import config
+from tools.retrieve.chunking import SourceMetadata, IndexedChunk, BiomedicalChunker
 
 log = get_logger("MedFactCheck.DenseRetriever")
 
-
 def _get_hf_token() -> Optional[str]:
     return os.getenv("HF_TOKEN")
-
-
-@dataclass
-class SourceMetadata:
-    id: str = ""
-    title: str = ""
-    type: str = "Scientific Literature"
-    date: str = "N/A"
-    url: str = ""
-    extra_info: Dict[str, Any] = field(default_factory=dict)
-
-    @property
-    def target_source(self) -> str:
-        return {
-            "Scientific Literature": "literature",
-            "Clinical Trial": "clinical_trials",
-            "Protein Knowledge": "knowledge_base",
-        }.get(self.type, "literature")
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "id": self.id,
-            "title": self.title,
-            "type": self.type,
-            "date": self.date,
-            "url": self.url,
-            "extra_info": self.extra_info,
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SourceMetadata":
-        return cls(
-            id=data.get("id", ""),
-            title=data.get("title", ""),
-            type=data.get("type", "Scientific Literature"),
-            date=data.get("date", "N/A"),
-            url=data.get("url", ""),
-            extra_info=data.get("extra_info") or {},
-        )
-
-
-@dataclass
-class IndexedChunk:
-    chunk_id: str
-    text: str
-    chunk_index: int
-    section: str
-    source: SourceMetadata
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "chunk_id": self.chunk_id,
-            "text": self.text,
-            "chunk_index": self.chunk_index,
-            "section": self.section,
-            "source": self.source.to_dict(),
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "IndexedChunk":
-        return cls(
-            chunk_id=data["chunk_id"],
-            text=data["text"],
-            chunk_index=data["chunk_index"],
-            section=data["section"],
-            source=SourceMetadata.from_dict(data["source"]),
-        )
-
-
-@dataclass
-class RetrievedText:
-    text_content: str
-    source_metadata: SourceMetadata
-    score: float = 0.0
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "text_content": self.text_content,
-            "source_metadata": self.source_metadata.to_dict(),
-            "score": self.score,
-        }
-
-
-@dataclass
-class BiomedicalChunker:
-    chunk_size: int = 300
-    overlap: int = 50
-
-    _SECTION_RE_PARTS = (
-        r"Abstract", r"Introduction", r"Background",
-        r"Methods?", r"Materials?\s+and\s+Methods?",
-        r"Results?", r"Discussion", r"Conclusions?",
-        r"References?", r"Eligibility", r"Summary",
-        r"Outcomes?", r"Interventions?",
-    )
-
-    def __post_init__(self) -> None:
-        self._section_pat = re.compile(
-            r"^(?:" + "|".join(self._SECTION_RE_PARTS) + r")[\s:]*$",
-            re.IGNORECASE | re.MULTILINE,
-        )
-
-    def chunk(self, text: str, source: SourceMetadata) -> List[IndexedChunk]:
-        chunks: List[IndexedChunk] = []
-        idx = 0
-
-        for section_label, section_text in self._split_sections(text):
-            if section_label == "References":
-                continue
-
-            words = section_text.split()
-            start = 0
-            while start < len(words):
-                end = min(start + self.chunk_size, len(words))
-                chunk_text = " ".join(words[start:end]).strip()
-
-                if len(chunk_text) >= 40:
-                    chunks.append(
-                        IndexedChunk(
-                            chunk_id=self._make_id(source.id, idx),
-                            text=chunk_text,
-                            chunk_index=idx,
-                            section=section_label,
-                            source=source,
-                        )
-                    )
-                    idx += 1
-
-                if end == len(words):
-                    break
-                start = end - self.overlap
-
-        return chunks
-
-    def _split_sections(self, text: str) -> List[Tuple[str, str]]:
-        sections: List[Tuple[str, str]] = []
-        current_label = "Body"
-        current_lines: List[str] = []
-
-        for line in text.split("\n"):
-            if self._section_pat.match(line.strip()):
-                if current_lines:
-                    sections.append((current_label, "\n".join(current_lines)))
-                current_label = self._normalise_section(line.strip())
-                current_lines = []
-            else:
-                current_lines.append(line)
-
-        if current_lines:
-            sections.append((current_label, "\n".join(current_lines)))
-
-        return sections or [("Body", text)]
-
-    @staticmethod
-    def _normalise_section(raw: str) -> str:
-        mapping = {
-            "abstract": "Abstract",
-            "introduction": "Introduction",
-            "background": "Background",
-            "results": "Results",
-            "discussion": "Discussion",
-            "references": "References",
-            "conclusion": "Conclusion",
-            "conclusions": "Conclusion",
-            "eligibility": "Eligibility",
-            "summary": "Summary",
-        }
-        for key, label in mapping.items():
-            if key in raw.lower():
-                return label
-        if "method" in raw.lower():
-            return "Methods"
-        return "Body"
-
-    @staticmethod
-    def _make_id(doc_id: str, idx: int) -> str:
-        return hashlib.md5(f"{doc_id}__{idx}".encode()).hexdigest()[:14]
-
 
 class BiomedicalEmbedder:
     """Single-model biomedical embedder used by the dense retriever."""
@@ -313,11 +131,11 @@ class DenseRetriever:
         self.store = DenseVectorStore(dim=self.embedder.dim)
 
     @staticmethod
-    def _load_documents(documents: str) -> List[Tuple[str, SourceMetadata]]:
+    def _load_chunks(chunks: str) -> List[Tuple[str, SourceMetadata]]:
         try:
-            payload = json.loads(documents)
+            payload = json.loads(chunks)
         except Exception as exc:
-            log.error(f"[dense_retrieve_tool] Failed to parse documents JSON: {exc}")
+            log.error(f"[dense_retrieve_tool] Failed to parse chunks JSON: {exc}")
             return []
 
         if not isinstance(payload, list):
@@ -334,28 +152,30 @@ class DenseRetriever:
             raw_meta = item.get("metadata") or {}
             doc_id = raw_meta.get("id", "")
 
-            if not text or doc_id in seen_ids:
+            if not text:
                 continue
-            seen_ids.add(doc_id)
+            
+            # We must NOT filter by doc_id here, because EuropePMC returns multiple different <p> paragraphs
+            # for the same doc_id. Filtering by doc_id destroys 90% of the article context!
             records.append((text, SourceMetadata.from_dict(raw_meta)))
 
         return records
 
-    def retrieve(self, query: str, documents: str, top_k: int = 3) -> List[Dict[str, Any]]:
-        records = self._load_documents(documents)
+    def retrieve(self, query: str, chunks: str, top_k: int = 3) -> List[Dict[str, Any]]:
+        records = self._load_chunks(chunks)
         if not records:
             return []
 
-        chunks: List[IndexedChunk] = []
+        chunks_list: List[IndexedChunk] = []
         for text, metadata in records:
-            chunks.extend(self.chunker.chunk(text, metadata))
+            chunks_list.extend(self.chunker.chunk(text, metadata))
 
-        if not chunks:
+        if not chunks_list:
             return []
 
-        embeddings = self.embedder.embed_passages([chunk.text for chunk in chunks])
+        embeddings = self.embedder.embed_passages([chunk.text for chunk in chunks_list])
         store = DenseVectorStore(dim=self.embedder.dim)
-        store.add(embeddings, chunks)
+        store.add(embeddings, chunks_list)
 
         query_vec = self.embedder.embed_query(query)
         ranked = store.search(query_vec, top_k=top_k)
@@ -375,20 +195,18 @@ class DenseRetriever:
 
 _DEFAULT_DENSE_RETRIEVER: Optional[DenseRetriever] = None
 
-
 def _get_default_dense_retriever() -> DenseRetriever:
     global _DEFAULT_DENSE_RETRIEVER
     if _DEFAULT_DENSE_RETRIEVER is None:
-        chunk_size = config.get("retrieval.dense.chunk_size", 300)
-        overlap = config.get("retrieval.dense.overlap", 50)
+        chunk_size = config.get("retrieval.chunking.chunk_size", 300)
+        overlap = config.get("retrieval.chunking.overlap", 50)
         model_name = config.get("retrieval.dense.model_name", "medcpt")
         _DEFAULT_DENSE_RETRIEVER = DenseRetriever(model_name=model_name, chunk_size=chunk_size, overlap=overlap)
     return _DEFAULT_DENSE_RETRIEVER
 
-
 @tool
-def dense_retrieve_tool(query: str, documents: Optional[str] = None, top_k: int = 3) -> List[Dict[str, Any]]:
+def dense_retrieve_tool(query: str, chunks: Optional[str] = None, top_k: int = 3) -> List[Dict[str, Any]]:
     """Dense retrieval using a single biomedical embedding model and cosine similarity."""
-    if not documents:
+    if not chunks:
         return []
-    return _get_default_dense_retriever().retrieve(query=query, documents=documents, top_k=top_k)
+    return _get_default_dense_retriever().retrieve(query=query, chunks=chunks, top_k=top_k)

@@ -53,6 +53,7 @@ def build_aggregate_node():
         breakdown = [
             {
                 "subclaim_id": r.get("subclaim_id", ""),
+                "subclaim": r.get("subclaim", ""),
                 "label": r.get("label", "nei"),
                 "confidence": r.get("confidence", 0.0),
             }

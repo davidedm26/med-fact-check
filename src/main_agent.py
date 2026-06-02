@@ -8,8 +8,6 @@ from utils.llm_factory import get_llm_with_tools
 from prompts.decompose import *  
 from prompts.retrieve import (
     retrieval_source_selection_schema,
-    retrieval_query_generation_schema,
-    retrieval_strategy_router_schema,
 )
 from prompts.evaluate import (
     reasoning_schema,
@@ -45,12 +43,11 @@ def _provider_api_key_name(provider: str) -> Optional[str]:
     return None
   
 class FactAgent:
-    def __init__(self, dataset: str):
+    def __init__(self):
 
         """
         Initialize the FactAgent, reading LLM parameters from configuration.
         """
-        self.dataset = dataset  # Provide the dataset as part of the agent's context for better grounding in responses (not used in the current implementation but can be useful for future enhancements)
         self.provider = config.get("llm.provider", "google")
         provider_settings = config.get(f"llm.providers.{self.provider}", {})
         self.base_url = provider_settings.get("base_url")
@@ -81,7 +78,7 @@ class FactAgent:
         options = ["FINISH"] + members # We can route to any worker or finish the workflow
         system_prompt = (
             "You are a supervisor tasked with managing a conversation between the"
-            f" following workers: {members}. Given the following user request and dataset {self.dataset},"
+             f" following workers: {members}. Given the following user request,"
             " respond with the worker to act next. Each worker will perform a"
             " task and respond with their results and status. When finished,"
             " respond with FINISH."
@@ -128,12 +125,6 @@ class FactAgent:
         self.source_selector_agent = self.base_llm.with_structured_output(
             retrieval_source_selection_schema, method="function_calling"
         )
-        self.query_generator_agent = self.base_llm.with_structured_output(
-            retrieval_query_generation_schema, method="function_calling"
-        )
-        self.strategy_router_agent = self.base_llm.with_structured_output(
-            retrieval_strategy_router_schema, method="function_calling"
-        )
 
         # ── Evaluation Team agents ──
         self.reasoning_agent = self.base_llm.with_structured_output(
@@ -166,8 +157,7 @@ class FactAgent:
         from stages.retrieval_team import build_retrieval_graph
         self.retrieval_graph = build_retrieval_graph(
             self.source_selector_agent,
-            self.query_generator_agent,
-            self.strategy_router_agent,
+            self.base_llm,
         )
 
     def _build_evaluation_graph(self):
@@ -232,15 +222,15 @@ class FactAgent:
             response = self.retrieval_graph.invoke({
                 "messages": [("user", subclaim)],
                 "subclaim_id": subclaim_id,
+                "subclaim": subclaim,
                 "run_id": state.get("run_id"),
             })
             retrieval_summary = {
                 "subclaim_id": subclaim_id,
                 "subclaim": subclaim,
                 "source": response.get("retrieval_source"),
-                "query": response.get("retrieval_query"),
-                "sparse_top_k_chunks": response.get("sparse_top_k_chunks", []),
-                "dense_top_k_chunks": response.get("dense_top_k_chunks", []),
+                "queries_by_source": response.get("queries_by_source", {}),
+                "retrieved_chunks": response.get("retrieved_chunks", []),
             }
             return {
                 "subclaim_results": [retrieval_summary],
@@ -266,11 +256,7 @@ class FactAgent:
                 log.info(f"evaluating {subclaim_id}: {subclaim[:60]}...")
 
                 # Format evidence chunks for the Reasoning Agent prompt
-                chunks = (
-                    result.get("sparse_top_k_chunks") or []
-                ) + (
-                    result.get("dense_top_k_chunks") or []
-                )
+                chunks = result.get("retrieved_chunks") or []
                 evidence_lines = []
                 for idx, chunk in enumerate(chunks, 1):
                     if isinstance(chunk, dict):
@@ -382,7 +368,7 @@ class FactAgent:
 
 
 if __name__ == "__main__":
-    agent = FactAgent(dataset="covid19_claims")  
+    agent = FactAgent()
 
     
     #claim = "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis."
