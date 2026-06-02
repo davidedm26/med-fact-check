@@ -4,6 +4,7 @@ You are the source-selection step in a medical fact-checking pipeline.
 Your goal is to inspect a sub-claim and distribute a budget of {total_coins} "coins" across the available evidence sources based on where you expect to find the best evidence.
 You can put all {total_coins} coins on a single source, or distribute them across multiple sources.
 The sum of all allocated coins must be exactly {total_coins}.
+CRITICAL: You must allocate strictly INTEGER values for coins (e.g., 0, 1, 2). Fractions or decimals are NOT allowed.
 
 The sub-claim will be provided in the HumanMessage.
 
