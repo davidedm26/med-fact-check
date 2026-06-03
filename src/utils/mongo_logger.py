@@ -32,6 +32,7 @@ log = get_logger("MongoLogger")
 
 _mongo_client = None
 _mongo_db = None
+_mongo_failed = False
 
 
 def _get_mongo_db():
@@ -40,7 +41,10 @@ def _get_mongo_db():
     Returns ``None`` when the connection cannot be established so that
     callers can degrade gracefully.
     """
-    global _mongo_client, _mongo_db
+    global _mongo_client, _mongo_db, _mongo_failed
+
+    if _mongo_failed:
+        return None
 
     if _mongo_db is not None:
         return _mongo_db
@@ -58,6 +62,7 @@ def _get_mongo_db():
         log.info(f"Connected to MongoDB: {uri} / {db_name}")
         return _mongo_db
     except Exception as exc:
+        _mongo_failed = True
         log.warning(f"MongoDB connection failed ({exc}). Logging disabled.")
         return None
 
@@ -128,8 +133,16 @@ def _serialize_for_mongo(obj: Any) -> Any:
         serialized = {}
         for k, v in obj.items():
             key = str(k)
-            if key in {"text", "content"} and isinstance(v, str):
-                serialized[key] = v[:50]
+            # Truncate text only for the massive 'downloaded_chunks' array to save Mongo space.
+            # 'retrieved_chunks' will still be logged in full.
+            if key == "downloaded_chunks" and isinstance(v, list):
+                serialized[key] = [
+                    {
+                        **{chunk_k: _serialize_for_mongo(chunk_v) for chunk_k, chunk_v in chunk.items() if chunk_k != "text"},
+                        "text": str(chunk.get("text", ""))[:50] + "..."
+                    } if isinstance(chunk, dict) else _serialize_for_mongo(chunk)
+                    for chunk in v
+                ]
             else:
                 serialized[key] = _serialize_for_mongo(v)
         return serialized
@@ -218,6 +231,7 @@ def log_node(stage: str) -> Callable:
                     "node_name": func.__name__,
                     "stage": stage,
                     "subclaim_id": state.get("subclaim_id") if isinstance(state, dict) else getattr(state, "subclaim_id", None),
+                    "subclaim": state.get("subclaim") if isinstance(state, dict) else getattr(state, "subclaim", None),
                     "timestamp": datetime.now(timezone.utc),
                     "output": _extract_output(result),
                 }

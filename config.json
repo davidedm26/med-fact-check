@@ -1,18 +1,20 @@
 {
     "llm": {
         "provider": "nvidia",
-        "temperature": 0.1,
+        "temperature": 0.2,
+        "retries": 3,
+        "timeout": 60,
         "providers": {
             "nvidia": {
                 "model_name": "meta/llama-3.1-8b-instruct",
                 "base_url": "https://integrate.api.nvidia.com/v1"
             },
             "groq": {
-                "model_name": "llama-3.1-8b-instant",
+                "model_name": "llama-3.3-70b-versatile",
                 "base_url": "https://api.groq.com/openai/v1"
             },
             "google": {
-                "model_name": "gemma-4-26b-a4b-it"
+                "model_name": "gemma-4-e4b-it"
             },
             "ollama": {
                 "model_name": "llama3.1",
@@ -21,14 +23,19 @@
         }
     },
     "retrieval": {
-        "api_search_limit": 3,
-        "sparse": {
-            "top_k": 3
+        "dynamic_coins": 1,
+        "base_coins_per_source": 1,
+        "max_results_per_query": 5,
+        "hybrid": {
+            "alpha": 0.5,
+            "top_k": 5,
+            "max_chunks_per_doc": 2
+        },
+        "chunking": {
+            "chunk_size": 300,
+            "overlap": 50
         },
         "dense": {
-            "top_k": 3,
-            "chunk_size": 300,
-            "overlap": 50,
             "model_name": "medcpt"
         }
     },

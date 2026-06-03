@@ -1,0 +1,96 @@
+{
+  "_description": "Gold set for Retrieval Team nodes ablation study. Each subclaim is annotated with the expected source, 1 expected search query (because dynamic_coins is 1), and the expected retrieval strategy.",
+  "_version": "1.1",
+  "gold_subclaims": [
+    {
+      "subclaim_id": "ret_01",
+      "subclaim": "Metformin interferes thyroxine absorption.",
+      "expected_target_source": "literature",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Metformin thyroxine absorption interaction"
+      ]
+    },
+    {
+      "subclaim_id": "ret_02",
+      "subclaim": "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease.",
+      "expected_target_source": "knowledge_base",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "Glycyl-tRNA synthetase Charcot-Marie-Tooth disease"
+      ]
+    },
+    {
+      "subclaim_id": "ret_03",
+      "subclaim": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with bupropion.",
+      "expected_target_source": "clinical_trials",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Varenicline vs bupropion combination therapy"
+      ]
+    },
+    {
+      "subclaim_id": "ret_04",
+      "subclaim": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+      "expected_target_source": "literature",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "liver transplantation methadone discontinuation 2001"
+      ]
+    },
+    {
+      "subclaim_id": "ret_05",
+      "subclaim": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "expected_target_source": "literature",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "microerythrocyte count severe anemia risk"
+      ]
+    },
+    {
+      "subclaim_id": "ret_06",
+      "subclaim": "Trastuzumab (Herceptin) potential use in treatment of prostate cancer.",
+      "expected_target_source": "clinical_trials",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Trastuzumab prostate cancer clinical trials"
+      ]
+    },
+    {
+      "subclaim_id": "ret_07",
+      "subclaim": "Amiodarone belongs to class I anti-arrhythmic drugs.",
+      "expected_target_source": "knowledge_base",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "Amiodarone drug class"
+      ]
+    },
+    {
+      "subclaim_id": "ret_08",
+      "subclaim": "Transplanted human glial progenitor cells incapable of forming a neural network with host animals' neurons.",
+      "expected_target_source": "literature",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "glial progenitor cells neural network formation"
+      ]
+    },
+    {
+      "subclaim_id": "ret_09",
+      "subclaim": "Transcranial pulse stimulation (TPS) improves mental performance in people with Alzheimer's dementia.",
+      "expected_target_source": "clinical_trials",
+      "expected_strategy": "dense",
+      "expected_queries": [
+        "Transcranial pulse stimulation Alzheimer's dementia trials"
+      ]
+    },
+    {
+      "subclaim_id": "ret_10",
+      "subclaim": "Complete genome of bacteria of the genus Arthrobacter is available.",
+      "expected_target_source": "knowledge_base",
+      "expected_strategy": "sparse",
+      "expected_queries": [
+        "Arthrobacter complete genome"
+      ]
+    }
+  ]
+}

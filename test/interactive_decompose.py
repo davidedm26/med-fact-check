@@ -5,7 +5,7 @@ REPL that lets you manually feed claims to the decompose subgraph
 and inspect the full output (predicates, classification, filter).
 
 Usage:
-    python tests/interactive_decompose.py
+    python test/interactive_decompose.py
 """
 
 from __future__ import annotations

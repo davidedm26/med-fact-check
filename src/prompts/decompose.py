@@ -351,8 +351,6 @@ A VERIFIABLE claim is any factual assertion about the world that could, in princ
 
 A NON-VERIFIABLE claim is ONLY one that:
 - Expresses a purely subjective opinion or personal preference ("X is the best", "I believe...", "the most elegant breakthrough")
-- Makes a normative or ethical judgment about what "should" be done
-- States a recommendation without attributing it to a source
 - Is an anecdotal, vague, or purely qualitative report lacking clinical metrics (e.g., "patients generally report feeling more energetic", "everyone online says")
 - Relies on idioms, metaphors, or vague hyperboles (e.g., "makes your wallet lighter", "a mystical healing process")
 - Is so vague that no specific fact can be checked
@@ -361,6 +359,7 @@ An OUT-OF-DOMAIN claim is one that:
 - Is a verifiable fact, but has absolutely nothing to do with medical science, health, human biology, or clinical practice (e.g., software engineering, IT, pop culture, general history, geography, entertainment, corporate financial/stock data, revenue drops, or legal disputes). Even if a pharmaceutical company is mentioned, pure financial or legal facts are OUT-OF-DOMAIN.
 
 ## Critical rules — do NOT make these mistakes:
+- CLINICAL RECOMMENDATIONS / NECESSITY: Claims stating a medical treatment or action is "necessary", "recommended", or "should be done" are VERIFIABLE if they imply a standard of care or clinical efficacy (e.g., "Booster doses are necessary to maintain protection" -> VERIFIABLE).
 - A claim with a NEGATION is still verifiable ("X does NOT cause Y" → VERIFIABLE)
 - A claim about an OBSCURE or CONTROVERSIAL product is still verifiable ("The Zisano bracelet strengthens the immune system" → VERIFIABLE)
 - A claim phrased as a QUESTION is still verifiable ("Does X treat Y?" → VERIFIABLE)
@@ -369,11 +368,11 @@ An OUT-OF-DOMAIN claim is one that:
 - DEFAULT TO OUT-OF-DOMAIN FOR NON-MEDICAL FACTS: If a fact is verifiable but you are unsure if it is medical enough, classify it as OUT-OF-DOMAIN. Only classify as VERIFIABLE if it clearly relates to medicine, biology, or health.
 
 ## Examples of VERIFIABLE claims (Medical/Health):
+- "Booster doses are necessary to maintain optimal protection against COVID-19." (Medical necessity/recommendation)
 - "St. John's wort relieves the symptoms of depression." (Medical claim)
 - "Is Trastuzumab (Herceptin) of potential use in the treatment of prostate cancer?" (Question form)
 - "Thigh-length graduated compression stockings did not reduce deep vein thrombosis." (Negation)
 - "The Zisano bracelet strengthens the immune system." (Obscure health product)
-- "The WHO recommends exclusive breastfeeding for the first six months." (Attributed health recommendation - checkable)
 
 ## Examples of NON-VERIFIABLE claims:
 - "Climate change is the most important issue facing humanity today." (Subjective opinion)

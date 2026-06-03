@@ -10,4 +10,7 @@ src/prompts/__pycache__/
 __pycache__/
 *.py[cod]
 
+data/*.json 
+data/test/*.json 
 *.pdf
+test/reports/

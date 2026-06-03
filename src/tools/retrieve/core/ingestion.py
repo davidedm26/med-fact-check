@@ -27,7 +27,7 @@ class IngestionNode:
         self.last_stats = {}
         log.info("Initialized. Ready to download data.")
 
-    def prepare_data(self, sub_id: str, search_queries: List[str], target_source: str) -> List[dict]:
+    def prepare_data(self, sub_id: str, search_queries: List[str], target_source: str) -> tuple[List[dict], dict]:
         log.info(f"Task for {sub_id}: {search_queries} -> Destination: {target_source.upper()}")
         
         target = target_source.lower()
@@ -37,28 +37,37 @@ class IngestionNode:
             "target_source": target,
             "queries_total": len(search_queries),
             "queries_processed": 0,
-            "articles_found": 0,
-            "articles_download_attempted": 0,
-            "articles_downloaded_success": 0,
-            "articles_download_failed": 0,
+            "documents_found": 0,
             "chunks_extracted": 0,
             "duplicates_removed": 0,
         }
 
-        # 1. Loop through each query
-        for query_index, single_query in enumerate(
-            tqdm(search_queries, desc=f"[{sub_id} | {target.upper()}] queries", unit="query"),
+        if target == "literature":
+            stats.update({
+                "articles_download_attempted": 0,
+                "articles_downloaded_success": 0,
+                "articles_download_failed": 0,
+            })
+
+        from collections import Counter
+        query_counts = Counter(search_queries)
+
+        # 1. Loop through each unique query
+        for query_index, (single_query, count) in enumerate(
+            tqdm(query_counts.items(), desc=f"[{sub_id} | {target.upper()}] queries", unit="query"),
             1,
         ):
             query_tag = f"[{sub_id} | {target.upper()} | query_{query_index}]"
-            log.info(f"{query_tag} 🔎 Searching data for variant: '{single_query}'")
-            stats["queries_processed"] += 1
+            log.info(f"{query_tag}  Searching data for query: '{single_query}' (Count: {count})")
+            stats["queries_processed"] += count
             
-            api_limit = config.get("retrieval.api_search_limit", 5)
+            base_limit = config.get("retrieval.max_results_per_query", 5)
+            api_limit = base_limit * count
             
             if target == "clinical_trials":
-                extracted_trials = search_trials(query=single_query, limit=api_limit) 
-                stats["articles_found"] += len(extracted_trials)
+                # Fetch 10x more results because trials are not split into multiple chunks
+                extracted_trials = search_trials(query=single_query, limit=api_limit * 10) 
+                stats["documents_found"] += len(extracted_trials)
                 for trial in extracted_trials:
                     raw_chunks.append({
                         "text": format_clinical_trial(trial),
@@ -70,8 +79,9 @@ class IngestionNode:
                     })
 
             elif target == "knowledge_base":
-                extracted_proteins = search_protein(query=single_query, limit=api_limit)
-                stats["articles_found"] += len(extracted_proteins)
+                # Fetch 10x more results because proteins are not split into multiple chunks
+                extracted_proteins = search_protein(query=single_query, limit=api_limit * 10)
+                stats["documents_found"] += len(extracted_proteins)
                 for protein in extracted_proteins:
                     raw_chunks.append({
                         "text": format_uniprot(protein),
@@ -84,7 +94,7 @@ class IngestionNode:
 
             elif target == "literature":
                 articles = search_articles(query=single_query, limit=api_limit)
-                stats["articles_found"] += len(articles)
+                stats["documents_found"] += len(articles)
                 for article in tqdm(articles, desc=f"[{sub_id} | {target.upper()} | query_{query_index}] articles", unit="article", leave=False):
                     stats["articles_download_attempted"] += 1
                     pmcid = article.get("pmcid")
@@ -123,26 +133,30 @@ class IngestionNode:
         stats["duplicates_removed"] = max(0, len(raw_chunks) - len(final_chunks))
         self.last_stats = stats
 
-        # 3. Save shared export into the data folder
-        if final_chunks:
-            # e.g. "data/export_sc_01_literature.json"
-            export_filename = os.path.join("data", f"export_{sub_id}_{target}.json")
-            with open(export_filename, "w", encoding="utf-8") as f_out:
-                json.dump(final_chunks, f_out, indent=2, ensure_ascii=False)
-            log.info(f"[{target.upper()}] 📦 Saved deduplicated export ({len(final_chunks)} chunks) to: '{export_filename}'")
+        # 3. Log extraction summary without saving to disk
+        if not final_chunks:
+            log.warning(f"No data found for '{sub_id}'.")
+
+        if target == "literature":
+            log.info(
+                f"[{sub_id} | {target.upper()}] Stats: "
+                f"queries={stats['queries_processed']}/{stats['queries_total']}, "
+                f"documents_found={stats['documents_found']}, "
+                f"download_attempted={stats['articles_download_attempted']}, "
+                f"downloaded_success={stats['articles_downloaded_success']}, "
+                f"download_failed={stats['articles_download_failed']}, "
+                f"chunks_raw={stats['chunks_extracted']}, "
+                f"duplicates_removed={stats['duplicates_removed']}, "
+                f"final_chunks={len(final_chunks)}"
+            )
         else:
-            log.warning(f"No data found for '{sub_id}'. No export created.")
+            log.info(
+                f"[{sub_id} | {target.upper()}] Stats: "
+                f"queries={stats['queries_processed']}/{stats['queries_total']}, "
+                f"documents_found={stats['documents_found']}, "
+                f"chunks_raw={stats['chunks_extracted']}, "
+                f"duplicates_removed={stats['duplicates_removed']}, "
+                f"final_chunks={len(final_chunks)}"
+            )
 
-        log.info(
-            f"[{sub_id} | {target.upper()}] Stats: "
-            f"queries={stats['queries_processed']}/{stats['queries_total']}, "
-            f"articles_found={stats['articles_found']}, "
-            f"download_attempted={stats['articles_download_attempted']}, "
-            f"downloaded_success={stats['articles_downloaded_success']}, "
-            f"download_failed={stats['articles_download_failed']}, "
-            f"chunks_raw={stats['chunks_extracted']}, "
-            f"duplicates_removed={stats['duplicates_removed']}, "
-            f"final_chunks={len(final_chunks)}"
-        )
-
-        return final_chunks
+        return final_chunks, stats
