@@ -170,22 +170,18 @@ def build_evaluation_graph(reasoning_agent):
         justification = state.get("subclaim_justification") or ""
         subclaim_id = state.get("subclaim_id") or ""
         
-        # Recuperiamo la decisione dell'LLM!
         reasoning_conclusion = state.get("reasoning_conclusion", "")
 
-        # ----------------------------------------------------------------- #
-        # IL FIX: Se l'LLM ha detto "not enough info", NON usiamo l'NLI!    #
-        # ----------------------------------------------------------------- #
         if reasoning_conclusion == "not_enough_information":
             log.info("Bypassing NLI model: Reasoning Agent found 'not_enough_information'.")
             label = "nei"
-            confidence = 1.0  # Siamo sicuri al 100% che mancano le info
-            
+            confidence = 1.0
         else:
-            # Se invece ci sono le info, usiamo il modello NLI normalmente
             premise = justification if justification else "(No justification available.)"
             hypothesis = subclaim
-            nli_input = f"{premise} </s></s> {hypothesis}"
+            
+            # NLI pipeline input format: dict with text and text_pair for correct tokenizer handling
+            nli_input = {"text": premise, "text_pair": hypothesis}
 
             try:
                 nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
