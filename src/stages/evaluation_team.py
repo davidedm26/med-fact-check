@@ -172,41 +172,36 @@ def build_evaluation_graph(reasoning_agent):
         
         reasoning_conclusion = state.get("reasoning_conclusion", "")
 
-        if reasoning_conclusion == "not_enough_information":
-            log.info("Bypassing NLI model: Reasoning Agent found 'not_enough_information'.")
-            label = "nei"
-            confidence = 1.0
-        else:
-            # NLI premise: use retrieved evidence (primary) enriched with the
-            # generated justification, following the traccia requirement that
-            # the classifier uses "claim text, retrieved evidence, and generated justification".
-            evidence_text = state.get("evidence_text") or ""
-            premise = evidence_text if evidence_text else justification
-            hypothesis = subclaim
+        # NLI premise: use retrieved evidence (primary) enriched with the
+        # generated justification, following the traccia requirement that
+        # the classifier uses "claim text, retrieved evidence, and generated justification".
+        evidence_text = state.get("evidence_text") or ""
+        premise = evidence_text if evidence_text else justification
+        hypothesis = subclaim
             
-            # NLI pipeline input format: dict with text and text_pair for correct tokenizer handling
-            nli_input = {"text": premise, "text_pair": hypothesis}
+        # NLI pipeline input format: dict with text and text_pair for correct tokenizer handling
+        nli_input = {"text": premise, "text_pair": hypothesis}
 
-            try:
-                nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
-                log.debug(f"NLI raw output: {nli_results}")
+        try:
+            nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
+            log.debug(f"NLI raw output: {nli_results}")
 
-                if isinstance(nli_results, list) and len(nli_results) > 0:
-                    if isinstance(nli_results[0], list):
-                        nli_results = nli_results[0]
-                    
-                    top = max(nli_results, key=lambda x: x.get("score", 0))
-                    raw_label = top.get("label", "NEUTRAL").upper()
-                    confidence = round(top.get("score", 0.0), 4)
-                    label = _NLI_LABEL_MAP.get(raw_label, "nei")
-                else:
-                    label = "nei"
-                    confidence = 0.0
-
-            except Exception as exc:
-                log.error(f"NLI error: {exc}")
+            if isinstance(nli_results, list) and len(nli_results) > 0:
+                if isinstance(nli_results[0], list):
+                    nli_results = nli_results[0]
+                
+                top = max(nli_results, key=lambda x: x.get("score", 0))
+                raw_label = top.get("label", "NEUTRAL").upper()
+                confidence = round(top.get("score", 0.0), 4)
+                label = _NLI_LABEL_MAP.get(raw_label, "nei")
+            else:
                 label = "nei"
                 confidence = 0.0
+
+        except Exception as exc:
+            log.error(f"NLI error: {exc}")
+            label = "nei"
+            confidence = 0.0
 
         log.info(f"label={label}, confidence={confidence}")
 
