@@ -33,13 +33,13 @@ def _get_hf_token() -> str | None:
 
 def create_veracity_pipeline(model_name: str = None):
     """
-    Factory: create (or return cached) PubMedBERT NLI text-classification pipeline.
+    Factory: create (or return cached) NLI text-classification pipeline.
 
     Parameters
     ----------
     model_name : str, optional
         HuggingFace model identifier. Defaults to env var
-        ``VERACITY_MODEL_NAME`` or ``pritamdeka/PubMedBERT-MNLI-MedNLI``.
+        ``VERACITY_MODEL_NAME`` or ``MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli``.
 
     Returns
     -------
@@ -55,7 +55,7 @@ def create_veracity_pipeline(model_name: str = None):
         TextClassificationPipeline,
     )
 
-    resolved = model_name or os.getenv("VERACITY_MODEL_NAME") or config.get("evaluation.veracity_model_name", "pritamdeka/PubMedBERT-MNLI-MedNLI")
+    resolved = model_name or os.getenv("VERACITY_MODEL_NAME") or config.get("evaluation.veracity_model_name", "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli")
     log.info(f"Loading NLI model: {resolved}")
     hf_token = _get_hf_token()
     token_kwargs = {"token": hf_token} if hf_token else {}
@@ -79,7 +79,7 @@ def build_evaluation_graph(reasoning_agent):
     """
 
     # NLI label id → pipeline label string mapping.
-    # PubMedBERT-MNLI-MedNLI uses: 0=entailment, 1=neutral, 2=contradiction
+    # Common NLI models (including DeBERTa/PubMedBERT) use entailment/neutral/contradiction
     _NLI_LABEL_MAP = {
         "ENTAILMENT": "supported",
         "NEUTRAL": "nei",
@@ -162,7 +162,7 @@ def build_evaluation_graph(reasoning_agent):
 
     @log_node("evaluation")
     def veracity_node(state: State):
-        """Run the PubMedBERT NLI classifier to assign label + confidence."""
+        """Run the NLI classifier to assign label + confidence."""
         log.info("veracity_agent start")
 
         # Collect fields from the previous node's output
@@ -177,7 +177,11 @@ def build_evaluation_graph(reasoning_agent):
             label = "nei"
             confidence = 1.0
         else:
-            premise = justification if justification else "(No justification available.)"
+            # NLI premise: use retrieved evidence (primary) enriched with the
+            # generated justification, following the traccia requirement that
+            # the classifier uses "claim text, retrieved evidence, and generated justification".
+            evidence_text = state.get("evidence_text") or ""
+            premise = evidence_text if evidence_text else justification
             hypothesis = subclaim
             
             # NLI pipeline input format: dict with text and text_pair for correct tokenizer handling

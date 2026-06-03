@@ -1,0 +1,343 @@
+{
+  "_description": "Gold set v2 for Evaluation Team ablation study. Hardened with adversarial cases: synonym substitution, implicit negation, partial relevance, numerical precision, double negatives.",
+  "_version": "2.0",
+  "gold_evaluations": [
+    {
+      "eval_id": "eval_01",
+      "source_dataset": "scifact",
+      "subclaim": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "In a study of homozygous alpha (+)- thalassemia trait subjects, individuals with a high microerythrocyte count demonstrated a significantly increased vulnerability to severe anemia compared to those with normal counts.",
+          "source": "PMID:9876543",
+          "score": 0.95
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_02",
+      "source_dataset": "scifact",
+      "subclaim": "Transplanted human glial progenitor cells are incapable of forming a neural network with host animals' neurons.",
+      "expected_label": "refuted",
+      "difficulty": "medium — evidence directly contradicts with explicit language",
+      "evidence_chunks": [
+        {
+          "text": "Recent experiments have shown that transplanted human glial progenitor cells successfully integrate into the host nervous system and are fully capable of forming functional neural networks with host animals' neurons.",
+          "source": "PMID:11223344",
+          "score": 0.88
+        },
+        {
+          "text": "We observed extensive synaptic connections between the engrafted human glial progenitors and the host neuronal circuitry.",
+          "source": "PMID:11223345",
+          "score": 0.82
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_03",
+      "source_dataset": "scifact",
+      "subclaim": "Angiotensin converting enzyme inhibitors are associated with increased risk for functional renal insufficiency.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "Clinical data indicates that the use of Angiotensin converting enzyme (ACE) inhibitors is strongly associated with an elevated risk of developing functional renal insufficiency in patients with pre-existing kidney conditions.",
+          "source": "PMID:4455667",
+          "score": 0.91
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_04",
+      "source_dataset": "scifact",
+      "subclaim": "32% of liver transplantation programs required patients to discontinue methadone treatment in 2001.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "A national survey conducted in 2001 revealed that exactly 32% of liver transplantation programs required their patients to completely discontinue methadone treatment prior to being placed on the active waiting list.",
+          "source": "PMID:2233445",
+          "score": 0.96
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_05",
+      "source_dataset": "bioasq",
+      "subclaim": "Metformin interferes with thyroxine absorption.",
+      "expected_label": "refuted",
+      "difficulty": "hard — evidence uses synonym (levothyroxine) and states absence of interaction",
+      "evidence_chunks": [
+        {
+          "text": "Our pharmacokinetic analysis demonstrated that metformin administration does not interfere with the gastrointestinal absorption of thyroxine, maintaining stable serum T4 levels.",
+          "source": "PMID:9988776",
+          "score": 0.93
+        },
+        {
+          "text": "Concurrent use of metformin and levothyroxine is safe; no significant drug-drug interaction regarding thyroxine absorption was identified.",
+          "source": "PMID:9988777",
+          "score": 0.87
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_06",
+      "source_dataset": "bioasq",
+      "subclaim": "Trastuzumab (Herceptin) has potential use in the treatment of prostate cancer.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "While primarily used for breast cancer, preclinical models and early-phase clinical trials suggest that Trastuzumab (Herceptin) has potential therapeutic use in subsets of prostate cancer that overexpress HER2.",
+          "source": "PMID:5544332",
+          "score": 0.89
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_07",
+      "source_dataset": "bioasq",
+      "subclaim": "Irritable bowel syndrome is more common in women with endometriosis.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "Epidemiological studies confirm that irritable bowel syndrome (IBS) is significantly more common in women diagnosed with endometriosis compared to the general female population.",
+          "source": "PMID:3322110",
+          "score": 0.94
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_08",
+      "source_dataset": "bioasq",
+      "subclaim": "Amiodarone belongs to class I anti-arrhythmic drugs.",
+      "expected_label": "refuted",
+      "difficulty": "medium — evidence states correct class (III) which implicitly refutes class I",
+      "evidence_chunks": [
+        {
+          "text": "Amiodarone is universally classified as a Class III anti-arrhythmic drug, acting primarily by blocking potassium channels and prolonging repolarization. It is not a Class I agent.",
+          "source": "PMID:7766554",
+          "score": 0.98
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_09",
+      "source_dataset": "bioasq",
+      "subclaim": "Glycyl-tRNA synthetase gene is involved in the development of Charcot-Marie-Tooth disease.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "Mutations in the glycyl-tRNA synthetase (GARS) gene have been causally linked to the development of Charcot-Marie-Tooth disease type 2D (CMT2D).",
+          "source": "PMID:1199887",
+          "score": 0.95
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_10",
+      "source_dataset": "healthfc",
+      "subclaim": "F.X. Mayr cure can prevent diseases.",
+      "expected_label": "refuted",
+      "difficulty": "hard — evidence uses direct negation without embedding the claim",
+      "evidence_chunks": [
+        {
+          "text": "Multiple systematic reviews have concluded that the F.X. Mayr dietary regimen has no demonstrated ability to prevent any disease. No randomized controlled trial has ever shown a preventive effect.",
+          "source": "health_kb_001",
+          "score": 0.85
+        },
+        {
+          "text": "The purported health benefits of the Mayr fasting protocol remain entirely unsubstantiated by peer-reviewed clinical evidence.",
+          "source": "health_kb_002",
+          "score": 0.81
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_11",
+      "source_dataset": "healthfc",
+      "subclaim": "Regular HPV testing in addition to Pap smear detects more precancerous lesions compared to Pap smear alone.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "Large-scale screening trials show that regular HPV testing in addition to the standard Pap smear detects significantly more precancerous cervical lesions than relying on a Pap smear alone.",
+          "source": "clinical_trials_88",
+          "score": 0.97
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_12",
+      "source_dataset": "healthfc",
+      "subclaim": "St. John's wort extract relieves symptoms of depression.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "Numerous meta-analyses confirm that St. John's wort extract effectively relieves symptoms of mild to moderate depression, performing better than placebo in clinical settings.",
+          "source": "PMID:2211009",
+          "score": 0.90
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_13",
+      "source_dataset": "healthfc",
+      "subclaim": "COVID vaccination reduces likelihood of long-lasting symptoms (long COVID) after corona infection.",
+      "expected_label": "supported",
+      "evidence_chunks": [
+        {
+          "text": "Recent cohort studies demonstrate that prior COVID-19 vaccination significantly reduces the likelihood of developing long-lasting symptoms (long COVID) if a breakthrough corona infection occurs.",
+          "source": "PMID:5566778",
+          "score": 0.92
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_14",
+      "source_dataset": "healthfc",
+      "subclaim": "Zisano bracelet strengthens the immune system.",
+      "expected_label": "refuted",
+      "difficulty": "hard — evidence states no physiological effect at all",
+      "evidence_chunks": [
+        {
+          "text": "Independent testing of the Zisano bracelet revealed no physiological changes in wearers. There is no evidence that the device strengthens the immune system or provides any health benefits.",
+          "source": "consumer_health_report_42",
+          "score": 0.88
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_15",
+      "source_dataset": "healthfc",
+      "subclaim": "Transcranial pulse stimulation (TPS) improves quality of life of Alzheimer's dementia patients.",
+      "expected_label": "refuted",
+      "difficulty": "medium — RCT found no significant improvement",
+      "evidence_chunks": [
+        {
+          "text": "A double-blind randomized trial investigating Transcranial pulse stimulation (TPS) in Alzheimer's dementia patients found no significant improvement in quality of life metrics compared to the sham treatment group.",
+          "source": "PMID:6655443",
+          "score": 0.91
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_16",
+      "source_dataset": "synthetic_nei",
+      "subclaim": "Daily consumption of green tea reduces the risk of appendicitis.",
+      "expected_label": "nei",
+      "difficulty": "medium — evidence discusses green tea and appendicitis separately, no causal link",
+      "evidence_chunks": [
+        {
+          "text": "Green tea contains high levels of antioxidants and has been associated with a reduced risk of certain cardiovascular diseases and cancers.",
+          "source": "PMID:1111111",
+          "score": 0.65
+        },
+        {
+          "text": "Appendicitis is typically caused by a blockage in the appendix, often resulting from a fecalith or lymphoid hyperplasia.",
+          "source": "PMID:2222222",
+          "score": 0.62
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_17",
+      "source_dataset": "synthetic_nei",
+      "subclaim": "Bluetooth headphones cause brain tumors in teenagers.",
+      "expected_label": "nei",
+      "difficulty": "easy — no evidence provided at all",
+      "evidence_chunks": []
+    },
+    {
+      "eval_id": "eval_18",
+      "source_dataset": "synthetic_nei",
+      "subclaim": "Wearing copper rings cures rheumatoid arthritis.",
+      "expected_label": "nei",
+      "difficulty": "hard — evidence discusses copper biology and arthritis separately, never linking them",
+      "evidence_chunks": [
+        {
+          "text": "Copper is an essential trace element involved in enzymatic reactions and connective tissue metabolism. Dietary copper deficiency can lead to anemia and neutropenia.",
+          "source": "PMID:5555555",
+          "score": 0.55
+        },
+        {
+          "text": "Rheumatoid arthritis is a chronic autoimmune disorder primarily managed with disease-modifying antirheumatic drugs (DMARDs), corticosteroids, and biologic agents.",
+          "source": "PMID:6666666",
+          "score": 0.60
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_19",
+      "source_dataset": "adversarial_synonym",
+      "subclaim": "Ibuprofen increases the risk of myocardial infarction.",
+      "expected_label": "supported",
+      "difficulty": "hard — evidence uses synonym 'heart attack' instead of 'myocardial infarction'",
+      "evidence_chunks": [
+        {
+          "text": "A large-scale meta-analysis of observational studies found that regular use of ibuprofen is associated with a 20-30% elevated risk of heart attack, particularly in patients with pre-existing cardiovascular conditions.",
+          "source": "PMID:7777777",
+          "score": 0.90
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_20",
+      "source_dataset": "adversarial_numerical",
+      "subclaim": "Aspirin reduces stroke risk by 50%.",
+      "expected_label": "refuted",
+      "difficulty": "hard — evidence gives a different number (22%), requiring numerical precision",
+      "evidence_chunks": [
+        {
+          "text": "The Physicians' Health Study demonstrated that low-dose aspirin therapy reduces the incidence of ischemic stroke by approximately 22% in men over 50 years of age.",
+          "source": "PMID:8888888",
+          "score": 0.92
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_21",
+      "source_dataset": "adversarial_double_neg",
+      "subclaim": "Statins are ineffective at lowering LDL cholesterol.",
+      "expected_label": "refuted",
+      "difficulty": "hard — evidence affirms effectiveness, requiring model to understand double negation",
+      "evidence_chunks": [
+        {
+          "text": "HMG-CoA reductase inhibitors (statins) are among the most effective pharmacological agents for lowering low-density lipoprotein (LDL) cholesterol, achieving reductions of 30-50% depending on the dose and specific agent used.",
+          "source": "PMID:9999999",
+          "score": 0.97
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_22",
+      "source_dataset": "adversarial_partial",
+      "subclaim": "Vitamin D supplementation prevents fractures in all adults.",
+      "expected_label": "refuted",
+      "difficulty": "hard — evidence partially supports (elderly women) but claim is overbroad ('all adults')",
+      "evidence_chunks": [
+        {
+          "text": "A Cochrane review found that vitamin D supplementation combined with calcium reduces the risk of hip fractures in institutionalized elderly women. However, vitamin D alone without calcium did not significantly reduce fracture risk in community-dwelling adults of any age.",
+          "source": "PMID:1010101",
+          "score": 0.93
+        }
+      ]
+    },
+    {
+      "eval_id": "eval_23",
+      "source_dataset": "adversarial_indirect",
+      "subclaim": "Consuming omega-3 fatty acids improves memory in healthy young adults.",
+      "expected_label": "nei",
+      "difficulty": "hard — evidence shows cognitive benefit in elderly with MCI, not in healthy young adults",
+      "evidence_chunks": [
+        {
+          "text": "A 12-month randomized controlled trial in older adults with mild cognitive impairment found that daily supplementation with 2g of omega-3 fatty acids (EPA+DHA) resulted in modest improvements in episodic memory scores compared to placebo.",
+          "source": "PMID:1212121",
+          "score": 0.78
+        },
+        {
+          "text": "A systematic review of omega-3 supplementation in cognitively healthy adults under 40 found no statistically significant effects on any measure of memory performance.",
+          "source": "PMID:1313131",
+          "score": 0.85
+        }
+      ]
+    }
+  ]
+}

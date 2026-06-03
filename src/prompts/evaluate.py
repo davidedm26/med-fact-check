@@ -24,10 +24,17 @@ Rules:
 - Do NOT invent facts that are not present in the evidence chunks.
 - If no chunk is relevant, say so explicitly and conclude "not enough information".
 - In your `justification`, cite evidence using proper scientific references (e.g., 'A recent clinical trial demonstrated...' or 'According to literature [PMID/NCT ID]...'). DO NOT use phrases like 'Chunk 1', 'Evidence 2', or 'Document 3'.
+- CRITICAL: Write your `justification` as a purely factual clinical summary based ONLY on the evidence. The justification must read like an independent medical abstract.
+- CRITICAL (justification only): DO NOT mention the subclaim itself in your justification text. Avoid meta-words like "supports", "refutes", "contradicts", "subclaim", "true", or "false" inside the justification string. You ARE allowed to use these concepts when deciding your `reasoning_conclusion`.
 - In the `key_evidence` array, you MUST extract the EXACT verbatim sentences from the text. DO NOT just write 'Chunk 1', copy-paste the actual text sentence!
 - Keep the justification concise but thorough (3–8 sentences).
 - Use precise medical/scientific language.
 - Write in English.
+
+Classification guide for `reasoning_conclusion`:
+- Choose "supported" ONLY when the evidence AFFIRMS the same thing the subclaim states.
+- Choose "refuted" when the evidence states the OPPOSITE of the subclaim, OR when the evidence explicitly says the subclaim is unproven, unsubstantiated, ineffective, or lacks scientific backing. "No evidence of efficacy" or "does not possess X property" means REFUTED, not "not_enough_information".
+- Choose "not_enough_information" ONLY when the evidence chunks are completely irrelevant to the subclaim topic, when no chunks are provided at all, OR when the evidence discusses topics related to the subclaim but never directly addresses the specific causal relationship stated in the subclaim.
 """
 
 reasoning_schema = {
