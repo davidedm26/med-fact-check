@@ -15,6 +15,7 @@ from tools.retrieve.download import (
 )
 from tools.retrieve.dense import dense_retrieve_tool
 from tools.retrieve.sparse import sparse_retrieve_tool
+from tools.retrieve.reranker import get_default_reranker
 from utils.logger import get_logger
 from utils.mongo_logger import log_node
 from utils.config import config
@@ -198,64 +199,71 @@ def build_retrieval_graph(source_selector_llm, base_llm):
         chunks = state.get("downloaded_chunks") or []
         chunks_json = json.dumps(chunks)
         
-        top_k = config.get("retrieval.hybrid.top_k", 5)
-        alpha = float(config.get("retrieval.hybrid.alpha", 0.5))
-        log.info(f"hybrid_retriever using alpha={alpha} for subclaim: {subclaim}")
+        dense_top_k = config.get("retrieval.hybrid.dense_top_k", 10)
+        sparse_top_k = config.get("retrieval.hybrid.sparse_top_k", 10)
+        log.info(f"hybrid_retriever using dense_top_k={dense_top_k}, sparse_top_k={sparse_top_k} for subclaim: {subclaim}")
         
-        chunk_scores: dict[str, float] = {}
         chunk_data: dict[str, dict] = {}
         
-        # We only need to run the retrievers once using the full subclaim
-        if alpha > 0.0:
+        if dense_top_k > 0:
             try:
-                dense_results = dense_retrieve_tool.invoke({"query": subclaim, "chunks": chunks_json, "top_k": top_k})
-                for rank, chunk in enumerate(dense_results, 1):
+                dense_results = dense_retrieve_tool.invoke({"query": subclaim, "chunks": chunks_json, "top_k": dense_top_k})
+                for chunk in dense_results:
                     cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
                     if cid not in chunk_data:
                         chunk_data[cid] = chunk
-                    score_increment = alpha * (1.0 / (60.0 + rank))
-                    chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
             except Exception as exc:
                 log.error(f"Dense retrieve failed for subclaim '{subclaim}': {exc}")
                 
-        if alpha < 1.0:
+        if sparse_top_k > 0:
             # For sparse (BM25), keyword queries are much better than the verbose subclaim,
             # especially since our BM25 doesn't filter stopwords.
             sparse_query = " ".join(all_search_queries) if all_search_queries else subclaim
             try:
-                sparse_results = sparse_retrieve_tool.invoke({"query": sparse_query, "chunks": chunks_json, "top_k": top_k})
-                for rank, chunk in enumerate(sparse_results, 1):
+                sparse_results = sparse_retrieve_tool.invoke({"query": sparse_query, "chunks": chunks_json, "top_k": sparse_top_k})
+                for chunk in sparse_results:
                     cid = str(chunk.get("metadata", {}).get("id", "")) + "_" + chunk.get("text", "")[:20]
                     if cid not in chunk_data:
                         chunk_data[cid] = chunk
-                    score_increment = (1.0 - alpha) * (1.0 / (60.0 + rank))
-                    chunk_scores[cid] = chunk_scores.get(cid, 0.0) + score_increment
             except Exception as exc:
                 log.error(f"Sparse retrieve failed for sparse_query '{sparse_query}': {exc}")
 
-        sorted_cids = sorted(chunk_scores.keys(), key=lambda c: chunk_scores[c], reverse=True)
+        union_chunks = list(chunk_data.values())
+        log.info(f"hybrid_retriever extracted {len(union_chunks)} unique candidate chunks.")
+
+        rerank_top_k = config.get("retrieval.hybrid.rerank_top_k", 5)
         
+        # Rerank all candidate chunks
+        if union_chunks:
+            log.info(f"Reranking {len(union_chunks)} chunks using Cross-Encoder...")
+            reranker = get_default_reranker()
+            reranked_chunks = reranker.rerank(query=subclaim, chunks=union_chunks, top_k=len(union_chunks))
+        else:
+            reranked_chunks = []
+
         # Diversity constraint: limit chunks per document to avoid a single paper dominating the results
         max_per_doc = config.get("retrieval.hybrid.max_chunks_per_doc", 2)
         doc_counts: dict[str, int] = {}
         final_chunks = []
-        for cid in sorted_cids:
-            if len(final_chunks) >= top_k:
+        
+        for chunk in reranked_chunks:
+            if len(final_chunks) >= rerank_top_k:
                 break
-            chunk = chunk_data[cid]
             doc_id = str(chunk.get("metadata", {}).get("id", ""))
             current_count = doc_counts.get(doc_id, 0)
             if current_count < max_per_doc:
                 final_chunks.append(chunk)
                 doc_counts[doc_id] = current_count + 1
+
+        log.info(f"hybrid_retriever selected {len(final_chunks)} final chunks after reranking and diversity constraint (max {max_per_doc}/doc).")
         
-        log.info(f"hybrid_retriever extracted {len(final_chunks)} chunks via RRF (max {max_per_doc}/doc, {len(doc_counts)} unique docs).")
         return {
             "retrieved_chunks": final_chunks,
             "messages": [
                 HumanMessage(
                     content=str({
-                        "hybrid_alpha": alpha,
+                        "dense_top_k": dense_top_k,
+                        "sparse_top_k": sparse_top_k,
                         "retrieved_chunks_count": len(final_chunks),
                     }),
                     name="hybrid_retriever",

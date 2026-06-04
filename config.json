@@ -27,8 +27,9 @@
         "base_coins_per_source": 0,
         "max_results_per_query": 5,
         "hybrid": {
-            "alpha": 0.5,
-            "top_k": 5,
+            "dense_top_k": 10,
+            "sparse_top_k": 10,
+            "rerank_top_k": 5,
             "max_chunks_per_doc": 2
         },
         "chunking": {
@@ -37,6 +38,9 @@
         },
         "dense": {
             "model_name": "medcpt"
+        },
+        "reranker": {
+            "model_name": "ncbi/MedCPT-Cross-Encoder"
         }
     },
     "evaluation": {
