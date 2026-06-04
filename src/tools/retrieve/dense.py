@@ -17,18 +17,19 @@ def _get_hf_token() -> Optional[str]:
     return os.getenv("HF_TOKEN")
 
 class BiomedicalEmbedder:
-    """Single-model biomedical embedder used by the dense retriever."""
+    """Biomedical embedder used by the dense retriever."""
 
     def __init__(self, model_name: str = "medcpt", device: Optional[str] = None):
-        if model_name != "medcpt":
-            raise ValueError("Dense retriever currently supports only 'medcpt'.")
-
         self.name = model_name
         self.device = device or self._auto_device()
         self.dim = 768
 
-        self._query_model_name = "ncbi/MedCPT-Query-Encoder"
-        self._article_model_name = "ncbi/MedCPT-Article-Encoder"
+        if self.name == "medcpt":
+            self._query_model_name = "ncbi/MedCPT-Query-Encoder"
+            self._article_model_name = "ncbi/MedCPT-Article-Encoder"
+        else:
+            self._single_model_name = self.name
+
         self._query_maxlen = 64
         self._article_maxlen = 256
 
@@ -52,39 +53,58 @@ class BiomedicalEmbedder:
         hf_token = _get_hf_token()
         token_kwargs = {"token": hf_token} if hf_token else {}
 
-        self._q_tok = AutoTokenizer.from_pretrained(self._query_model_name, **token_kwargs)
-        self._q_model = AutoModel.from_pretrained(self._query_model_name, **token_kwargs).to(self.device).eval()
-        self._a_tok = AutoTokenizer.from_pretrained(self._article_model_name, **token_kwargs)
-        self._a_model = AutoModel.from_pretrained(self._article_model_name, **token_kwargs).to(self.device).eval()
+        if self.name == "medcpt":
+            self._q_tok = AutoTokenizer.from_pretrained(self._query_model_name, **token_kwargs)
+            self._q_model = AutoModel.from_pretrained(self._query_model_name, **token_kwargs).to(self.device).eval()
+            self._a_tok = AutoTokenizer.from_pretrained(self._article_model_name, **token_kwargs)
+            self._a_model = AutoModel.from_pretrained(self._article_model_name, **token_kwargs).to(self.device).eval()
+            
+            if self.device == "cpu":
+                log.info("Applying INT8 dynamic quantization to MedCPT models...")
+                self._q_model = torch.quantization.quantize_dynamic(self._q_model, {torch.nn.Linear}, dtype=torch.qint8)
+                self._a_model = torch.quantization.quantize_dynamic(self._a_model, {torch.nn.Linear}, dtype=torch.qint8)
+        else:
+            self._tok = AutoTokenizer.from_pretrained(self._single_model_name, **token_kwargs)
+            self._model = AutoModel.from_pretrained(self._single_model_name, **token_kwargs).to(self.device).eval()
+            
+            if self.device == "cpu":
+                log.info(f"Applying INT8 dynamic quantization to {self._single_model_name}...")
+                self._model = torch.quantization.quantize_dynamic(self._model, {torch.nn.Linear}, dtype=torch.qint8)
 
     def embed_query(self, query: str) -> np.ndarray:
+        tok = self._q_tok if self.name == "medcpt" else self._tok
+        model = self._q_model if self.name == "medcpt" else self._model
+
         with torch.no_grad():
-            inputs = self._q_tok(
+            inputs = tok(
                 query,
                 return_tensors="pt",
                 truncation=True,
                 max_length=self._query_maxlen,
                 padding=True,
             ).to(self.device)
-            output = self._q_model(**inputs).last_hidden_state[:, 0, :]
+            output = model(**inputs).last_hidden_state[:, 0, :]
             return self._normalize(output.cpu().numpy())
 
     def embed_passages(self, texts: List[str], batch_size: int = 32) -> np.ndarray:
         if not texts:
             return np.empty((0, self.dim), dtype="float32")
 
+        tok = self._a_tok if self.name == "medcpt" else self._tok
+        model = self._a_model if self.name == "medcpt" else self._model
+
         batches: List[np.ndarray] = []
         with torch.no_grad():
             for start in range(0, len(texts), batch_size):
                 batch = texts[start : start + batch_size]
-                inputs = self._a_tok(
+                inputs = tok(
                     batch,
                     return_tensors="pt",
                     truncation=True,
                     max_length=self._article_maxlen,
                     padding=True,
                 ).to(self.device)
-                output = self._a_model(**inputs).last_hidden_state[:, 0, :]
+                output = model(**inputs).last_hidden_state[:, 0, :]
                 batches.append(self._normalize(output.cpu().numpy()))
 
         return np.vstack(batches).astype("float32")
@@ -203,6 +223,7 @@ def _get_default_dense_retriever() -> DenseRetriever:
         model_name = config.get("retrieval.dense.model_name", "medcpt")
         _DEFAULT_DENSE_RETRIEVER = DenseRetriever(model_name=model_name, chunk_size=chunk_size, overlap=overlap)
     return _DEFAULT_DENSE_RETRIEVER
+
 
 @tool
 def dense_retrieve_tool(query: str, chunks: Optional[str] = None, top_k: int = 3) -> List[Dict[str, Any]]:
