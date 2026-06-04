@@ -351,6 +351,9 @@ class FactAgent:
         run_id = str(uuid.uuid4())
         log.info(f"pipeline run_id: {run_id}")
         
+        import time
+        t0 = time.perf_counter()
+        
         results = []
         log.info("starting graph stream")
         for step in self.super_graph.stream( # stream method allows us to get intermediate results at each step of the graph execution
@@ -361,7 +364,9 @@ class FactAgent:
                 log.info(f"Step output: {step}")
                 print("---")
             results.append(step)
-        log.info("graph stream finished")
+        
+        elapsed = time.perf_counter() - t0
+        log.info(f"graph stream finished in {elapsed:.2f}s")
         
         return results
 
@@ -394,15 +399,19 @@ class FactAgent:
 if __name__ == "__main__":
     agent = FactAgent()
 
+    claim_list = [
+        "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis.",
+        "The continuous use of a wearable AI-powered glucose monitoring system improves long-term metabolic health outcomes in adults with Type 2 Diabetes by improving daily glucose stability, increasing adherence to treatment plans, and reducing diabetes-related complications.",
+        "il fumo causa cancro, forse è meglio non fumare",
+        "The use of corticosteroids in the treatment of severe COVID-19 cases reduces mortality rates by mitigating the hyperinflammatory response, but it may increase the risk of secondary infections and should be used with caution in patients with a history of immunosuppression.",
+        "COVID-19 vaccines are effective in preventing severe illness and hospitalization, but their efficacy may wane over time, necessitating booster doses to maintain optimal protection, especially against emerging variants.",
+        "Ivermectin has shown efficacy in treating COVID-19"
+    ]
     
-    #claim = "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis."
-    #claim = "The continuous use of a wearable AI-powered glucose monitoring system improves long-term metabolic health outcomes in adults with Type 2 Diabetes by improving daily glucose stability, increasing adherence to treatment plans, and reducing diabetes-related complications."
-    #claim = "il fumo causa cancro, forse è meglio non fumare"
-    #claim = "The use of corticosteroids in the treatment of severe COVID-19 cases reduces mortality rates by mitigating the hyperinflammatory response, but it may increase the risk of secondary infections and should be used with caution in patients with a history of immunosuppression."
+    idx = 4  # Cambia questo indice (0-5) per testare un claim diverso
+    claim = claim_list[idx]
     
-    # Shorter claim
-    claim = "COVID-19 vaccines are effective in preventing severe illness and hospitalization, but their efficacy may wane over time, necessitating booster doses to maintain optimal protection, especially against emerging variants."
-    
+    log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")
     
     result = agent.process_claim(claim, verbose=False, recursion_limit=10)  # Set a reasonable recursion limit for testing
     print("\nFinal Result:")
