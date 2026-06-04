@@ -35,6 +35,10 @@ def create_veracity_pipeline(model_name: str = None):
     """
     Factory: create (or return cached) NLI text-classification pipeline.
 
+    Supports two modes controlled by ``config.get("evaluation.mode")``:
+    - ``"local"`` (default): loads model weights locally via transformers.
+    - ``"api"``: uses HuggingFace Inference API (serverless).
+
     Parameters
     ----------
     model_name : str, optional
@@ -43,29 +47,112 @@ def create_veracity_pipeline(model_name: str = None):
 
     Returns
     -------
-    TextClassificationPipeline
+    callable
+        A pipeline-like callable that accepts NLI input and returns label scores.
     """
     global _veracity_pipeline_cache
     if _veracity_pipeline_cache is not None:
         return _veracity_pipeline_cache
 
+    resolved = model_name or os.getenv("VERACITY_MODEL_NAME") or config.get("evaluation.veracity_model_name", "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli")
+    mode = config.get("evaluation.mode", "local")
+
+    if mode == "api":
+        _veracity_pipeline_cache = _create_veracity_api_pipeline(resolved)
+    else:
+        _veracity_pipeline_cache = _create_veracity_local_pipeline(resolved)
+
+    return _veracity_pipeline_cache
+
+
+def _create_veracity_local_pipeline(model_name: str):
+    """Load NLI model locally via transformers (original behavior)."""
     from transformers import (
         AutoTokenizer,
         AutoModelForSequenceClassification,
         TextClassificationPipeline,
     )
 
-    resolved = model_name or os.getenv("VERACITY_MODEL_NAME") or config.get("evaluation.veracity_model_name", "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli")
-    log.info(f"Loading NLI model: {resolved}")
+    log.info(f"Loading NLI model locally: {model_name}")
     hf_token = _get_hf_token()
     token_kwargs = {"token": hf_token} if hf_token else {}
-    tok = AutoTokenizer.from_pretrained(resolved, **token_kwargs)
-    model = AutoModelForSequenceClassification.from_pretrained(resolved, **token_kwargs)
-    _veracity_pipeline_cache = TextClassificationPipeline(
+    tok = AutoTokenizer.from_pretrained(model_name, **token_kwargs)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name, **token_kwargs)
+    pipeline = TextClassificationPipeline(
         model=model, tokenizer=tok, top_k=None,  # return scores for all labels
     )
-    log.info("NLI model loaded successfully")
-    return _veracity_pipeline_cache
+    log.info("NLI model loaded successfully (local)")
+    return pipeline
+
+
+def _create_veracity_api_pipeline(model_name: str):
+    """Create an API-based NLI callable using HF Inference API."""
+    from huggingface_hub import InferenceClient
+
+    hf_token = _get_hf_token()
+    client = InferenceClient(token=hf_token)
+    log.info(f"Initialized NLI model via HF Inference API: {model_name}")
+
+    def _api_nli_pipeline(nli_input, **kwargs):
+        """
+        Callable wrapper that mimics the local TextClassificationPipeline interface.
+
+        Accepts either:
+          - dict with "text" and "text_pair" keys (like the local pipeline)
+          - a plain string
+
+        Returns a list of dicts: [{"label": "ENTAILMENT", "score": 0.95}, ...]
+        """
+        import time
+
+        # Build the input text for NLI: premise [SEP] hypothesis
+        # PubMedBERT max length is 512 tokens. The API does NOT truncate
+        # automatically, so we must do it ourselves.
+        _MAX_WORDS = 250  # ~450 tokens with medical subword expansion
+
+        if isinstance(nli_input, dict):
+            premise = nli_input.get("text", "")
+            hypothesis = nli_input.get("text_pair", "")
+            # Reserve ~60 words for hypothesis + special tokens, truncate premise
+            hyp_words = hypothesis.split()
+            max_premise_words = _MAX_WORDS - len(hyp_words) - 3  # [CLS], [SEP], [SEP]
+            premise_words = premise.split()
+            if len(premise_words) > max_premise_words:
+                premise = " ".join(premise_words[:max_premise_words])
+            text = f"{premise} [SEP] {hypothesis}" if hypothesis else premise
+        else:
+            text = str(nli_input)
+            words = text.split()
+            if len(words) > _MAX_WORDS:
+                text = " ".join(words[:_MAX_WORDS])
+
+        max_retries = 3
+        last_exc = None
+        for attempt in range(max_retries):
+            try:
+                results = client.text_classification(text, model=model_name)
+                # HF API returns list of TextClassificationOutputElement objects
+                # Convert to the same format as the local pipeline: [{"label": ..., "score": ...}]
+                formatted = [
+                    {"label": r.label, "score": r.score}
+                    for r in results
+                ]
+                return formatted
+            except Exception as exc:
+                last_exc = exc
+                wait = 2 ** attempt
+                log.warning(
+                    f"API text_classification attempt {attempt + 1}/{max_retries} "
+                    f"failed: {exc}. Retrying in {wait}s..."
+                )
+                time.sleep(wait)
+
+        log.error(f"API text_classification failed after {max_retries} attempts: {last_exc}")
+        raise RuntimeError(
+            f"API text_classification failed after {max_retries} attempts: {last_exc}"
+        )
+
+    return _api_nli_pipeline
 
 
 def build_evaluation_graph(reasoning_agent):

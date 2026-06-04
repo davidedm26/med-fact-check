@@ -23,8 +23,8 @@
         }
     },
     "retrieval": {
-        "dynamic_coins": 1,
-        "base_coins_per_source": 1,
+        "dynamic_coins": 3,
+        "base_coins_per_source": 0,
         "max_results_per_query": 5,
         "hybrid": {
             "alpha": 0.5,
@@ -40,6 +40,7 @@
         }
     },
     "evaluation": {
+        "mode": "api",
         "veracity_model_name": "pritamdeka/PubMedBERT-MNLI-MedNLI"
     }
 }
