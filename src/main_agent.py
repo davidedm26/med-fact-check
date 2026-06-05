@@ -13,6 +13,7 @@ from prompts.evaluate import (
     reasoning_schema,
     veracity_schema,
 )
+from prompts.aggregate import aggregator_schema
 from tools.retrieve.download import (
     download_documents,
 )
@@ -135,6 +136,11 @@ class FactAgent:
             veracity_schema, method="function_calling"
         )
         
+        # ── Aggregator Agent ──
+        self.aggregator_agent = self.base_llm.with_structured_output(
+            aggregator_schema, method="function_calling"
+        )
+        
     def _build_graphs(self):
         """Build the state graphs for the workflow."""
         # Input ingestion subgraph
@@ -175,7 +181,7 @@ class FactAgent:
     def _build_aggregator(self):
         """Build the aggregator node."""
         from stages.aggregator import build_aggregate_node
-        self.aggregate_node = build_aggregate_node()
+        self.aggregate_node = build_aggregate_node(self.aggregator_agent)
 
     def _build_main_graph(self):
         """Build the main workflow graph."""
