@@ -31,4 +31,6 @@ class State(MessagesState):
     key_evidence: Optional[List[str]]  # Key evidence excerpts selected by the Reasoning Agent
     reasoning_conclusion: Optional[str]  # Preliminary conclusion from the Reasoning Agent
     evidence_text: Optional[str]  # Formatted evidence chunks text (input to the Reasoning Agent)
+    distilled_evidence: Optional[str]  # Purified facts extracted by the Reasoning Agent
+    evidence_verdict_hint: Optional[str]  # One-sentence summary of what the evidence says about the claim
     final_verdict: Optional[Dict[str, object]]  # Aggregated final verdict for the whole claim (label, confidence, breakdown)

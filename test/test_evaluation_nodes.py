@@ -1,8 +1,8 @@
 """
 Ablation Test -- Evaluation Nodes
 ================================
-Tests the Evaluation Team subgraph (reasoning + veracity) against a gold set.
-Evaluates: Label accuracy, reasoning conclusion accuracy, reasoning-NLI agreement, and confidence.
+Tests the Evaluation Team subgraph (extractor + veracity) against a gold set.
+Evaluates: Label accuracy and confidence.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ from utils.config import config
 # pyrefly: ignore [missing-import]
 from utils.llm_factory import get_llm_with_tools
 # pyrefly: ignore [missing-import]
-from prompts.evaluate import reasoning_schema
+from prompts.evaluate import reasoning_schema, veracity_schema
 # pyrefly: ignore [missing-import]
 from stages.evaluation_team import build_evaluation_graph
 from langchain_core.messages import HumanMessage
@@ -82,28 +82,19 @@ def compute_metrics(
     expected_label = gold_entry["expected_label"].lower()
     
     pred_label = eval_result.get("label", "nei").lower()
-    reasoning_conclusion = eval_result.get("reasoning_conclusion", "not_enough_information").lower()
-    
-    # Map not_enough_information to nei for easier comparison
-    if reasoning_conclusion == "not_enough_information":
-        reasoning_conclusion = "nei"
+    if pred_label == "not_enough_information":
+        pred_label = "nei"
         
     confidence = float(eval_result.get("confidence", 0.0))
-    
     label_correct = (pred_label == expected_label)
-    reasoning_correct = (reasoning_conclusion == expected_label)
-    agreement = (pred_label == reasoning_conclusion)
     
     return {
         "eval_id": gold_entry["eval_id"],
         "subclaim": gold_entry["subclaim"],
         "expected_label": expected_label,
         "predicted_label": pred_label,
-        "reasoning_conclusion": reasoning_conclusion,
         "confidence": confidence,
         "label_correct": label_correct,
-        "reasoning_correct": reasoning_correct,
-        "reasoning_nli_agreement": agreement,
         "justification": eval_result.get("justification", ""),
         "key_evidence": eval_result.get("key_evidence", [])
     }
@@ -116,10 +107,6 @@ def print_claim_report(gold_entry: dict, metrics: dict) -> None:
     print(f"  Label:    expected={metrics['expected_label'].upper()}  "
           f"predicted={metrics['predicted_label'].upper()}  "
           f"{'OK' if metrics['label_correct'] else 'FAIL'} (conf={metrics['confidence']:.2f})")
-    print(f"  Reasoning: conclusion={metrics['reasoning_conclusion'].upper()}  "
-          f"{'OK' if metrics['reasoning_correct'] else 'FAIL'}")
-    if not metrics["reasoning_nli_agreement"]:
-        print("  [!] DISAGREEMENT between Reasoning Agent and NLI Model")
 
 def compute_aggregate_metrics(results: list[dict]) -> dict[str, Any]:
     n = len(results)
@@ -149,8 +136,6 @@ def compute_aggregate_metrics(results: list[dict]) -> dict[str, Any]:
     return {
         "total_evaluations": n,
         "label_accuracy": _rate("label_correct"),
-        "reasoning_conclusion_accuracy": _rate("reasoning_correct"),
-        "reasoning_nli_agreement_rate": _rate("reasoning_nli_agreement"),
         "avg_confidence": _avg("confidence"),
         "avg_confidence_correct": round(avg_conf_correct, 4),
         "avg_confidence_incorrect": round(avg_conf_incorrect, 4),
@@ -163,8 +148,6 @@ def print_aggregate_report(agg: dict) -> None:
     print(f"{'=' * 70}")
     print(f"  Total evaluations:           {agg.get('total_evaluations', 0)}")
     print(f"  Label accuracy:              {agg.get('label_accuracy', 0):.2%}")
-    print(f"  Reasoning accuracy:          {agg.get('reasoning_conclusion_accuracy', 0):.2%}")
-    print(f"  Reasoning-NLI agreement:     {agg.get('reasoning_nli_agreement_rate', 0):.2%}")
     print(f"  Avg confidence (correct):    {agg.get('avg_confidence_correct', 0):.2f}")
     print(f"  Avg confidence (incorrect):  {agg.get('avg_confidence_incorrect', 0):.2f}")
     
@@ -210,8 +193,11 @@ def main() -> None:
     reasoning_agent = base_llm.with_structured_output(
         reasoning_schema, method="function_calling"
     )
+    veracity_agent = base_llm.with_structured_output(
+        veracity_schema, method="function_calling"
+    )
     
-    evaluation_graph = build_evaluation_graph(reasoning_agent)
+    evaluation_graph = build_evaluation_graph(reasoning_agent, veracity_agent)
 
     all_results: list[dict] = []
     total_time = 0.0
@@ -240,11 +226,11 @@ def main() -> None:
             if evaluation_results:
                 result = evaluation_results[0]
             else:
-                result = {"label": "error", "confidence": 0.0, "reasoning_conclusion": "error", "justification": "No result returned"}
+                result = {"label": "error", "confidence": 0.0, "justification": "No result returned"}
                 
         except Exception as exc:
             print(f"  ERROR invoking graph: {exc}")
-            result = {"label": "error", "confidence": 0.0, "reasoning_conclusion": "error", "justification": str(exc)}
+            result = {"label": "error", "confidence": 0.0, "justification": str(exc)}
 
         elapsed = time.time() - t0
         total_time += elapsed

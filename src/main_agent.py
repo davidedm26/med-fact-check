@@ -11,6 +11,7 @@ from prompts.retrieve import (
 )
 from prompts.evaluate import (
     reasoning_schema,
+    veracity_schema,
 )
 from tools.retrieve.download import (
     download_documents,
@@ -130,6 +131,9 @@ class FactAgent:
         self.reasoning_agent = self.base_llm.with_structured_output(
             reasoning_schema, method="function_calling"
         )
+        self.veracity_agent = self.base_llm.with_structured_output(
+            veracity_schema, method="function_calling"
+        )
         
     def _build_graphs(self):
         """Build the state graphs for the workflow."""
@@ -165,6 +169,7 @@ class FactAgent:
         from stages.evaluation_team import build_evaluation_graph
         self.evaluation_graph = build_evaluation_graph(
             self.reasoning_agent,
+            self.veracity_agent,
         )
 
     def _build_aggregator(self):
