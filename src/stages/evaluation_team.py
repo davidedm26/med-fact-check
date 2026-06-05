@@ -108,7 +108,7 @@ def _create_veracity_api_pipeline(model_name: str):
         # Build the input text for NLI: premise [SEP] hypothesis
         # PubMedBERT max length is 512 tokens. The API does NOT truncate
         # automatically, so we must do it ourselves.
-        _MAX_WORDS = 250  # ~450 tokens with medical subword expansion
+        _MAX_WORDS = 180  # Reduced from 250 to safely fit ~512 tokens even with dense medical subword expansion
 
         if isinstance(nli_input, dict):
             premise = nli_input.get("text", "")
