@@ -80,5 +80,6 @@ def format_uniprot(protein_dict: Dict) -> str:
     
     return protein_dict.get('biological_text', 'No biological text available.')
 
-
-
+def format_systematic_review(review_dict: Dict) -> str:
+    """Return the abstract text from a PubMed systematic review / meta-analysis."""
+    return review_dict.get('abstract_text', '')

@@ -15,7 +15,7 @@ def main():
     
     query = "COVID-19 vaccines"
     raw_documents = []
-    sources = ["clinical_trials", "knowledge_base", "literature"]
+    sources = ["systematic_reviews", "knowledge_base", "literature"]
     
     for source in sources:
         print(f"Eseguo query '{query}' sulla sorgente: {source}...")

@@ -20,6 +20,7 @@ class SourceMetadata:
         return {
             "Scientific Literature": "literature",
             "Clinical Trial": "clinical_trials",
+            "Systematic Review": "systematic_reviews",
             "Protein Knowledge": "knowledge_base",
         }.get(self.type, "literature")
 

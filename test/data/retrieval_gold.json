@@ -23,7 +23,7 @@
     {
       "subclaim_id": "ret_03",
       "subclaim": "Varenicline monotherapy after 12 weeks more effective than combination nicotine replacement therapies with bupropion.",
-      "expected_target_source": "clinical_trials",
+      "expected_target_source": "systematic_reviews",
       "expected_strategy": "dense",
       "expected_queries": [
         "Varenicline vs bupropion combination therapy"
@@ -50,10 +50,10 @@
     {
       "subclaim_id": "ret_06",
       "subclaim": "Trastuzumab (Herceptin) potential use in treatment of prostate cancer.",
-      "expected_target_source": "clinical_trials",
+      "expected_target_source": "systematic_reviews",
       "expected_strategy": "dense",
       "expected_queries": [
-        "Trastuzumab prostate cancer clinical trials"
+        "Trastuzumab prostate cancer systematic review"
       ]
     },
     {
@@ -77,10 +77,10 @@
     {
       "subclaim_id": "ret_09",
       "subclaim": "Transcranial pulse stimulation (TPS) improves mental performance in people with Alzheimer's dementia.",
-      "expected_target_source": "clinical_trials",
+      "expected_target_source": "systematic_reviews",
       "expected_strategy": "dense",
       "expected_queries": [
-        "Transcranial pulse stimulation Alzheimer's dementia trials"
+        "Transcranial pulse stimulation Alzheimer's dementia review"
       ]
     },
     {

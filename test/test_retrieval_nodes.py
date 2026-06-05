@@ -228,9 +228,9 @@ def main() -> None:
                 {"role": "user", "content": subclaim_text}
             ])
             
-            pred_coins = {"clinical_trials": 0, "knowledge_base": 0, "literature": 0}
+            pred_coins = {"systematic_reviews": 0, "knowledge_base": 0, "literature": 0}
             if isinstance(source_res, dict):
-                pred_coins["clinical_trials"] = max(0, int(source_res.get("clinical_trials_coins", 0)))
+                pred_coins["systematic_reviews"] = max(0, int(source_res.get("systematic_reviews_coins", 0)))
                 pred_coins["knowledge_base"] = max(0, int(source_res.get("knowledge_base_coins", 0)))
                 pred_coins["literature"] = max(0, int(source_res.get("literature_coins", 0)))
 

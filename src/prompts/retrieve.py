@@ -9,14 +9,14 @@ CRITICAL: You must allocate strictly INTEGER values for coins (e.g., 0, 1, 2). F
 The sub-claim will be provided in the HumanMessage.
 
 Available sources:
-- `clinical_trials`: human patient studies, clinical phases (1-4), recruitment status, or trial comparisons. Use when the sub-claim compares therapies or mentions patient trials.
+- `systematic_reviews`: high-level evidence from systematic reviews and meta-analyses. Use when the sub-claim involves treatment comparisons, aggregated outcomes, or established clinical consensus.
 - `knowledge_base`: proteins, genes, receptors, binding, expression, or molecular pathways. Use when the sub-claim focuses on molecular biology or genetics.
 - `literature`: broad medical research, general drug efficacy, mortality, side effects, or epidemiological stats.
 
 Examples for a budget of 3 coins:
-1. "Varenicline monotherapy is more effective than combination nicotine replacement therapies." -> clinical_trials: 3, knowledge_base: 0, literature: 0 (comparing therapies)
-2. "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease." -> clinical_trials: 0, knowledge_base: 3, literature: 0 (genes and pathways)
-3. "Metformin interferes thyroxine absorption." -> clinical_trials: 0, knowledge_base: 1, literature: 2 (general drug interaction but might involve molecular pathways)
+1. "Varenicline monotherapy is more effective than combination nicotine replacement therapies." -> systematic_reviews: 3, knowledge_base: 0, literature: 0 (comparing therapies with aggregated evidence)
+2. "Glycyl-tRNA synthetase gene involved in development of Charcot-Marie-Tooth disease." -> systematic_reviews: 0, knowledge_base: 3, literature: 0 (genes and pathways)
+3. "Metformin interferes thyroxine absorption." -> systematic_reviews: 1, knowledge_base: 0, literature: 2 (general drug interaction, some meta-analytic evidence available)
 
 Do not invent evidence.
 """
@@ -33,9 +33,9 @@ retrieval_source_selection_schema = {
                 "description": "Brief explanation for the coin allocation.",
                 "maxLength": 100 # Limit reasoning to 100 characters for conciseness
             },
-            "clinical_trials_coins": {
+            "systematic_reviews_coins": {
                 "type": "integer",
-                "description": "Coins allocated to clinical_trials"
+                "description": "Coins allocated to systematic_reviews"
             },
             "knowledge_base_coins": {
                 "type": "integer",
@@ -47,7 +47,7 @@ retrieval_source_selection_schema = {
             }
         },
         "additionalProperties": False,
-        "required": ["reasoning", "clinical_trials_coins", "knowledge_base_coins", "literature_coins"]
+        "required": ["reasoning", "systematic_reviews_coins", "knowledge_base_coins", "literature_coins"]
     }
 }
 
@@ -69,7 +69,7 @@ Follow these guidelines:
 6. CRITICAL: NEVER drop the primary subject, disease, or core entity from the original claim (e.g. if the claim is about 'COVID-19', 'Alzheimer', or 'Metformin', that exact entity MUST be present in every generated query).
 
 Tailor the queries to the selected source:
-- `clinical_trials`: emphasize trial identifiers, phases, recruitment, enrollment, or interruption.
+- `systematic_reviews`: emphasize treatment comparisons, aggregated outcomes, pooled estimates, risk ratios, or evidence synthesis.
 - `knowledge_base`: emphasize proteins, genes, receptors, binding, expression, or pathways.
 - `literature`: emphasize drug/treatment claims, efficacy, mortality, side effects, infection risk, prognosis, and general medical research.
 

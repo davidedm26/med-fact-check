@@ -30,7 +30,7 @@ def build_retrieval_graph(source_selector_llm, base_llm):
         "dense": "dense_retriever",
     }
 
-    VALID_TARGET_SOURCES = {"clinical_trials", "knowledge_base", "literature"}
+    VALID_TARGET_SOURCES = {"systematic_reviews", "knowledge_base", "literature"}
 
     def _normalize_search_queries(value, fallback_query: str): 
         '''
@@ -67,17 +67,17 @@ def build_retrieval_graph(source_selector_llm, base_llm):
 
         log.info("source_selector invoking llm")
         response = source_selector_llm.invoke(messages)
-        coins = {"clinical_trials": 0, "knowledge_base": 0, "literature": dynamic_coins}
+        coins = {"systematic_reviews": 0, "knowledge_base": 0, "literature": dynamic_coins}
         reasoning = "fallback to literature"
         
         try:
             if isinstance(response, dict):
-                coins["clinical_trials"] = max(0, int(response.get("clinical_trials_coins", 0)))
+                coins["systematic_reviews"] = max(0, int(response.get("systematic_reviews_coins", 0)))
                 coins["knowledge_base"] = max(0, int(response.get("knowledge_base_coins", 0)))
                 coins["literature"] = max(0, int(response.get("literature_coins", dynamic_coins)))
                 reasoning = str(response.get("reasoning", reasoning))
             else:
-                coins["clinical_trials"] = max(0, int(getattr(response, "clinical_trials_coins", 0)))
+                coins["systematic_reviews"] = max(0, int(getattr(response, "systematic_reviews_coins", 0)))
                 coins["knowledge_base"] = max(0, int(getattr(response, "knowledge_base_coins", 0)))
                 coins["literature"] = max(0, int(getattr(response, "literature_coins", dynamic_coins)))
                 reasoning = str(getattr(response, "reasoning", reasoning))
@@ -85,7 +85,7 @@ def build_retrieval_graph(source_selector_llm, base_llm):
             log.warning(f"Failed to parse source_selector coins: {exc}")
 
         base_coins = config.get("retrieval.base_coins_per_source", 1)
-        coins["clinical_trials"] += base_coins
+        coins["systematic_reviews"] += base_coins
         coins["knowledge_base"] += base_coins
         coins["literature"] += base_coins
 
