@@ -127,7 +127,7 @@ You are given a problem description and a claim. Split the claim into atomic pre
 Important:
 - EMPTY/FRAGMENTS: If the input is a single word, purely conversational, or a verb-less fragment (e.g., "wtf", "hello", "penicillin"), return an empty list `[]`. Do NOT guess or hallucinate facts from prompt examples.
 - ATOMICITY: Split compound/conjunctive claims into multiple subclaims. Each subclaim MUST contain exactly one independently verifiable fact.
-- FAITHFULNESS: Extract EXACTLY what is asserted, even if false. Do NOT auto-correct or add external info. Do not invent facts.
+- VERBATIM EXTRACTION (CRITICAL): Maintain the EXACT terminology used in the original text for clinical conditions, treatments, and technologies. DO NOT use generic synonyms or acronyms (e.g., do not translate "Magnetic resonance therapy" to "MRI"). Keep the original clinical words intact to avoid semantic drift during document retrieval. Extract EXACTLY what is asserted, even if false. Do NOT auto-correct or add external info. Do not invent facts.
 - EXTRACT EVERYTHING: Include subjective opinions, anecdotal reports, and recommendations. The downstream classifier will filter them.
 
 Structural rules:
