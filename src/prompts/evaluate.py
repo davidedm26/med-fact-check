@@ -24,6 +24,8 @@ Your task is to produce a **structured justification** and a **purified evidence
 Rules:
 - Do NOT invent facts that are not present in the evidence chunks.
 - If no chunk is relevant, say so explicitly and conclude "not enough information".
+- Use the `reasoning` field to think step-by-step. Analyze the evidence, compare it to the subclaim, and explicitly evaluate if there are contradictions.
+- CRITICAL FINE-GRAINED ENTITY TRACKING: In your `reasoning` scratchpad, explicitly list out the exact entities (genes, proteins, drugs, numerical values, etc.) and their specific relationships as stated in the evidence. Pay extreme attention to similar names or isoforms (e.g., p100 vs p105, p50 vs p52). Do NOT conflate them. If the evidence links entity A to B, but the subclaim links A to C, you MUST recognize them as different entities and choose "refuted".
 - In your `justification`, cite evidence using proper scientific references (e.g., 'A recent clinical trial demonstrated...' or 'According to literature [PMID/NCT ID]...'). DO NOT use phrases like 'Chunk 1', 'Evidence 2', or 'Document 3'.
 - CRITICAL: Write your `justification` as a purely factual clinical summary based ONLY on the evidence. The justification must read like an independent medical abstract.
 - CRITICAL (justification only): DO NOT mention the subclaim itself in your justification text. Avoid meta-words like "supports", "refutes", "contradicts", "subclaim", "true", or "false" inside the justification string. You ARE allowed to use these concepts when deciding your `reasoning_conclusion`.
@@ -38,6 +40,10 @@ Rules:
 - Write in English.
  
 Classification guide for `reasoning_conclusion`:
+- CRITICAL LOGIC CHECK: Before assigning the label, carefully compare your `distilled_evidence` against the EXACT wording of the subclaim.
+  - If the subclaim says "always" but evidence says "not always", they CONTRADICT -> MUST choose "refuted".
+  - If the subclaim says "decreased" but evidence says "increased", they CONTRADICT -> MUST choose "refuted".
+  - Do NOT output "supported" just because the evidence discusses the same entities. You MUST verify that the direction of the effect, the quantity, and the logical relationship match perfectly. If the evidence proves the subclaim is false or states the opposite, you MUST output "refuted".
 - CRITICAL SPECIFIC INTERVENTION RULE: If the exact specific form or device of the intervention mentioned in the subclaim (e.g., "copper rings" specifically, not just "copper" or "dietary copper deficiency"; "Bluetooth headphones" specifically, not just "radiation" or "cell phones") is NOT discussed in the chunks, you MUST choose "not_enough_information". Do NOT extrapolate from base substances, separate concepts, or general topics. If the specific intervention device/modality is unmentioned, it is ALWAYS "not_enough_information".
 - Choose "supported" when the evidence AFFIRMS the subclaim.
   - *Subgroup Generalization Rule*: If the subclaim is a general statement (e.g., "Ibuprofen increases risk of heart attack") and the evidence confirms this effect generally or within a specific subpopulation (e.g., "in patients with pre-existing conditions"), you MUST choose "supported" because the core relation is confirmed.
@@ -60,18 +66,11 @@ reasoning_schema = {
     "parameters": {
         "type": "object",
         "properties": {
-            "justification": {
+            "reasoning": {
                 "type": "string",
                 "description": (
-                    "Step-by-step reasoning that cites the evidence chunks "
-                    "and explains how they relate to the subclaim."
-                ),
-            },
-            "distilled_evidence": {
-                "type": "string",
-                "description": (
-                    "Concise, objective, non-repetitive list of direct scientific facts "
-                    "extracted from the chunks, formatted specifically for NLI classification (max 120 words)."
+                    "Your internal chain of thought. Step-by-step reasoning "
+                    "evaluating the evidence against the exact wording of the subclaim."
                 ),
             },
             "key_evidence": {
@@ -82,6 +81,13 @@ reasoning_schema = {
                     "DO NOT output 'Chunk X'. Output the actual text sentence."
                 ),
             },
+            "distilled_evidence": {
+                "type": "string",
+                "description": (
+                    "Concise, objective, non-repetitive list of direct scientific facts "
+                    "extracted from the chunks, formatted specifically for NLI classification (max 120 words)."
+                ),
+            },
             "reasoning_conclusion": {
                 "type": "string",
                 "enum": ["supported", "refuted", "not_enough_information"],
@@ -90,8 +96,15 @@ reasoning_schema = {
                     "'supported', 'refuted', or 'not_enough_information'."
                 ),
             },
+            "justification": {
+                "type": "string",
+                "description": (
+                    "Final clinical summary that cites the evidence chunks "
+                    "and explains how they relate to the subclaim."
+                ),
+            },
         },
         "additionalProperties": False,
-        "required": ["justification", "distilled_evidence", "key_evidence", "reasoning_conclusion"],
+        "required": ["reasoning", "key_evidence", "distilled_evidence", "reasoning_conclusion", "justification"],
     },
 }

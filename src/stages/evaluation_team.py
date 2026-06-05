@@ -224,11 +224,13 @@ def build_evaluation_graph(reasoning_agent):
 
         # Extract fields (handle both dict and object response formats)
         if isinstance(structured, dict):
+            reasoning_chain = structured.get("reasoning", "")
             justification = structured.get("justification", "")
             distilled_evidence = structured.get("distilled_evidence", "")
             key_evidence = structured.get("key_evidence", [])
             reasoning_conclusion = structured.get("reasoning_conclusion", "not_enough_information")
         else:
+            reasoning_chain = getattr(structured, "reasoning", "")
             justification = getattr(structured, "justification", "")
             distilled_evidence = getattr(structured, "distilled_evidence", "")
             key_evidence = getattr(structured, "key_evidence", [])
@@ -242,6 +244,7 @@ def build_evaluation_graph(reasoning_agent):
             "messages": [
                 HumanMessage(
                     content=str({
+                        "reasoning": reasoning_chain,
                         "justification": justification,
                         "distilled_evidence": distilled_evidence,
                         "reasoning_conclusion": reasoning_conclusion,
