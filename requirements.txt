@@ -19,6 +19,7 @@ webdriver-manager>=4.0.0       # Gestisce automaticamente i driver di Chrome per
 # --- Utility Generiche ---
 python-dotenv>=1.0.0           # Per leggere le chiavi API dal file .env
 whois>=0.9.20                  # Per analizzare l'età dei domini (usato dal Membro 1)
+nltk>=3.8.1                    # Per tokenizzazione avanzata di frasi
 
 # --- Struttura Dati (BM25) ---
 rank_bm25>=0.2.2

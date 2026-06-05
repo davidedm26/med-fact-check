@@ -4,6 +4,7 @@ import hashlib
 import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Tuple
+import nltk
 
 @dataclass
 class SourceMetadata:
@@ -104,6 +105,14 @@ class BiomedicalChunker:
             r"^(?:" + "|".join(self._SECTION_RE_PARTS) + r")[\s:]*$",
             re.IGNORECASE | re.MULTILINE,
         )
+        try:
+            nltk.data.find('tokenizers/punkt_tab')
+        except LookupError:
+            nltk.download('punkt_tab', quiet=True)
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt', quiet=True)
 
     def chunk(self, text: str, source: SourceMetadata) -> List[IndexedChunk]:
         chunks: List[IndexedChunk] = []
@@ -113,13 +122,20 @@ class BiomedicalChunker:
             if section_label == "References":
                 continue
 
-            words = section_text.split()
-            start = 0
-            while start < len(words):
-                end = min(start + self.chunk_size, len(words))
-                chunk_text = " ".join(words[start:end]).strip()
+            sentences = nltk.tokenize.sent_tokenize(section_text)
+            if not sentences:
+                continue
 
-                if len(chunk_text) >= 40:
+            current_chunk_sentences = []
+            current_chunk_word_count = 0
+            new_sentences_added = 0
+
+            for sentence in sentences:
+                sentence_words = sentence.split()
+                sentence_word_count = len(sentence_words)
+
+                if current_chunk_word_count + sentence_word_count > self.chunk_size and current_chunk_sentences:
+                    chunk_text = " ".join(current_chunk_sentences).strip()
                     chunks.append(
                         IndexedChunk(
                             chunk_id=self._make_id(source.id, idx),
@@ -131,9 +147,45 @@ class BiomedicalChunker:
                     )
                     idx += 1
 
-                if end == len(words):
-                    break
-                start = end - self.overlap
+                    overlap_sentences = []
+                    overlap_word_count = 0
+                    for s in reversed(current_chunk_sentences):
+                        overlap_sentences.insert(0, s)
+                        overlap_word_count += len(s.split())
+                        if overlap_word_count >= self.overlap:
+                            break
+                    
+                    if len(overlap_sentences) == len(current_chunk_sentences):
+                        overlap_sentences = overlap_sentences[1:]
+                        overlap_word_count = sum(len(s.split()) for s in overlap_sentences)
+
+                    current_chunk_sentences = overlap_sentences
+                    current_chunk_word_count = overlap_word_count
+                    new_sentences_added = 0
+
+                current_chunk_sentences.append(sentence)
+                current_chunk_word_count += sentence_word_count
+                new_sentences_added += 1
+
+            if current_chunk_sentences:
+                new_words_count = sum(len(s.split()) for s in current_chunk_sentences[-new_sentences_added:]) if new_sentences_added > 0 else 0
+                if new_words_count < 50 and chunks and chunks[-1].section == section_label:
+                    if new_sentences_added > 0:
+                        new_text = " ".join(current_chunk_sentences[-new_sentences_added:])
+                        chunks[-1].text += " " + new_text
+                else:
+                    chunk_text = " ".join(current_chunk_sentences).strip()
+                    if len(chunk_text) >= 40:
+                        chunks.append(
+                            IndexedChunk(
+                                chunk_id=self._make_id(source.id, idx),
+                                text=chunk_text,
+                                chunk_index=idx,
+                                section=section_label,
+                                source=source,
+                            )
+                        )
+                        idx += 1
 
         return chunks
 
