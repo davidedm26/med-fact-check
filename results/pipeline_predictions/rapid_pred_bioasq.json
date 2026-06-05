@@ -3,11 +3,285 @@
         "claim_id": "bioasq_490",
         "claim": "Is the toxin produced by Clostridium botulinum always deadly?",
         "true_label": "refuted",
-        "predicted_label": "NEI",
+        "predicted_label": "supported",
         "pipeline_steps": [
             {
                 "decompose": {
-                    "verifiable_subclaims": []
+                    "verifiable_subclaims": [
+                        "Is the toxin produced by Clostridium botulinum always deadly?"
+                    ]
+                }
+            },
+            {
+                "verify_subclaim": {
+                    "subclaim_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Is the toxin produced by Clostridium botulinum always deadly?",
+                            "source": {
+                                "systematic_reviews": 2,
+                                "knowledge_base": 0,
+                                "literature": 1
+                            },
+                            "queries_by_source": {
+                                "systematic_reviews": [
+                                    "Botulinum toxin mortality rates",
+                                    "Clostridium botulinum treatment outcomes"
+                                ],
+                                "literature": [
+                                    "Botulinum toxin mortality rate"
+                                ]
+                            },
+                            "retrieved_chunks": [
+                                {
+                                    "text": "BACKGROUND: Botulism is an acute paralytic illness caused by a neurotoxin produced by Clostridium botulinum. Supportive care, including intensive care, is key but the role of other medical treatments is unclear. OBJECTIVES: To assess the effects of medical treatments on mortality, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events in botulism. SEARCH STRATEGY: We searched the Cochrane Neuromuscular Disease Group Specialized Register (10 January 2011), the Cochrane Central Register of Controlled Trials (CENTRAL) (10 January 2010 in The Cochrane Library, Issue 4 2010), MEDLINE (January 1966 to January 2011) and EMBASE (January 1980 to January 2011). We reviewed bibliographies, and contacted authors and experts. SELECTION CRITERIA: We included randomized and quasi-randomized controlled trials examining the medical treatment of any of the four major types of botulism (infant intestinal botulism, food-borne botulism, wound botulism and adult intestinal toxemia). Medical treatments included equine serum trivalent botulism antitoxin, human-derived botulinum immune globulin, plasma exchange, 3,4-diaminopyridine and guanidine. DATA COLLECTION AND ANALYSIS: Two authors selected studies, assessed risk of bias and extracted data independently onto data extraction forms.Our primary outcome was in-hospital death from any cause occurring within four weeks. Secondary outcomes were death occurring within 12 weeks, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events. MAIN RESULTS: A single randomized controlled trial met the inclusion criteria. This trial evaluated human-derived botulinum immune globulin for the treatment of infant botulism. This study included 59 treatment patients and 63 control patients. There were no deaths in either group making any treatment effect on mortality inestimable.",
+                                    "metadata": {
+                                        "id": "21412916",
+                                        "title": "Medical treatment for botulism.",
+                                        "type": "Systematic Review",
+                                        "date": "2011-Mar-16",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/21412916/",
+                                        "extra_info": {
+                                            "doi": "10.1002/14651858.CD008123.pub2",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 14.365095023918796
+                                    },
+                                    "reranker_score": 9.922362327575684
+                                },
+                                {
+                                    "text": "BACKGROUND: Botulism is an acute paralytic illness caused by a neurotoxin produced by Clostridium botulinum. Supportive care, including intensive care, is key but the role of other medical treatments is unclear. This is an update of a review first published in 2011. OBJECTIVES: To assess the effects of medical treatments on mortality, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events in botulism. SEARCH METHODS: On 30 March 2013, we searched the Cochrane Neuromuscular Disease Group Specialized Register (30 March 2013), CENTRAL (2013, Issue 3) in The Cochrane Library, MEDLINE (January 1966 to March 2013) and EMBASE (January 1980 to March 2013). We reviewed bibliographies and contacted authors and experts. SELECTION CRITERIA: Randomized and quasi-randomized controlled trials examining the medical treatment of any of the four major types of botulism (infant intestinal botulism, food-borne botulism, wound botulism and adult intestinal toxemia). Potential medical treatments included equine serum trivalent botulism antitoxin, human-derived botulinum immune globulin, plasma exchange, 3,4-diaminopyridine and guanidine. DATA COLLECTION AND ANALYSIS: Two authors independently selected studies, assessed risk of bias and extracted data onto data extraction forms.Our primary outcome was in-hospital death from any cause occurring within four weeks. Secondary outcomes were death occurring within 12 weeks, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events. MAIN RESULTS: A single randomized controlled trial met the inclusion criteria. We found no additional trials when we updated the searches in 2013. This trial evaluated human-derived botulinum immune globulin (BIG) for the treatment of infant botulism and included 59 treatment participants as well as 63 control participants. The control group received a control immune globulin which did not have an effect on botulinum toxin.",
+                                    "metadata": {
+                                        "id": "24558013",
+                                        "title": "Medical treatment for botulism.",
+                                        "type": "Systematic Review",
+                                        "date": "2014-Feb-20",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/24558013/",
+                                        "extra_info": {
+                                            "doi": "10.1002/14651858.CD008123.pub3",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 13.939566877725744
+                                    },
+                                    "reranker_score": 9.253312110900879
+                                },
+                                {
+                                    "text": "BACKGROUND: Botulism is an acute paralytic illness caused by a neurotoxin produced by Clostridium botulinum. Supportive care, including intensive care, is key, but the role of other medical treatments is unclear. This is an update of a review first published in 2011. OBJECTIVES: To assess the effects of medical treatments on mortality, duration of hospitalization, mechanical ventilation, tube or parenteral feeding, and risk of adverse events in botulism. SEARCH METHODS: We searched the Cochrane Neuromuscular Specialised Register, CENTRAL, MEDLINE, and Embase on 23 January 2018. We reviewed bibliographies and contacted authors and experts. We searched two clinical trials registers, WHO ICTRP and clinicaltrials.gov, on 21 February 2019. SELECTION CRITERIA: Randomized controlled trials (RCTs) and quasi-RCTs examining the medical treatment of any of the four major types of botulism (infant intestinal botulism, food-borne botulism, wound botulism, and adult intestinal toxemia). Potential medical treatments included equine serum trivalent botulism antitoxin, human-derived botulinum immune globulin intravenous (BIG-IV), plasma exchange, 3,4-diaminopyridine, and guanidine. DATA COLLECTION AND ANALYSIS: We followed standard Cochrane methodology.Our primary outcome was in-hospital death from any cause occurring within four weeks from randomization or the beginning of treatment. Secondary outcomes were death from any cause occurring within 12 weeks, duration of hospitalization, duration of mechanical ventilation, duration of tube or parenteral feeding, and proportion of participants with adverse events or complications of treatment. MAIN RESULTS: A single RCT met the inclusion criteria. Our 2018 search update identified no additional trials. The included trial evaluated BIG-IV for the treatment of infant botulism and included 59 treatment participants and 63 control participants. The control group received a control immune globulin that did not have an effect on botulinum toxin. Participants were followed during the length of their hospitalization to measure the outcomes of interest.",
+                                    "metadata": {
+                                        "id": "30993666",
+                                        "title": "Medical treatment for botulism.",
+                                        "type": "Systematic Review",
+                                        "date": "2019-Apr-17",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/30993666/",
+                                        "extra_info": {
+                                            "doi": "10.1002/14651858.CD008123.pub4",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Meta-Analysis",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "score": 0.7551950216293335,
+                                    "reranker_score": 8.90823745727539
+                                },
+                                {
+                                    "text": "BACKGROUND: Botulism is a rare, potentially severe illness, often fatal if not appropriately treated. Data on treatment are sparse. We systematically evaluated the literature on botulinum antitoxin and other treatments. METHODS: We conducted a systematic literature review of published articles in PubMed via Medline, Web of Science, Embase, Ovid, and Cumulative Index to Nursing and Allied Health Literature, and included all studies that reported on the clinical course and treatment for foodborne botulism. Articles were reviewed by 2 independent reviewers and independently abstracted for treatment type and toxin exposure. We conducted a meta-analysis on the effect of timing of antitoxin administration, antitoxin type, and toxin exposure type. RESULTS: We identified 235 articles that met the inclusion criteria, published between 1923 and 2016. Study quality was variable. Few (27%) case series reported sufficient data for inclusion in meta-analysis. Reduced mortality was associated with any antitoxin treatment (odds ratio [OR], 0.16; 95% confidence interval [CI], .09-.30) and antitoxin treatment within 48 hours of illness onset (OR, 0.12; 95% CI, .03-.41). Data did not allow assessment of critical care impact, including ventilator support, on survival. Therapeutic agents other than antitoxin offered no clear benefit. Patient characteristics did not predict poor outcomes. We did not identify an interval beyond which antitoxin was not beneficial. CONCLUSIONS: Published studies on botulism treatment are relatively sparse and of low quality. Timely administration of antitoxin reduces mortality; despite appropriate treatment with antitoxin, some patients suffer respiratory failure. Prompt antitoxin administration and meticulous intensive care are essential for optimal outcome.",
+                                    "metadata": {
+                                        "id": "29293927",
+                                        "title": "Efficacy of Antitoxin Therapy in Treating Patients With Foodborne Botulism: A Systematic Review and Meta-analysis of Cases, 1923-2016.",
+                                        "type": "Systematic Review",
+                                        "date": "2017-Dec-27",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/29293927/",
+                                        "extra_info": {
+                                            "doi": "10.1093/cid/cix815",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Meta-Analysis",
+                                                "Research Support, N.I.H., Extramural",
+                                                "Research Support, Non-U.S. Gov't",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 12.427208757497736
+                                    },
+                                    "reranker_score": 8.016617774963379
+                                },
+                                {
+                                    "text": "Botulism is a rare but potentially life-threatening neuroparalytic disease caused by botulinum neurotoxins (BoNTs) produced by the bacterium Clostridium botulinum . 1 , 2 The toxin irreversibly inhibits presynaptic acetylcholine release at neuromuscular junctions. 3 Botulism occurs in several forms, including foodborne, infant, and wound botulism, adult intestinal colonization, iatrogenic, and inhalational botulism. 4 , 5",
+                                    "metadata": {
+                                        "id": "41978657",
+                                        "title": "Wound Botulism Complicating a Snake Bite Wound Following Traditional Application of Raw Goat Skin Successfully Treated with Botulinum Antitoxin: A Case Report.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-08",
+                                        "url": "https://doi.org/10.2147/imcrj.s594853",
+                                        "extra_info": {
+                                            "doi": "10.2147/imcrj.s594853"
+                                        }
+                                    },
+                                    "score": 0.759635865688324,
+                                    "reranker_score": 7.758345603942871
+                                }
+                            ]
+                        }
+                    ],
+                    "evaluation_results": [
+                        {
+                            "subclaim_id": "sub_01",
+                            "subclaim": "Is the toxin produced by Clostridium botulinum always deadly?",
+                            "justification": "A recent clinical trial demonstrated that human-derived botulinum immune globulin (BIG) is effective in treating infant botulism, with no deaths reported in either the treatment or control groups. This suggests that the toxin produced by Clostridium botulinum is not always deadly, especially with timely and appropriate treatment. In fact, a systematic review of published articles found that timely administration of antitoxin reduces mortality, and prompt antitoxin administration and meticulous intensive care are essential for optimal outcome. Therefore, it can be concluded that the toxin produced by Clostridium botulinum is not always deadly.",
+                            "key_evidence": [
+                                "A single randomized controlled trial met the inclusion criteria.",
+                                "This trial evaluated human-derived botulinum immune globulin (BIG) for the treatment of infant botulism and included 59 treatment participants as well as 63 control participants.",
+                                "The control group received a control immune globulin which did not have an effect on botulinum toxin.",
+                                "We found no additional trials when we updated the searches in 2013.",
+                                "Reduced mortality was associated with any antitoxin treatment (odds ratio [OR], 0.16; 95% confidence interval [CI], .09-.30) and antitoxin treatment within 48 hours of illness onset (OR, 0.12; 95% CI, .03-.41).",
+                                "Botulism is a rare but potentially life-threatening neuroparalytic disease caused by botulinum neurotoxins (BoNTs) produced by the bacterium Clostridium botulinum . 1 , 2 The toxin irreversibly inhibits presynaptic acetylcholine release at neuromuscular junctions. 3"
+                            ],
+                            "reasoning_conclusion": "supported",
+                            "label": "supported",
+                            "confidence": 0.1326,
+                            "source": {
+                                "systematic_reviews": 2,
+                                "knowledge_base": 0,
+                                "literature": 1
+                            },
+                            "query": null,
+                            "chunks_count": 5,
+                            "retrieved_chunks": [
+                                {
+                                    "text": "BACKGROUND: Botulism is an acute paralytic illness caused by a neurotoxin produced by Clostridium botulinum. Supportive care, including intensive care, is key but the role of other medical treatments is unclear. OBJECTIVES: To assess the effects of medical treatments on mortality, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events in botulism. SEARCH STRATEGY: We searched the Cochrane Neuromuscular Disease Group Specialized Register (10 January 2011), the Cochrane Central Register of Controlled Trials (CENTRAL) (10 January 2010 in The Cochrane Library, Issue 4 2010), MEDLINE (January 1966 to January 2011) and EMBASE (January 1980 to January 2011). We reviewed bibliographies, and contacted authors and experts. SELECTION CRITERIA: We included randomized and quasi-randomized controlled trials examining the medical treatment of any of the four major types of botulism (infant intestinal botulism, food-borne botulism, wound botulism and adult intestinal toxemia). Medical treatments included equine serum trivalent botulism antitoxin, human-derived botulinum immune globulin, plasma exchange, 3,4-diaminopyridine and guanidine. DATA COLLECTION AND ANALYSIS: Two authors selected studies, assessed risk of bias and extracted data independently onto data extraction forms.Our primary outcome was in-hospital death from any cause occurring within four weeks. Secondary outcomes were death occurring within 12 weeks, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events. MAIN RESULTS: A single randomized controlled trial met the inclusion criteria. This trial evaluated human-derived botulinum immune globulin for the treatment of infant botulism. This study included 59 treatment patients and 63 control patients. There were no deaths in either group making any treatment effect on mortality inestimable.",
+                                    "metadata": {
+                                        "id": "21412916",
+                                        "title": "Medical treatment for botulism.",
+                                        "type": "Systematic Review",
+                                        "date": "2011-Mar-16",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/21412916/",
+                                        "extra_info": {
+                                            "doi": "10.1002/14651858.CD008123.pub2",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 14.365095023918796
+                                    },
+                                    "reranker_score": 9.922362327575684
+                                },
+                                {
+                                    "text": "BACKGROUND: Botulism is an acute paralytic illness caused by a neurotoxin produced by Clostridium botulinum. Supportive care, including intensive care, is key but the role of other medical treatments is unclear. This is an update of a review first published in 2011. OBJECTIVES: To assess the effects of medical treatments on mortality, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events in botulism. SEARCH METHODS: On 30 March 2013, we searched the Cochrane Neuromuscular Disease Group Specialized Register (30 March 2013), CENTRAL (2013, Issue 3) in The Cochrane Library, MEDLINE (January 1966 to March 2013) and EMBASE (January 1980 to March 2013). We reviewed bibliographies and contacted authors and experts. SELECTION CRITERIA: Randomized and quasi-randomized controlled trials examining the medical treatment of any of the four major types of botulism (infant intestinal botulism, food-borne botulism, wound botulism and adult intestinal toxemia). Potential medical treatments included equine serum trivalent botulism antitoxin, human-derived botulinum immune globulin, plasma exchange, 3,4-diaminopyridine and guanidine. DATA COLLECTION AND ANALYSIS: Two authors independently selected studies, assessed risk of bias and extracted data onto data extraction forms.Our primary outcome was in-hospital death from any cause occurring within four weeks. Secondary outcomes were death occurring within 12 weeks, duration of hospitalization, mechanical ventilation, tube or parenteral feeding and risk of adverse events. MAIN RESULTS: A single randomized controlled trial met the inclusion criteria. We found no additional trials when we updated the searches in 2013. This trial evaluated human-derived botulinum immune globulin (BIG) for the treatment of infant botulism and included 59 treatment participants as well as 63 control participants. The control group received a control immune globulin which did not have an effect on botulinum toxin.",
+                                    "metadata": {
+                                        "id": "24558013",
+                                        "title": "Medical treatment for botulism.",
+                                        "type": "Systematic Review",
+                                        "date": "2014-Feb-20",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/24558013/",
+                                        "extra_info": {
+                                            "doi": "10.1002/14651858.CD008123.pub3",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 13.939566877725744
+                                    },
+                                    "reranker_score": 9.253312110900879
+                                },
+                                {
+                                    "text": "BACKGROUND: Botulism is an acute paralytic illness caused by a neurotoxin produced by Clostridium botulinum. Supportive care, including intensive care, is key, but the role of other medical treatments is unclear. This is an update of a review first published in 2011. OBJECTIVES: To assess the effects of medical treatments on mortality, duration of hospitalization, mechanical ventilation, tube or parenteral feeding, and risk of adverse events in botulism. SEARCH METHODS: We searched the Cochrane Neuromuscular Specialised Register, CENTRAL, MEDLINE, and Embase on 23 January 2018. We reviewed bibliographies and contacted authors and experts. We searched two clinical trials registers, WHO ICTRP and clinicaltrials.gov, on 21 February 2019. SELECTION CRITERIA: Randomized controlled trials (RCTs) and quasi-RCTs examining the medical treatment of any of the four major types of botulism (infant intestinal botulism, food-borne botulism, wound botulism, and adult intestinal toxemia). Potential medical treatments included equine serum trivalent botulism antitoxin, human-derived botulinum immune globulin intravenous (BIG-IV), plasma exchange, 3,4-diaminopyridine, and guanidine. DATA COLLECTION AND ANALYSIS: We followed standard Cochrane methodology.Our primary outcome was in-hospital death from any cause occurring within four weeks from randomization or the beginning of treatment. Secondary outcomes were death from any cause occurring within 12 weeks, duration of hospitalization, duration of mechanical ventilation, duration of tube or parenteral feeding, and proportion of participants with adverse events or complications of treatment. MAIN RESULTS: A single RCT met the inclusion criteria. Our 2018 search update identified no additional trials. The included trial evaluated BIG-IV for the treatment of infant botulism and included 59 treatment participants and 63 control participants. The control group received a control immune globulin that did not have an effect on botulinum toxin. Participants were followed during the length of their hospitalization to measure the outcomes of interest.",
+                                    "metadata": {
+                                        "id": "30993666",
+                                        "title": "Medical treatment for botulism.",
+                                        "type": "Systematic Review",
+                                        "date": "2019-Apr-17",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/30993666/",
+                                        "extra_info": {
+                                            "doi": "10.1002/14651858.CD008123.pub4",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Meta-Analysis",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "score": 0.7551950216293335,
+                                    "reranker_score": 8.90823745727539
+                                },
+                                {
+                                    "text": "BACKGROUND: Botulism is a rare, potentially severe illness, often fatal if not appropriately treated. Data on treatment are sparse. We systematically evaluated the literature on botulinum antitoxin and other treatments. METHODS: We conducted a systematic literature review of published articles in PubMed via Medline, Web of Science, Embase, Ovid, and Cumulative Index to Nursing and Allied Health Literature, and included all studies that reported on the clinical course and treatment for foodborne botulism. Articles were reviewed by 2 independent reviewers and independently abstracted for treatment type and toxin exposure. We conducted a meta-analysis on the effect of timing of antitoxin administration, antitoxin type, and toxin exposure type. RESULTS: We identified 235 articles that met the inclusion criteria, published between 1923 and 2016. Study quality was variable. Few (27%) case series reported sufficient data for inclusion in meta-analysis. Reduced mortality was associated with any antitoxin treatment (odds ratio [OR], 0.16; 95% confidence interval [CI], .09-.30) and antitoxin treatment within 48 hours of illness onset (OR, 0.12; 95% CI, .03-.41). Data did not allow assessment of critical care impact, including ventilator support, on survival. Therapeutic agents other than antitoxin offered no clear benefit. Patient characteristics did not predict poor outcomes. We did not identify an interval beyond which antitoxin was not beneficial. CONCLUSIONS: Published studies on botulism treatment are relatively sparse and of low quality. Timely administration of antitoxin reduces mortality; despite appropriate treatment with antitoxin, some patients suffer respiratory failure. Prompt antitoxin administration and meticulous intensive care are essential for optimal outcome.",
+                                    "metadata": {
+                                        "id": "29293927",
+                                        "title": "Efficacy of Antitoxin Therapy in Treating Patients With Foodborne Botulism: A Systematic Review and Meta-analysis of Cases, 1923-2016.",
+                                        "type": "Systematic Review",
+                                        "date": "2017-Dec-27",
+                                        "url": "https://pubmed.ncbi.nlm.nih.gov/29293927/",
+                                        "extra_info": {
+                                            "doi": "10.1093/cid/cix815",
+                                            "publication_types": [
+                                                "Journal Article",
+                                                "Meta-Analysis",
+                                                "Research Support, N.I.H., Extramural",
+                                                "Research Support, Non-U.S. Gov't",
+                                                "Systematic Review"
+                                            ]
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 12.427208757497736
+                                    },
+                                    "reranker_score": 8.016617774963379
+                                },
+                                {
+                                    "text": "Botulism is a rare but potentially life-threatening neuroparalytic disease caused by botulinum neurotoxins (BoNTs) produced by the bacterium Clostridium botulinum . 1 , 2 The toxin irreversibly inhibits presynaptic acetylcholine release at neuromuscular junctions. 3 Botulism occurs in several forms, including foodborne, infant, and wound botulism, adult intestinal colonization, iatrogenic, and inhalational botulism. 4 , 5",
+                                    "metadata": {
+                                        "id": "41978657",
+                                        "title": "Wound Botulism Complicating a Snake Bite Wound Following Traditional Application of Raw Goat Skin Successfully Treated with Botulinum Antitoxin: A Case Report.",
+                                        "type": "Scientific Literature",
+                                        "date": "2026-04-08",
+                                        "url": "https://doi.org/10.2147/imcrj.s594853",
+                                        "extra_info": {
+                                            "doi": "10.2147/imcrj.s594853"
+                                        }
+                                    },
+                                    "score": 0.759635865688324,
+                                    "reranker_score": 7.758345603942871
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "aggregate": {
+                    "final_verdict": {
+                        "label": "supported",
+                        "confidence": 0.1326,
+                        "total_subclaims": 1,
+                        "subclaim_breakdown": [
+                            {
+                                "subclaim_id": "sub_01",
+                                "subclaim": "Is the toxin produced by Clostridium botulinum always deadly?",
+                                "label": "supported",
+                                "confidence": 0.1326
+                            }
+                        ]
+                    }
                 }
             }
         ]
@@ -21,12 +295,7 @@
             {
                 "decompose": {
                     "verifiable_subclaims": [
-                        {
-                            "relation": "Precursor",
-                            "subject": "p100",
-                            "object": "the precursor protein molecule of the NF-kappaB transcription factor subunit p50",
-                            "search_query": "Verify that p100 is the precursor protein molecule of the NF-kappaB transcription factor subunit p50"
-                        }
+                        "Is p100 the precursor protein molecule of the NF-kappaB transcription factor subunit p50?"
                     ]
                 }
             },
@@ -35,475 +304,67 @@
                     "subclaim_results": [
                         {
                             "subclaim_id": "sub_01",
-                            "subclaim": "Verify that p100 is the precursor protein molecule of the NF-kappaB transcription factor subunit p50",
-                            "source": "knowledge_base",
-                            "query": "Protein A binding Protein B",
-                            "sparse_top_k_chunks": [],
-                            "dense_top_k_chunks": [
-                                {
-                                    "text": "Ubiquitin-protein ligase that probably functions as an E3 ligase in conjunction with specific E1 and E2 ligases. May also function as an E4 ligase mediating the assembly of polyubiquitin chains on substrates ubiquitinated by another E3 ubiquitin ligase. Mediates 'Lys-48'-linked polyubiquitination of substrates",
-                                    "metadata": {
-                                        "id": "Q14139",
-                                        "title": "Ubiquitin conjugation factor E4 A",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/Q14139/entry",
-                                        "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "UBE4A"
-                                        }
-                                    },
-                                    "score": 0.5465457439422607
-                                },
-                                {
-                                    "text": "The antigen 85 proteins (FbpA, FbpB, FbpC) are responsible for the high affinity of mycobacteria for fibronectin, a large adhesive glycoprotein, which facilitates the attachment of M.tuberculosis to murine alveolar macrophages (AMs). They also help to maintain the integrity of the cell wall by catalyzing the transfer of mycolic acids to cell wall arabinogalactan and through the synthesis of alpha,alpha-trehalose dimycolate (TDM, cord factor). They catalyze the transfer of a mycoloyl residue from one molecule of alpha,alpha-trehalose monomycolate (TMM) to another TMM, leading to the formation of TDM",
-                                    "metadata": {
-                                        "id": "P9WQP1",
-                                        "title": "Diacylglycerol acyltransferase/mycolyltransferase Ag85B",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P9WQP1/entry",
-                                        "extra_info": {
-                                            "organism": "Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv)",
-                                            "gene": "fbpB"
-                                        }
-                                    },
-                                    "score": 0.5361847281455994
-                                },
-                                {
-                                    "text": "The antigen 85 proteins (FbpA, FbpB, FbpC) are responsible for the high affinity of mycobacteria for fibronectin, a large adhesive glycoprotein, which facilitates the attachment of Mycobacteria to murine alveolar macrophages (AMs) (PubMed:8406884). They also help to maintain the integrity of the cell wall by catalyzing the transfer of mycolic acids to cell wall arabinogalactan and through the synthesis of alpha,alpha-trehalose dimycolate (TDM, cord factor). They catalyze the transfer of a mycoloyl residue from one molecule of alpha,alpha-trehalose monomycolate (TMM) to another TMM, leading to the formation of TDM (By similarity)",
-                                    "metadata": {
-                                        "id": "P0C2T2",
-                                        "title": "Diacylglycerol acyltransferase/mycolyltransferase Ag85B",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P0C2T2/entry",
-                                        "extra_info": {
-                                            "organism": "Mycobacterium bovis (strain ATCC BAA-935 / AF2122/97)",
-                                            "gene": "fbpB"
-                                        }
-                                    },
-                                    "score": 0.5335968136787415
-                                }
-                            ]
-                        }
-                    ],
-                    "evaluation_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that p100 is the precursor protein molecule of the NF-kappaB transcription factor subunit p50",
-                            "justification": "The subclaim is supported by the evidence that the NF-kappaB transcription factor subunit p50 is a precursor protein molecule, which is related to the ubiquitination process. The key evidence is that the ubiquitin-protein ligase mediates 'Lys-48'-linked polyubiquitination of substrates, which is a crucial step in the formation of the NF-kappaB transcription factor subunit p50. Therefore, the reasoning conclusion is that the subclaim is supported.",
-                            "key_evidence": [
-                                "Mediates 'Lys-48'-linked polyubiquitination of substrates"
-                            ],
-                            "reasoning_conclusion": "supported",
-                            "label": "supported",
-                            "confidence": 0.9998,
-                            "source": "knowledge_base",
-                            "query": "Protein A binding Protein B",
-                            "chunks_count": 3
-                        }
-                    ]
-                }
-            },
-            {
-                "aggregate": {
-                    "final_verdict": {
-                        "label": "supported",
-                        "confidence": 0.9998,
-                        "total_subclaims": 1,
-                        "subclaim_breakdown": [
-                            {
-                                "subclaim_id": "sub_01",
-                                "label": "supported",
-                                "confidence": 0.9998
-                            }
-                        ]
-                    }
-                }
-            }
-        ]
-    },
-    {
-        "claim_id": "bioasq_177",
-        "claim": "Are chromomethylases present in animal genomes?",
-        "true_label": "refuted",
-        "predicted_label": "supported",
-        "pipeline_steps": [
-            {
-                "decompose": {
-                    "verifiable_subclaims": [
-                        {
-                            "relation": "Present",
-                            "subject": "Chromomethylases",
-                            "object": "animal genomes",
-                            "search_query": "Verify that chromomethylases are present in animal genomes."
-                        }
-                    ]
-                }
-            },
-            {
-                "verify_subclaim": {
-                    "subclaim_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that chromomethylases are present in animal genomes.",
-                            "source": "knowledge_base",
-                            "query": "Chromomethylase protein function",
-                            "sparse_top_k_chunks": [
-                                {
-                                    "text": "Histone methyltransferase. Methylates 'Lys-9' of histone H3. H3 'Lys-9' methylation represents a specific tag for epigenetic transcriptional repression. The silencing mechanism via DNA CpNpG methylation requires the targeting of chromomethylase CMT3 to methylated histones, probably through an interaction with an HP1-like adapter. By its function, KYP is directly required for the maintenance of the DNA CpNpG and asymmetric methylation. Involved in the silencing of transposable elements",
-                                    "metadata": {
-                                        "id": "Q8GZB6",
-                                        "title": "Histone-lysine N-methyltransferase, H3 lysine-9 specific SUVH4",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/Q8GZB6/entry",
-                                        "extra_info": {
-                                            "organism": "Arabidopsis thaliana",
-                                            "gene": "SUVH4"
-                                        }
-                                    }
-                                },
-                                {
-                                    "text": "Involved in CpXpG DNA methylation. Plays a critical role in the maintenance of CpXpG DNA methylation and suppression of a wide spectrum of transposable element (TE) activities. Required for proper plant development in reproductive stage",
-                                    "metadata": {
-                                        "id": "C0SQ89",
-                                        "title": "DNA (cytosine-5)-methyltransferase CMT3",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/C0SQ89/entry",
-                                        "extra_info": {
-                                            "organism": "Oryza sativa subsp. japonica",
-                                            "gene": "CMT3"
-                                        }
-                                    }
-                                },
-                                {
-                                    "text": "Involved in the CpXpG methylation (e.g. CHG cytosine) and in gene silencing (PubMed:26798133). Methylates preferentially transposon-related sequences. Functionally redundant to DRM1/DRM2 to maintain non-CpG methylation. Involved in RNA-directed DNA methylation",
-                                    "metadata": {
-                                        "id": "Q94F88",
-                                        "title": "DNA (cytosine-5)-methyltransferase CMT3",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/Q94F88/entry",
-                                        "extra_info": {
-                                            "organism": "Arabidopsis thaliana",
-                                            "gene": "CMT3"
-                                        }
-                                    }
-                                }
-                            ],
-                            "dense_top_k_chunks": []
-                        }
-                    ],
-                    "evaluation_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that chromomethylases are present in animal genomes.",
-                            "justification": "Chromomethylases are involved in DNA methylation and gene silencing, as stated in Chunk 1, Chunk 2, and Chunk 3. This supports the presence of chromomethylases in animal genomes.",
-                            "key_evidence": [
-                                "The silencing mechanism via DNA CpNpG methylation requires the targeting of chromomethylase CMT3 to methylated histones.",
-                                "Involved in CpXpG DNA methylation.",
-                                "Involved in the CpXpG methylation (e.g. CHG cytosine) and in gene silencing."
-                            ],
-                            "reasoning_conclusion": "supported",
-                            "label": "supported",
-                            "confidence": 0.9997,
-                            "source": "knowledge_base",
-                            "query": "Chromomethylase protein function",
-                            "chunks_count": 3
-                        }
-                    ]
-                }
-            },
-            {
-                "aggregate": {
-                    "final_verdict": {
-                        "label": "supported",
-                        "confidence": 0.9997,
-                        "total_subclaims": 1,
-                        "subclaim_breakdown": [
-                            {
-                                "subclaim_id": "sub_01",
-                                "label": "supported",
-                                "confidence": 0.9997
-                            }
-                        ]
-                    }
-                }
-            }
-        ]
-    },
-    {
-        "claim_id": "bioasq_265",
-        "claim": "Do selenoproteins and selenium play a role in prostate cancer prevention?",
-        "true_label": "refuted",
-        "predicted_label": "supported",
-        "pipeline_steps": [
-            {
-                "decompose": {
-                    "verifiable_subclaims": [
-                        {
-                            "relation": "RoleIn",
-                            "subject": "selenoproteins",
-                            "object": "prostate cancer prevention",
-                            "search_query": "Verify that selenoproteins play a role in prostate cancer prevention."
-                        },
-                        {
-                            "relation": "RoleIn",
-                            "subject": "selenium",
-                            "object": "prostate cancer prevention",
-                            "search_query": "Verify that selenium plays a role in prostate cancer prevention."
-                        }
-                    ]
-                }
-            },
-            {
-                "verify_subclaim": {
-                    "subclaim_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that selenoproteins play a role in prostate cancer prevention.",
-                            "source": "knowledge_base",
-                            "query": "Selenoprotein expression prostate cancer",
-                            "sparse_top_k_chunks": [],
-                            "dense_top_k_chunks": [
-                                {
-                                    "text": "Nuclear hormone receptor. Binds estrogens with an affinity similar to that of ESR1/ER-alpha, and activates expression of reporter genes containing estrogen response elements (ERE) in an estrogen-dependent manner (PubMed:20074560)",
-                                    "metadata": {
-                                        "id": "Q92731",
-                                        "title": "Estrogen receptor beta",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/Q92731/entry",
-                                        "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "ESR2"
-                                        }
-                                    },
-                                    "score": 0.5580494403839111
-                                },
-                                {
-                                    "text": "Increases cell migration by inducing filopodia formation at the leading edge of migrating cells. Plays a role in regulation of apoptosis, possibly through control of CASP3. May be involved in a redox-related process",
-                                    "metadata": {
-                                        "id": "Q9BRT3",
-                                        "title": "Migration and invasion enhancer 1",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/Q9BRT3/entry",
-                                        "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "MIEN1"
-                                        }
-                                    },
-                                    "score": 0.5378525853157043
-                                },
-                                {
-                                    "text": "May be involved in redox reactions associated with the formation of disulfide bonds (By similarity). May contribute to the quality control of protein folding in the endoplasmic reticulum (PubMed:24415556). May regulate protein folding by enhancing the catalytic activity of UGGT1/UGCGL1 and UGGT2/UGCGL2 (PubMed:24415556)",
-                                    "metadata": {
-                                        "id": "O60613",
-                                        "title": "Selenoprotein F",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/O60613/entry",
-                                        "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "SELENOF"
-                                        }
-                                    },
-                                    "score": 0.5181779861450195
-                                }
-                            ]
-                        }
-                    ],
-                    "evaluation_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that selenoproteins play a role in prostate cancer prevention.",
-                            "justification": "Selenoproteins play a role in prostate cancer prevention because they are involved in redox reactions and protein folding, which can help prevent cancer cell growth. This is supported by evidence from Chunk 3, which states that selenoproteins may contribute to the quality control of protein folding in the endoplasmic reticulum. Additionally, Chunk 3 mentions that selenoproteins may regulate protein folding by enhancing the catalytic activity of UGGT1/UGCGL1 and UGGT2/UGCGL2. While Chunks 1 and 2 do not directly relate to prostate cancer prevention, they do provide information on the function of selenoproteins in other contexts. Therefore, the reasoning conclusion is that the evidence supports the subclaim.",
-                            "key_evidence": [
-                                "Chunk 3: May contribute to the quality control of protein folding in the endoplasmic reticulum.",
-                                "Chunk 3: May regulate protein folding by enhancing the catalytic activity of UGGT1/UGCGL1 and UGGT2/UGCGL2."
-                            ],
-                            "reasoning_conclusion": "supported",
-                            "label": "supported",
-                            "confidence": 0.9996,
-                            "source": "knowledge_base",
-                            "query": "Selenoprotein expression prostate cancer",
-                            "chunks_count": 3
-                        }
-                    ]
-                }
-            },
-            {
-                "verify_subclaim": {
-                    "subclaim_results": [
-                        {
-                            "subclaim_id": "sub_02",
-                            "subclaim": "Verify that selenium plays a role in prostate cancer prevention.",
-                            "source": "literature",
-                            "query": "Prostate cancer drug efficacy",
-                            "sparse_top_k_chunks": [],
-                            "dense_top_k_chunks": [
-                                {
-                                    "text": "Cancer is one of the most acute problems in biomedical science and clinical medicine, not only because of its burden globally but also because of the complexity of its biology and the perpetual development of resistance to therapeutic interventions [ 1 , 2 ]. Present\u2010day genetic disease framing of cancer evolved over decades of discovery [ 3 ]. By the mid\u201020th century, cancer was seen as an uncontrolled growth of cells, and histopathological classification came into focus [ 4 ]. The discovery of tumour protein 53 (TP53), retinoblastoma (RB1), and myelocytomatosis (MYC) in the 1970s and 1980s offered a mechanistic understanding of how genetic changes contribute to tumour development, shifting pathology towards molecular causation [ 5 ]. Prostate\u2010specific antigen (PSA) testing, introduced in the late 1980s, transformed prostate cancer (PCa) screening by providing a biomarker\u2010based method of early detection, proving the significance of molecular markers in cancer management despite shortcomings [ 6 ]. By the early 2000s, cancer as a genome disease was established by the sequencing of the human genome and later cancer genome projects, where mutational landscapes vary across tumour types [ 7 ]. Another turning point was the 2010s clustered regularly interspaced short palindromic repeats\u2010Cas9 (CRISPR\u2010Cas9) revolution, which allowed researchers to explore how individual genes contributed to cancer biology through functional genomics [ 8 ]. Whole\u2010genome CRISPR knockout screens demonstrated resistance to therapies [ 9 ], showing how cancer knowledge evolved beyond descriptive pathology to mechanistic genomics and interrogation of vulnerabilities. The three pillars of treatment\u2014surgery, chemotherapy, and radiation\u2014have shortcomings, particularly toxicity and lack of specificity [ 10 ]. Subsequently, it prompted targeted therapies and immunotherapies such as tyrosine kinase inhibitors, monoclonal antibodies, checkpoint inhibitors, and chimeric antigen receptor (CAR\u2010T) cells [ 11 ].",
-                                    "metadata": {
-                                        "id": "42022634",
-                                        "title": "Artificial Intelligence and Prostate-Breast Cancer Biology: Recent Advances in Treatments and Perspectives - A Comprehensive Review.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-03-16",
-                                        "url": "https://doi.org/10.1002/hsr2.72117",
-                                        "extra_info": {
-                                            "doi": "10.1002/hsr2.72117"
-                                        }
-                                    },
-                                    "score": 0.5593177080154419
-                                },
-                                {
-                                    "text": "Cancer remains second in position among fatal non-communicable diseases (NCD) in the world, with an alarming number of deaths recorded each year. 1 , 2 In 2020 alone, it was reported that an estimated 19.3 million new cases of cancer, as well as a high mortality figure of nearly 10 million, were recorded worldwide. 3 , 4 Cancer continues to impose life-threatening situations to public health generally, and the available coping or treatment strategies against cancer is highly restricted owing to metastasis, which makes the situation a cause of concern. 5 , 6 There are various types of cancer;inlcuding lung, liver, oesophageal, brain, breast, and prostate, to mention a few. 7 These various types are known to be of grave concern to the health sector worldwide. Usually, the treatment strategies that are principally employed for cancer treatment include operations, the use of chemotherapeutic agents, hormonal, and radiation therapy. These treatment strategies could be administered as a single treatment or in combination with others like some cases, where chemotherapeutic agents are first used to treat the cancer tumor for the purpose of reducing the mass of the tumor. This is then followed by the use of surgical operation for the removal of the size-reduced tumor which was accomplished by chemotherapy, and lastly, a post-surgery treatment with the use of either chemotherapy or radiation therapy, depending on the requirement. 6 , 8 , 9",
-                                    "metadata": {
-                                        "id": "41939207",
-                                        "title": "Liposomal Delivery Systems for Improved Delivery of Docetaxel Against Prostate Cancer.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-03-30",
-                                        "url": "https://doi.org/10.2147/ijn.s553994",
-                                        "extra_info": {
-                                            "doi": "10.2147/ijn.s553994"
-                                        }
-                                    },
-                                    "score": 0.5542391538619995
-                                },
-                                {
-                                    "text": "There have been major changes in diagnostic work-up of prostate cancer (PCa) in the last decade. The introduction of prostate magnetic resonance imaging (MRI) prior to biopsy has increased the diagnostic accuracy for clinically significant PCa while prostate-specific membrane antigen positron emission tomography (PSMA-PET) has improved the detection of nodal and distal metastases [ 1 \u2013 3 ].",
-                                    "metadata": {
-                                        "id": "41983270",
-                                        "title": "Temporal trends in diagnostic work-up, treatment, and mortality in locally advanced prostate cancer in 2016-2024: nationwide, population-based study in Sweden.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-04-15",
-                                        "url": "https://doi.org/10.2340/ao.v65.45593",
-                                        "extra_info": {
-                                            "doi": "10.2340/ao.v65.45593"
-                                        }
-                                    },
-                                    "score": 0.5528647899627686
-                                }
-                            ]
-                        }
-                    ],
-                    "evaluation_results": [
-                        {
-                            "subclaim_id": "sub_02",
-                            "subclaim": "Verify that selenium plays a role in prostate cancer prevention.",
-                            "justification": "The evidence suggests that selenium plays a role in prostate cancer prevention, but the relationship is not explicitly stated. The key evidence is that selenium is a trace element that has been shown to have antioxidant properties, which can help prevent cancer. However, the evidence also suggests that the role of selenium in prostate cancer prevention is still being researched and more studies are needed to fully understand its effects. Therefore, the reasoning conclusion is that the evidence provides not enough information to fully support or refute the subclaim.",
-                            "key_evidence": [
-                                "Selenium is a trace element that has been shown to have antioxidant properties, which can help prevent cancer."
-                            ],
-                            "reasoning_conclusion": "not_enough_information",
-                            "label": "supported",
-                            "confidence": 0.9994,
-                            "source": "literature",
-                            "query": "Prostate cancer drug efficacy",
-                            "chunks_count": 3
-                        }
-                    ]
-                }
-            },
-            {
-                "aggregate": {
-                    "final_verdict": {
-                        "label": "supported",
-                        "confidence": 0.9995,
-                        "total_subclaims": 2,
-                        "subclaim_breakdown": [
-                            {
-                                "subclaim_id": "sub_01",
-                                "label": "supported",
-                                "confidence": 0.9996
+                            "subclaim": "Is p100 the precursor protein molecule of the NF-kappaB transcription factor subunit p50?",
+                            "source": {
+                                "systematic_reviews": 0,
+                                "knowledge_base": 3,
+                                "literature": 0
                             },
-                            {
-                                "subclaim_id": "sub_02",
-                                "label": "supported",
-                                "confidence": 0.9994
-                            }
-                        ]
-                    }
-                }
-            }
-        ]
-    },
-    {
-        "claim_id": "bioasq_698",
-        "claim": "Are stress granules membraneous?",
-        "true_label": "refuted",
-        "predicted_label": "supported",
-        "pipeline_steps": [
-            {
-                "decompose": {
-                    "verifiable_subclaims": [
-                        {
-                            "relation": "Membraneous",
-                            "subject": "Stress granules",
-                            "object": "",
-                            "search_query": "Verify that stress granules are membraneous."
-                        }
-                    ]
-                }
-            },
-            {
-                "verify_subclaim": {
-                    "subclaim_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that stress granules are membraneous.",
-                            "source": "knowledge_base",
-                            "query": "Protein binding pathways",
-                            "sparse_top_k_chunks": [],
-                            "dense_top_k_chunks": [
+                            "queries_by_source": {
+                                "knowledge_base": [
+                                    "p100 precursor p50 NF-kappaB",
+                                    "p100 NF-kappaB p50 relationship",
+                                    "p100 p50 precursor protein"
+                                ]
+                            },
+                            "retrieved_chunks": [
                                 {
-                                    "text": "Co-chaperone and adapter protein that connects different classes of molecular chaperones including heat shock proteins 70 (HSP70s), e.g. HSPA1A/HSP70 or HSPA8/HSC70, and small heat shock proteins (sHSPs), e.g. HSPB8 (PubMed:27884606, PubMed:30559338). Acts as a nucleotide-exchange factor (NEF) promoting the release of ADP from HSP70s, thereby triggering client protein release (PubMed:27884606, PubMed:30559338). Nucleotide release is mediated via BAG3 binding to the nucleotide-binding domain (NBD) of HSP70s, whereas client release is mediated via binding to the substrate-binding domain (SBD) (PubMed:27474739, PubMed:9873016). Has anti-apoptotic activity (PubMed:10597216). Plays a role in the HSF1 nucleocytoplasmic transport (PubMed:26159920)",
+                                    "text": "Function: NF-kappa-B is a pleiotropic transcription factor present in almost all cell types and is the endpoint of a series of signal transduction events that are initiated by a vast array of stimuli related to many biological processes such as inflammation, immunity, differentiation, cell growth, tumorigenesis and apoptosis. NF-kappa-B is a homo- or heterodimeric complex formed by the Rel-like domain-containing proteins RELA/p65, RELB, NFKB1/p105, NFKB1/p50, REL and NFKB2/p52. The dimers bind at kappa-B sites in the DNA of their target genes and the individual dimers have distinct preferences for different kappa-B sites that they can bind with distinguishable affinity and specificity. Different dimer combinations act as transcriptional activators or repressors, respectively. NF-kappa-B is controlled by various mechanisms of post-translational modification and subcellular compartmentalization as well as by interactions with other cofactors or corepressors. NF-kappa-B complexes are held in the cytoplasm in an inactive state complexed with members of the NF-kappa-B inhibitor (I-kappa-B) family. In a conventional activation pathway, I-kappa-B is phosphorylated by I-kappa-B kinases (IKKs) in response to different activators, subsequently degraded thus liberating the active NF-kappa-B complex which translocates to the nucleus. In a non-canonical activation pathway, the MAP3K14-activated CHUK/IKKA homodimer phosphorylates NFKB2/p100 associated with RelB, inducing its proteolytic processing to NFKB2/p52 and the formation of NF-kappa-B RelB-p52 complexes. The NF-kappa-B heterodimeric RelB-p52 complex is a transcriptional activator. The NF-kappa-B p52-p52 homodimer is a transcriptional repressor. NFKB2 appears to have dual functions such as cytoplasmic retention of attached NF-kappa-B proteins by p100 and generation of p52 by a cotranslational processing. The proteasome-mediated process ensures the production of both p52 and p100 and preserves their independent function. p52 binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions.",
                                     "metadata": {
-                                        "id": "O95817",
-                                        "title": "BAG family molecular chaperone regulator 3",
+                                        "id": "Q00653",
+                                        "title": "Nuclear factor NF-kappa-B p100 subunit",
                                         "type": "Protein Knowledge",
                                         "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/O95817/entry",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q00653/entry",
                                         "extra_info": {
                                             "organism": "Homo sapiens",
-                                            "gene": "BAG3"
+                                            "gene": "NFKB2"
                                         }
                                     },
-                                    "score": 0.6011247634887695
+                                    "score": 0.8150898218154907,
+                                    "reranker_score": 12.78023910522461
                                 },
                                 {
-                                    "text": "Signaling adapter protein that participates in the signal transduction from two prominent receptor tyrosine kinases, insulin receptor/INSR and insulin-like growth factor I receptor/IGF1R (PubMed:7541045, PubMed:33991522, PubMed:38625937). Plays therefore an important role in development, growth, glucose homeostasis as well as lipid metabolism (PubMed:19639489). Upon phosphorylation by the insulin receptor, functions as a signaling scaffold that propagates insulin action through binding to SH2 domain-containing proteins including the p85 regulatory subunit of PI3K, NCK1, NCK2, GRB2 or SHP2 (PubMed:11171109, PubMed:8265614). Recruitment of GRB2 leads to the activation of the guanine nucleotide exchange factor SOS1 which in turn triggers the Ras/Raf/MEK/MAPK signaling cascade (By similarity). Activation of the PI3K/AKT pathway is responsible for most of insulin metabolic effects in the cell, and the Ras/Raf/MEK/MAPK is involved in the regulation of gene expression and in cooperation with the PI3K pathway regulates cell growth and differentiation. Acts a positive regulator of the Wnt/beta-catenin signaling pathway through suppression of DVL2 autophagy-mediated degradation leading to cell proliferation (PubMed:24616100)",
+                                    "text": "NFKB2 appears to have dual functions such as cytoplasmic retention of attached NF-kappa-B proteins by p100 and generation of p52 by a cotranslational processing. The proteasome-mediated process ensures the production of both p52 and p100 and preserves their independent function. p52 binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions. p52 and p100 are respectively the minor and major form; the processing of p100 being relatively poor. Isoform p49 is a subunit of the NF-kappa-B protein complex, which stimulates the HIV enhancer in synergy with p65. In concert with RELB, regulates the circadian clock by repressing the transcriptional activator activity of the CLOCK-BMAL1 heterodimer Interacts with: DHX9, MAP3K8, NFKB1, NFKB2, NFKBIA, NFKBIB, NFKBIE, REL, RELA, RELB, SUMO1, IKBKG, MEN1",
                                     "metadata": {
-                                        "id": "P35568",
-                                        "title": "Insulin receptor substrate 1",
+                                        "id": "Q00653",
+                                        "title": "Nuclear factor NF-kappa-B p100 subunit",
                                         "type": "Protein Knowledge",
                                         "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P35568/entry",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q00653/entry",
                                         "extra_info": {
                                             "organism": "Homo sapiens",
-                                            "gene": "IRS1"
+                                            "gene": "NFKB2"
                                         }
                                     },
-                                    "score": 0.5837573409080505
+                                    "score": 0.8149426579475403,
+                                    "reranker_score": 11.340307235717773
                                 },
                                 {
-                                    "text": "ATP-dependent chaperone which uses the energy provided by ATP hydrolysis to generate mechanical force to disassemble protein complexes (PubMed:12006565, PubMed:17646390, PubMed:23185031, PubMed:24371142). Plays an essential role in the cytoplasmic maturation steps of pre-60S ribosomal particles by promoting the release of shuttling protein RLP24 from the pre-ribosomal particles (PubMed:17646390, PubMed:23185031, PubMed:24371142). This step facilitates the subsequent release of other shuttling proteins such as NOG1 and allows the transition of the pre-ribosomal particles to later maturation forms that bind REI1 (PubMed:17646390, PubMed:23185031, PubMed:24371142). Essential for viability (PubMed:24371142, PubMed:8109176)",
+                                    "text": "Function: Constitutes the active form, which associates with RELA/p65 to form the NF-kappa-B p65-p50 complex to form a transcription factor. Together with RELA/p65, binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions",
                                     "metadata": {
-                                        "id": "P32794",
-                                        "title": "ATPase family gene 2 protein",
+                                        "id": "Q0II00",
+                                        "title": "Nuclear factor NF-kappa-B p105 subunit",
                                         "type": "Protein Knowledge",
                                         "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P32794/entry",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q0II00/entry",
                                         "extra_info": {
-                                            "organism": "Saccharomyces cerevisiae (strain ATCC 204508 / S288c)",
-                                            "gene": "AFG2"
+                                            "organism": "Danio rerio",
+                                            "gene": "nfkb2"
                                         }
                                     },
-                                    "score": 0.5789046287536621
+                                    "score": 0.8058105707168579,
+                                    "reranker_score": 6.703023910522461
                                 }
                             ]
                         }
@@ -511,18 +372,73 @@
                     "evaluation_results": [
                         {
                             "subclaim_id": "sub_01",
-                            "subclaim": "Verify that stress granules are membraneous.",
-                            "justification": "Stress granules are membraneous because they are formed on the surface of the endoplasmic reticulum (ER) and are composed of proteins and RNAs that are associated with the ER membrane. This is supported by evidence from Chunk 1, which states that stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane. Additionally, Chunk 3 provides evidence that stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane. Therefore, the reasoning conclusion is that the evidence supports the subclaim.",
+                            "subclaim": "Is p100 the precursor protein molecule of the NF-kappaB transcription factor subunit p50?",
+                            "justification": "NF-kappa-B is a pleiotropic transcription factor present in almost all cell types and is the endpoint of a series of signal transduction events that are initiated by a vast array of stimuli related to many biological processes such as inflammation, immunity, differentiation, cell growth, tumorigenesis and apoptosis. The dimers bind at kappa-B sites in the DNA of their target genes and the individual dimers have distinct preferences for different kappa-B sites that they can bind with distinguishable affinity and specificity. Different dimer combinations act as transcriptional activators or repressors, respectively. NF-kappa-B is controlled by various mechanisms of post-translational modification and subcellular compartmentalization as well as by interactions with other cofactors or corepressors. NF-kappa-B complexes are held in the cytoplasm in an inactive state complexed with members of the NF-kappa-B inhibitor (I-kappa-B) family. In a conventional activation pathway, I-kappa-B is phosphorylated by I-kappa-B kinases (IKKs) in response to different activators, subsequently degraded thus liberating the active NF-kappa-B complex which translocates to the nucleus. In a non-canonical activation pathway, the MAP3K14-activated CHUK/IKKA homodimer phosphorylates NFKB2/p100 associated with RelB, inducing its proteolytic processing to NFKB2/p52 and the formation of NF-kappa-B RelB-p52 complexes. The NF-kappa-B heterodimeric RelB-p52 complex is a transcriptional activator. The NF-kappa-B p52-p52 homodimer is a transcriptional repressor. NFKB2 appears to have dual functions such as cytoplasmic retention of attached NF-kappa-B proteins by p100 and generation of p52 by a cotranslational processing. The proteasome-mediated process ensures the production of both p52 and p100 and preserves their independent function. p52 binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions. Constitutes the active form, which associates with RELA/p65 to form the NF-kappa-B p65-p50 complex to form a transcription factor. Together with RELA/p65, binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions.",
                             "key_evidence": [
-                                "Chunk 1: Stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane.",
-                                "Chunk 3: Stress granules are formed on the surface of the ER and are composed of proteins and RNAs that are associated with the ER membrane."
+                                "NF-kappa-B is a pleiotropic transcription factor present in almost all cell types and is the endpoint of a series of signal transduction events that are initiated by a vast array of stimuli related to many biological processes such as inflammation, immunity, differentiation, cell growth, tumorigenesis and apoptosis.",
+                                "NFKB2 appears to have dual functions such as cytoplasmic retention of attached NF-kappa-B proteins by p100 and generation of p52 by a cotranslational processing.",
+                                "Constitutes the active form, which associates with RELA/p65 to form the NF-kappa-B p65-p50 complex to form a transcription factor."
                             ],
                             "reasoning_conclusion": "supported",
                             "label": "supported",
-                            "confidence": 0.9995,
-                            "source": "knowledge_base",
-                            "query": "Protein binding pathways",
-                            "chunks_count": 3
+                            "confidence": 0.0045,
+                            "source": {
+                                "systematic_reviews": 0,
+                                "knowledge_base": 3,
+                                "literature": 0
+                            },
+                            "query": null,
+                            "chunks_count": 3,
+                            "retrieved_chunks": [
+                                {
+                                    "text": "Function: NF-kappa-B is a pleiotropic transcription factor present in almost all cell types and is the endpoint of a series of signal transduction events that are initiated by a vast array of stimuli related to many biological processes such as inflammation, immunity, differentiation, cell growth, tumorigenesis and apoptosis. NF-kappa-B is a homo- or heterodimeric complex formed by the Rel-like domain-containing proteins RELA/p65, RELB, NFKB1/p105, NFKB1/p50, REL and NFKB2/p52. The dimers bind at kappa-B sites in the DNA of their target genes and the individual dimers have distinct preferences for different kappa-B sites that they can bind with distinguishable affinity and specificity. Different dimer combinations act as transcriptional activators or repressors, respectively. NF-kappa-B is controlled by various mechanisms of post-translational modification and subcellular compartmentalization as well as by interactions with other cofactors or corepressors. NF-kappa-B complexes are held in the cytoplasm in an inactive state complexed with members of the NF-kappa-B inhibitor (I-kappa-B) family. In a conventional activation pathway, I-kappa-B is phosphorylated by I-kappa-B kinases (IKKs) in response to different activators, subsequently degraded thus liberating the active NF-kappa-B complex which translocates to the nucleus. In a non-canonical activation pathway, the MAP3K14-activated CHUK/IKKA homodimer phosphorylates NFKB2/p100 associated with RelB, inducing its proteolytic processing to NFKB2/p52 and the formation of NF-kappa-B RelB-p52 complexes. The NF-kappa-B heterodimeric RelB-p52 complex is a transcriptional activator. The NF-kappa-B p52-p52 homodimer is a transcriptional repressor. NFKB2 appears to have dual functions such as cytoplasmic retention of attached NF-kappa-B proteins by p100 and generation of p52 by a cotranslational processing. The proteasome-mediated process ensures the production of both p52 and p100 and preserves their independent function. p52 binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions.",
+                                    "metadata": {
+                                        "id": "Q00653",
+                                        "title": "Nuclear factor NF-kappa-B p100 subunit",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q00653/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "NFKB2"
+                                        }
+                                    },
+                                    "score": 0.8150898218154907,
+                                    "reranker_score": 12.78023910522461
+                                },
+                                {
+                                    "text": "NFKB2 appears to have dual functions such as cytoplasmic retention of attached NF-kappa-B proteins by p100 and generation of p52 by a cotranslational processing. The proteasome-mediated process ensures the production of both p52 and p100 and preserves their independent function. p52 binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions. p52 and p100 are respectively the minor and major form; the processing of p100 being relatively poor. Isoform p49 is a subunit of the NF-kappa-B protein complex, which stimulates the HIV enhancer in synergy with p65. In concert with RELB, regulates the circadian clock by repressing the transcriptional activator activity of the CLOCK-BMAL1 heterodimer Interacts with: DHX9, MAP3K8, NFKB1, NFKB2, NFKBIA, NFKBIB, NFKBIE, REL, RELA, RELB, SUMO1, IKBKG, MEN1",
+                                    "metadata": {
+                                        "id": "Q00653",
+                                        "title": "Nuclear factor NF-kappa-B p100 subunit",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q00653/entry",
+                                        "extra_info": {
+                                            "organism": "Homo sapiens",
+                                            "gene": "NFKB2"
+                                        }
+                                    },
+                                    "score": 0.8149426579475403,
+                                    "reranker_score": 11.340307235717773
+                                },
+                                {
+                                    "text": "Function: Constitutes the active form, which associates with RELA/p65 to form the NF-kappa-B p65-p50 complex to form a transcription factor. Together with RELA/p65, binds to the kappa-B consensus sequence 5'-GGRNNYYCC-3', located in the enhancer region of genes involved in immune response and acute phase reactions",
+                                    "metadata": {
+                                        "id": "Q0II00",
+                                        "title": "Nuclear factor NF-kappa-B p105 subunit",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q0II00/entry",
+                                        "extra_info": {
+                                            "organism": "Danio rerio",
+                                            "gene": "nfkb2"
+                                        }
+                                    },
+                                    "score": 0.8058105707168579,
+                                    "reranker_score": 6.703023910522461
+                                }
+                            ]
                         }
                     ]
                 }
@@ -531,13 +447,14 @@
                 "aggregate": {
                     "final_verdict": {
                         "label": "supported",
-                        "confidence": 0.9995,
+                        "confidence": 0.0045,
                         "total_subclaims": 1,
                         "subclaim_breakdown": [
                             {
                                 "subclaim_id": "sub_01",
+                                "subclaim": "Is p100 the precursor protein molecule of the NF-kappaB transcription factor subunit p50?",
                                 "label": "supported",
-                                "confidence": 0.9995
+                                "confidence": 0.0045
                             }
                         ]
                     }
@@ -549,17 +466,12 @@
         "claim_id": "bioasq_396",
         "claim": "Has silicon been used in treatment of  incontinence ?",
         "true_label": "supported",
-        "predicted_label": "refuted",
+        "predicted_label": "nei",
         "pipeline_steps": [
             {
                 "decompose": {
                     "verifiable_subclaims": [
-                        {
-                            "relation": "UsedInTreatment",
-                            "subject": "silicon",
-                            "object": "incontinence",
-                            "search_query": "Verify that silicon has been used in the treatment of incontinence."
-                        }
+                        "silicon has been used in treatment of incontinence"
                     ]
                 }
             },
@@ -568,72 +480,39 @@
                     "subclaim_results": [
                         {
                             "subclaim_id": "sub_01",
-                            "subclaim": "Verify that silicon has been used in the treatment of incontinence.",
-                            "source": "literature",
-                            "query": "Treatment efficacy outcomes",
-                            "sparse_top_k_chunks": [],
-                            "dense_top_k_chunks": [
-                                {
-                                    "text": "Currently, there are inconclusive and conflicting conclusions regarding the comparison between EVT and standard medical treatment in BAO patients.This study aimed to compare the functional outcomes between endovascular treatment (EVT) with and without intravenous thrombolysis (IVT) first in patients who had acute basilar artery occlusion (BAO).",
-                                    "metadata": {
-                                        "id": "",
-                                        "title": "ABSTRACT NUMBER: ESOC2026A906 COMPARATIVE EFFICACY AND SAFETY OF COMBINED INTRAVENOUS ALTEPLASE AND ENDOVASCULAR TREATMENT VERSUS DIRECT ENDOVASCULAR TREATMENT IN ACUTE BASILAR ARTERY OCCLUSION",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-05-01",
-                                        "url": "",
-                                        "extra_info": {
-                                            "doi": ""
-                                        }
-                                    },
-                                    "score": 0.6382367014884949
-                                },
-                                {
-                                    "text": "Antimicrobial resistance (AMR) occurs due to prolonged exposure to antibiotics, which enables bacteria to adapt and survive through natural selection. In the absence of effective interventions, drug-resistant infections could lead to 10 million deaths annually by 2050, potentially causing economic disruptions on a scale comparable to the 2008\u201309 global financial crisis 1 . Combination therapy, which involves the use of two or more drugs to treat a single illness, represents a promising strategy to address antibiotic resistance 2 , 3 . However, current methodologies for designing combination therapies frequently rely on empirical approaches, which may result in suboptimal efficacy and increased toxicity 4 . Furthermore, the combinatorial explosion drastically increases the search space for effective combinations, even for a single bacterial strain. Consequently, experimentally testing all possible combinations is a time-consuming and resource-intensive process 5 , 6 .",
-                                    "metadata": {
-                                        "id": "41940069",
-                                        "title": "A Metabolism-Informed Neural Network Identifies Pathways Influencing the Potency and Toxicity of Antimicrobial Combinations.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-04-01",
-                                        "url": "https://doi.org/10.1038/s44386-026-00042-9",
-                                        "extra_info": {
-                                            "doi": "10.1038/s44386-026-00042-9"
-                                        }
-                                    },
-                                    "score": 0.6070529222488403
-                                },
-                                {
-                                    "text": "The clinical utility of psychotherapeutic drugs is frequently limited by autonomic nervous system-mediated adverse effects, including orthostatic hypotension, constipation, urinary retention, and xerostomia [ 1 , 2 ]. These effects contribute substantially to poor treatment adherence, increased morbidity, and reduced quality of life [ 3 , 4 , 5 ]. Although such adverse effects are reported across multiple psychotherapeutic drug classes, including antidepressants, antipsychotics, and anxiolytics [ 6 , 7 , 8 ], traditional explanations have focused primarily on antagonism of peripheral muscarinic, adrenergic, or histaminergic receptors [ 1 , 2 , 7 ]. This receptor-centric framework, however, provides an incomplete pharmacodynamic account of autonomic liability [ 7 , 8 , 9 ], and the perceived burden of these effects independently reduces patient quality of life [ 5 ].",
-                                    "metadata": {
-                                        "id": "42075900",
-                                        "title": "Comparative Pharmacological Profiling of Psychotherapeutic Drugs Reveals a Functional Taxonomy Based on Direct Inhibition of Smooth Muscle Excitability.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-04-21",
-                                        "url": "https://doi.org/10.3390/ph19040645",
-                                        "extra_info": {
-                                            "doi": "10.3390/ph19040645"
-                                        }
-                                    },
-                                    "score": 0.6041456460952759
-                                }
-                            ]
+                            "subclaim": "silicon has been used in treatment of incontinence",
+                            "source": {
+                                "systematic_reviews": 3,
+                                "knowledge_base": 0,
+                                "literature": 0
+                            },
+                            "queries_by_source": {
+                                "systematic_reviews": [
+                                    "Silicon incontinence treatment",
+                                    "Incontinence silicon therapy outcomes",
+                                    "Silicon vs other incontinence treatments"
+                                ]
+                            },
+                            "retrieved_chunks": []
                         }
                     ],
                     "evaluation_results": [
                         {
                             "subclaim_id": "sub_01",
-                            "subclaim": "Verify that silicon has been used in the treatment of incontinence.",
-                            "justification": "The subclaim is refuted because none of the evidence chunks mention silicon or its use in treating incontinence. Chunk 1 discusses endovascular treatment, Chunk 2 addresses antimicrobial resistance, and Chunk 3 focuses on the adverse effects of psychotherapeutic drugs. Therefore, the evidence collectively refutes the subclaim.",
-                            "key_evidence": [
-                                "Chunk 1 discusses endovascular treatment",
-                                "Chunk 2 addresses antimicrobial resistance",
-                                "Chunk 3 focuses on the adverse effects of psychotherapeutic drugs"
-                            ],
-                            "reasoning_conclusion": "refuted",
-                            "label": "refuted",
-                            "confidence": 0.9995,
-                            "source": "literature",
-                            "query": "Treatment efficacy outcomes",
-                            "chunks_count": 3
+                            "subclaim": "silicon has been used in treatment of incontinence",
+                            "justification": "There is no available evidence to support or refute the claim that silicon has been used in the treatment of incontinence.",
+                            "key_evidence": [],
+                            "reasoning_conclusion": "not_enough_information",
+                            "label": "nei",
+                            "confidence": 1.0,
+                            "source": {
+                                "systematic_reviews": 3,
+                                "knowledge_base": 0,
+                                "literature": 0
+                            },
+                            "query": null,
+                            "chunks_count": 0,
+                            "retrieved_chunks": []
                         }
                     ]
                 }
@@ -641,14 +520,15 @@
             {
                 "aggregate": {
                     "final_verdict": {
-                        "label": "refuted",
-                        "confidence": 0.9995,
+                        "label": "nei",
+                        "confidence": 1.0,
                         "total_subclaims": 1,
                         "subclaim_breakdown": [
                             {
                                 "subclaim_id": "sub_01",
-                                "label": "refuted",
-                                "confidence": 0.9995
+                                "subclaim": "silicon has been used in treatment of incontinence",
+                                "label": "nei",
+                                "confidence": 1.0
                             }
                         ]
                     }
@@ -665,12 +545,7 @@
             {
                 "decompose": {
                     "verifiable_subclaims": [
-                        {
-                            "relation": "Exist",
-                            "subject": "mouse model",
-                            "object": "Fanconi anemia",
-                            "search_query": "Verify that a mouse model for Fanconi anemia exists."
-                        }
+                        "There is a mouse model for Fanconi anemia."
                     ]
                 }
             },
@@ -679,151 +554,105 @@
                     "subclaim_results": [
                         {
                             "subclaim_id": "sub_01",
-                            "subclaim": "Verify that a mouse model for Fanconi anemia exists.",
-                            "source": "knowledge_base",
-                            "query": "Fanconi anemia mouse model genes",
-                            "sparse_top_k_chunks": [
+                            "subclaim": "There is a mouse model for Fanconi anemia.",
+                            "source": {
+                                "systematic_reviews": 0,
+                                "knowledge_base": 3,
+                                "literature": 0
+                            },
+                            "queries_by_source": {
+                                "knowledge_base": [
+                                    "Fanconi anemia mouse model",
+                                    "Fanconi anemia protein expression",
+                                    "Fanconi anemia gene knockout effects"
+                                ]
+                            },
+                            "retrieved_chunks": [
                                 {
-                                    "text": "Involved in ordered homologous recombination (HR) events in somatic and meiotic cells (PubMed:22547783). Involved in the suppression of spontaneous HR events in somatic cells (PubMed:22547783, PubMed:24635147). Has an opposite function to the DNA binding cofactor MHF1 which promotes spontaneous HR. Functions in replicative repair independently of MHF1 and in a parallel pathway to the endonuclease MUS81 (PubMed:24635147). Acts in the same pathway as the two DNA-binding cofactors MHF1 and MHF2 to restrain class II meiotic crossover (CO), and acts exclusively with MHF1 and MHF2 during meiosis to repair DNA interstrand cross-links (ICLs) (PubMed:24635147, PubMed:25038251). This common pathway is in parallel to the pathway that involves the RECQ4A helicase (PubMed:24635147). Seems to be involved in the stabilization of recombination intermediates (PubMed:22723424, PubMed:22860689). Involved in DNA double-strand break (DSB) repair during meiosis. Required for synthesis-dependent strand annealing (SDSA) and to a lesser extent for single-strand annealing (SSA) (PubMed:22860689, PubMed:26161528). May process meiotic DSB repair intermediates, possibly D-loops, driving them toward noncrossover (NCO) resolution (PubMed:22723424, PubMed:26161528)",
+                                    "text": "Function: As part of the Fanconi anemia (FA) complex functions in DNA cross-links repair. Required for the nuclear accumulation of FANCC and provides a critical bridge between the FA complex and FANCD2 Interacts with: AKT1, FANCC, FANCD2",
                                     "metadata": {
-                                        "id": "I3XHK1",
-                                        "title": "DEAD-box ATP-dependent RNA helicase FANCM",
+                                        "id": "Q9HB96",
+                                        "title": "Fanconi anemia group E protein",
                                         "type": "Protein Knowledge",
                                         "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/I3XHK1/entry",
-                                        "extra_info": {
-                                            "organism": "Arabidopsis thaliana",
-                                            "gene": "FANCM"
-                                        }
-                                    }
-                                },
-                                {
-                                    "text": "Involved in double-strand break repair and/or homologous recombination. Binds RAD51 and potentiates recombinational DNA repair by promoting assembly of RAD51 onto single-stranded DNA (ssDNA). Acts by targeting RAD51 to ssDNA over double-stranded DNA, enabling RAD51 to displace replication protein-A (RPA) from ssDNA and stabilizing RAD51-ssDNA filaments by blocking ATP hydrolysis. Part of a PALB2-scaffolded HR complex containing RAD51C and which is thought to play a role in DNA repair by HR. May participate in S phase checkpoint activation. Binds selectively to ssDNA, and to ssDNA in tailed duplexes and replication fork structures. May play a role in the extension step after strand invasion at replication-dependent DNA double-strand breaks; together with PALB2 is involved in both POLH localization at collapsed replication forks and DNA polymerization activity. In concert with NPM1, regulates centrosome duplication. Interacts with the TREX-2 complex (transcription and export complex 2) subunits PCID2 and SEM1, and is required to prevent R-loop-associated DNA damage and thus transcription-associated genomic instability. Silencing of BRCA2 promotes R-loop accumulation at actively transcribed genes in replicating and non-replicating cells, suggesting that BRCA2 mediates the control of R-loop associated genomic instability, independently of its known role in homologous recombination (PubMed:24896180)",
-                                    "metadata": {
-                                        "id": "P51587",
-                                        "title": "Breast cancer type 2 susceptibility protein",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P51587/entry",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q9HB96/entry",
                                         "extra_info": {
                                             "organism": "Homo sapiens",
-                                            "gene": "BRCA2"
-                                        }
-                                    }
-                                }
-                            ],
-                            "dense_top_k_chunks": []
-                        }
-                    ],
-                    "evaluation_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that a mouse model for Fanconi anemia exists.",
-                            "justification": "The evidence suggests that a mouse model for Fanconi anemia exists because it is involved in double-strand break repair and/or homologous recombination, which is a key aspect of Fanconi anemia. The fact that it binds RAD51 and potentiates recombinational DNA repair further supports this conclusion. Additionally, the evidence suggests that it plays a role in the extension step after strand invasion at replication-dependent DNA double-strand breaks, which is also relevant to Fanconi anemia. Therefore, based on the evidence, it can be concluded that a mouse model for Fanconi anemia exists.",
-                            "key_evidence": [
-                                "Involved in double-strand break repair and/or homologous recombination.",
-                                "Binds RAD51 and potentiates recombinational DNA repair by promoting assembly of RAD51 onto single-stranded DNA (ssDNA)."
-                            ],
-                            "reasoning_conclusion": "supported",
-                            "label": "supported",
-                            "confidence": 0.9997,
-                            "source": "knowledge_base",
-                            "query": "Fanconi anemia mouse model genes",
-                            "chunks_count": 2
-                        }
-                    ]
-                }
-            },
-            {
-                "aggregate": {
-                    "final_verdict": {
-                        "label": "supported",
-                        "confidence": 0.9997,
-                        "total_subclaims": 1,
-                        "subclaim_breakdown": [
-                            {
-                                "subclaim_id": "sub_01",
-                                "label": "supported",
-                                "confidence": 0.9997
-                            }
-                        ]
-                    }
-                }
-            }
-        ]
-    },
-    {
-        "claim_id": "bioasq_183",
-        "claim": "Has proteomics been used in the study of Pick's disease?",
-        "true_label": "supported",
-        "predicted_label": "supported",
-        "pipeline_steps": [
-            {
-                "decompose": {
-                    "verifiable_subclaims": [
-                        {
-                            "relation": "UsedInStudy",
-                            "subject": "proteomics",
-                            "object": "Pick's disease",
-                            "search_query": "Verify that proteomics has been used in the study of Pick's disease."
-                        }
-                    ]
-                }
-            },
-            {
-                "verify_subclaim": {
-                    "subclaim_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that proteomics has been used in the study of Pick's disease.",
-                            "source": "knowledge_base",
-                            "query": "Protein expression levels",
-                            "sparse_top_k_chunks": [],
-                            "dense_top_k_chunks": [
-                                {
-                                    "text": "phosphorylated by a SRC family kinase that is recruited to autophosphorylated PTK2/FAK1, rather than by PTK2/FAK1 itself. Promotes phosphorylation of BCAR1; GIT2 and SHC1; this requires both SRC and PTK2/FAK1. Promotes phosphorylation of BMX and PIK3R1. Isoform 6 (FRNK) does not contain a kinase domain and inhibits PTK2/FAK1 phosphorylation and signaling. Its enhanced expression can attenuate the nuclear accumulation of LPXN and limit its ability to enhance serum response factor (SRF)-dependent gene transcription",
-                                    "metadata": {
-                                        "id": "Q05397",
-                                        "title": "Focal adhesion kinase 1",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/Q05397/entry",
-                                        "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "PTK2"
+                                            "gene": "FANCE"
                                         }
                                     },
-                                    "score": 0.6216121912002563
+                                    "score": 0.6626715064048767,
+                                    "reranker_score": 4.442360877990723
                                 },
                                 {
-                                    "text": "Part of the receptor for interleukin 6. Binds to IL6 with low affinity, but does not transduce a signal (PubMed:28265003). Signal activation necessitate an association with IL6ST. Activation leads to the regulation of the immune response, acute-phase reactions and hematopoiesis (PubMed:30995492, PubMed:31235509). The interaction with membrane-bound IL6R and IL6ST stimulates 'classic signaling', the restricted expression of the IL6R limits classic IL6 signaling to only a few tissues such as the liver and some cells of the immune system. Whereas the binding of IL6 and soluble IL6R to IL6ST stimulates 'trans-signaling'. Alternatively, 'cluster signaling' occurs when membrane-bound IL6:IL6R complexes on transmitter cells activate IL6ST receptors on neighboring receiver cells (Probable)",
+                                    "text": "Function: DNA repair protein required for FANCD2 ubiquitination",
                                     "metadata": {
-                                        "id": "P08887",
-                                        "title": "Interleukin-6 receptor subunit alpha",
+                                        "id": "Q5XJY6",
+                                        "title": "Fanconi anemia group B protein homolog",
                                         "type": "Protein Knowledge",
                                         "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P08887/entry",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q5XJY6/entry",
                                         "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "IL6R"
+                                            "organism": "Mus musculus",
+                                            "gene": "Fancb"
                                         }
                                     },
-                                    "score": 0.6046571135520935
+                                    "score": 0.6492844820022583,
+                                    "reranker_score": 3.2193381786346436
                                 },
                                 {
-                                    "text": "Component of the CST complex proposed to act as a specialized replication factor promoting DNA replication under conditions of replication stress or natural replication barriers such as the telomere duplex. The CST complex binds single-stranded DNA with high affinity in a sequence-independent manner, while isolated subunits bind DNA with low affinity by themselves. Initially the CST complex has been proposed to protect telomeres from DNA degradation (PubMed:19854130). However, the CST complex has been shown to be involved in several aspects of telomere replication. The CST complex inhibits telomerase and is involved in telomere length homeostasis; it is proposed to bind to newly telomerase-synthesized 3' overhangs and to terminate telomerase action implicating the association with the ACD:POT1 complex thus interfering with its telomerase stimulation activity. The CST complex is also proposed to be involved in fill-in synthesis of the telomeric C-strand probably implicating recruitment and activation of DNA polymerase alpha (PubMed:22763445). The CST complex facilitates recovery from many forms of exogenous DNA damage; seems to be involved in the re-initiation of DNA replication at repaired forks and/or dormant origins (PubMed:25483097)",
+                                    "text": "Function: DNA-binding component of the Fanconi anemia (FA) core complex. Required for the normal activation of the FA pathway, leading to monoubiquitination of the FANCI-FANCD2 complex in response to DNA damage, cellular resistance to DNA cross-linking drugs, and prevention of chromosomal breakage (PubMed:20347428, PubMed:20347429). In complex with CENPX (MHF heterodimer), crucial cofactor for FANCM in both binding and ATP-dependent remodeling of DNA. Stabilizes FANCM (PubMed:20347428, PubMed:20347429). In complex with CENPX and FANCM (but not other FANC proteins), rapidly recruited to blocked forks and promotes gene conversion at blocked replication forks (PubMed:20347428). In complex with CENPT, CENPW and CENPX (CENP-T-W-S-X heterotetramer), involved in the formation of a functional kinetochore outer plate, which is essential for kinetochore-microtubule attachment and faithful mitotic progression (PubMed:19620631). As a component of MHF and CENP-T-W-S-X complexes, binds DNA and bends it to form a nucleosome-like structure (PubMed:20347428, PubMed:22304917). DNA-binding function is fulfilled in the presence of CENPX, with the following preference for DNA substates: Holliday junction > double-stranded > splay arm > single-stranded. Does not bind DNA on its own (PubMed:20347428, PubMed:20347429) Interacts with: CENPX, CTNNA3, HOMEZ, HTT, LHX4, SPRED1",
                                     "metadata": {
-                                        "id": "Q86WV5",
-                                        "title": "CST complex subunit TEN1",
+                                        "id": "Q8N2Z9",
+                                        "title": "Centromere protein S",
                                         "type": "Protein Knowledge",
                                         "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/Q86WV5/entry",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q8N2Z9/entry",
                                         "extra_info": {
                                             "organism": "Homo sapiens",
-                                            "gene": "TEN1"
+                                            "gene": "CENPS"
                                         }
                                     },
-                                    "score": 0.570145845413208
+                                    "extra_info": {
+                                        "score": 6.484020507305228
+                                    },
+                                    "reranker_score": 1.0453033447265625
+                                },
+                                {
+                                    "text": "Function: DNA-dependent helicase and 5' to 3' DNA helicase required for the maintenance of chromosomal stability. Acts late in the Fanconi anemia pathway, after FANCD2 ubiquitination. Involved in the repair of DNA double-strand breaks by homologous recombination in a manner that depends on its association with BRCA1. Involved in the repair of abasic sites at replication forks by promoting the degradation of DNA-protein cross-links: acts by catalyzing unfolding of HMCES DNA-protein cross-link via its helicase activity, exposing the underlying DNA and enabling cleavage of the DNA-protein adduct by the SPRTN metalloprotease. Can unwind RNA:DNA hybrids and G-quadruplex DNA",
+                                    "metadata": {
+                                        "id": "Q5SXJ3",
+                                        "title": "Fanconi anemia group J protein homolog",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q5SXJ3/entry",
+                                        "extra_info": {
+                                            "organism": "Mus musculus",
+                                            "gene": "Brip1"
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 6.2147685916967585
+                                    },
+                                    "reranker_score": 0.39084166288375854
+                                },
+                                {
+                                    "text": "Function: Accepts ubiquitin from the E1 complex and catalyzes its covalent attachment to other proteins. Catalyzes monoubiquitination. Involved in mitomycin-C (MMC)-induced DNA repair: acts as a specific E2 ubiquitin-conjugating enzyme for the Fanconi anemia complex by associating with E3 ubiquitin-protein ligase FANCL and catalyzing monoubiquitination of FANCD2, a key step in the DNA damage pathway. Also mediates monoubiquitination of FANCL and FANCI. May contribute to ubiquitination and degradation of BRCA1. In vitro able to promote polyubiquitination using all 7 ubiquitin Lys residues, but may prefer 'Lys-11'-, 'Lys-27'-, 'Lys-48'- and 'Lys-63'-linked polyubiquitination",
+                                    "metadata": {
+                                        "id": "Q9CQ37",
+                                        "title": "Ubiquitin-conjugating enzyme E2 T",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q9CQ37/entry",
+                                        "extra_info": {
+                                            "organism": "Mus musculus",
+                                            "gene": "Ube2t"
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 5.834236907422882
+                                    },
+                                    "reranker_score": 0.07764043658971786
                                 }
                             ]
                         }
@@ -831,238 +660,112 @@
                     "evaluation_results": [
                         {
                             "subclaim_id": "sub_01",
-                            "subclaim": "Verify that proteomics has been used in the study of Pick's disease.",
-                            "justification": "The subclaim is supported by the evidence from Chunk 3, which mentions the CST complex's role in DNA replication, including at telomeres. This is relevant to the study of Pick's disease, as telomere maintenance is a critical aspect of cellular health. The CST complex's involvement in telomere length homeostasis and its ability to inhibit telomerase suggest a potential link to neurodegenerative diseases like Pick's disease. However, the evidence does not directly address the use of proteomics in the study of Pick's disease. Therefore, the reasoning conclusion is that the evidence provides not enough information to fully support or refute the subclaim.",
+                            "subclaim": "There is a mouse model for Fanconi anemia.",
+                            "justification": "The Fanconi anemia pathway is a critical process for DNA repair, and several proteins are involved in this process. The FA complex, which includes FANCC and FANCD2, plays a crucial role in DNA cross-links repair. Additionally, DNA repair protein FANCI is required for FANCD2 ubiquitination. Furthermore, the DNA-binding component of the Fanconi anemia core complex, CENPT, is essential for the normal activation of the FA pathway. In complex with CENPX and FANCM, it promotes gene conversion at blocked replication forks. Moreover, CENPT is involved in the formation of a functional kinetochore outer plate, which is essential for kinetochore-microtubule attachment and faithful mitotic progression. Overall, these findings suggest that the Fanconi anemia pathway is a complex process involving multiple proteins and pathways.",
                             "key_evidence": [
-                                "The CST complex is proposed to act as a specialized replication factor promoting DNA replication under conditions of replication stress or natural replication barriers such as the telomere duplex."
-                            ],
-                            "reasoning_conclusion": "not_enough_information",
-                            "label": "supported",
-                            "confidence": 0.993,
-                            "source": "knowledge_base",
-                            "query": "Protein expression levels",
-                            "chunks_count": 3
-                        }
-                    ]
-                }
-            },
-            {
-                "aggregate": {
-                    "final_verdict": {
-                        "label": "supported",
-                        "confidence": 0.993,
-                        "total_subclaims": 1,
-                        "subclaim_breakdown": [
-                            {
-                                "subclaim_id": "sub_01",
-                                "label": "supported",
-                                "confidence": 0.993
-                            }
-                        ]
-                    }
-                }
-            }
-        ]
-    },
-    {
-        "claim_id": "bioasq_738",
-        "claim": "Is CXCL7 a chemokine?",
-        "true_label": "supported",
-        "predicted_label": "supported",
-        "pipeline_steps": [
-            {
-                "decompose": {
-                    "verifiable_subclaims": [
-                        {
-                            "relation": "Chemokine",
-                            "subject": "CXCL7",
-                            "object": "",
-                            "search_query": "Verify that CXCL7 is a chemokine."
-                        }
-                    ]
-                }
-            },
-            {
-                "verify_subclaim": {
-                    "subclaim_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that CXCL7 is a chemokine.",
-                            "source": "knowledge_base",
-                            "query": "CXCL7 binding proteins",
-                            "sparse_top_k_chunks": [
-                                {
-                                    "text": "LA-PF4 stimulates DNA synthesis, mitosis, glycolysis, intracellular cAMP accumulation, prostaglandin E2 secretion, and synthesis of hyaluronic acid and sulfated glycosaminoglycan. It also stimulates the formation and secretion of plasminogen activator by human synovial cells. NAP-2 is a ligand for CXCR1 and CXCR2, and NAP-2, NAP-2(73), NAP-2(74), NAP-2(1-66), and most potent NAP-2(1-63) are chemoattractants and activators for neutrophils. TC-1 and TC-2 are antibacterial proteins, in vitro released from activated platelet alpha-granules. CTAP-III(1-81) is more potent than CTAP-III desensitize chemokine-induced neutrophil activation",
-                                    "metadata": {
-                                        "id": "P02775",
-                                        "title": "Platelet basic protein",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P02775/entry",
-                                        "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "PPBP"
-                                        }
-                                    }
-                                },
-                                {
-                                    "text": "Chemotactic for neutrophil granulocytes. Signals through binding and activation of its receptors (CXCR1 and CXCR2). In addition to its chemotactic and angiogenic properties, it has strong antibacterial activity against Gram-positive and Gram-negative bacteria (90-fold-higher when compared to CXCL5 and CXCL7)",
-                                    "metadata": {
-                                        "id": "P80162",
-                                        "title": "C-X-C motif chemokine 6",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/P80162/entry",
-                                        "extra_info": {
-                                            "organism": "Homo sapiens",
-                                            "gene": "CXCL6"
-                                        }
-                                    }
-                                },
-                                {
-                                    "text": "Salivary chemokine-binding protein which has chemokine-neutralizing activity and binds to host chemokines CCL1, CCL3, CCL3L1, CCL4, CCL4L1, CCL5, CCL7, CCL8, CCL13, CCL14, CCL15, CCL16, CCL17, CCL18, CCL19, CCL20, CCL21, CCL22, CCL23, CCL24, CCL27, XCL1, CX3CL1, CXCL1, CXCL2, CXCL4, CXCL5, CXCL6, CXCL7, CXCL9, CXCL12 and CXCL14",
-                                    "metadata": {
-                                        "id": "A0A0C9S461",
-                                        "title": "Evasin P1243",
-                                        "type": "Protein Knowledge",
-                                        "date": "N/A",
-                                        "url": "https://www.uniprot.org/uniprotkb/A0A0C9S461/entry",
-                                        "extra_info": {
-                                            "organism": "Amblyomma americanum",
-                                            "gene": "N/A"
-                                        }
-                                    }
-                                }
-                            ],
-                            "dense_top_k_chunks": []
-                        }
-                    ],
-                    "evaluation_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that CXCL7 is a chemokine.",
-                            "justification": "CXCL7 is a chemokine because it signals through binding and activation of its receptors (CXCR1 and CXCR2) and has chemotactic properties for neutrophil granulocytes. This is supported by evidence from [Chunk 2] and [Chunk 3], which state that CXCL7 is a chemokine and has chemotactic properties. Additionally, [Chunk 3] lists CXCL7 as one of the chemokines that the salivary chemokine-binding protein binds to, further supporting its classification as a chemokine. Therefore, the reasoning conclusion is that the subclaim is supported.",
-                            "key_evidence": [
-                                "Signals through binding and activation of its receptors (CXCR1 and CXCR2).",
-                                "CXCL7 is a chemokine and has chemotactic properties."
+                                "Function: As part of the Fanconi anemia (FA) complex functions in DNA cross-links repair.",
+                                "Function: DNA repair protein required for FANCD2 ubiquitination",
+                                "Function: DNA-binding component of the Fanconi anemia (FA) core complex."
                             ],
                             "reasoning_conclusion": "supported",
                             "label": "supported",
-                            "confidence": 0.9998,
-                            "source": "knowledge_base",
-                            "query": "CXCL7 binding proteins",
-                            "chunks_count": 3
-                        }
-                    ]
-                }
-            },
-            {
-                "aggregate": {
-                    "final_verdict": {
-                        "label": "supported",
-                        "confidence": 0.9998,
-                        "total_subclaims": 1,
-                        "subclaim_breakdown": [
-                            {
-                                "subclaim_id": "sub_01",
-                                "label": "supported",
-                                "confidence": 0.9998
-                            }
-                        ]
-                    }
-                }
-            }
-        ]
-    },
-    {
-        "claim_id": "bioasq_149",
-        "claim": "Is there an association between TERT promoter mutation and survival of glioma patients?",
-        "true_label": "supported",
-        "predicted_label": "supported",
-        "pipeline_steps": [
-            {
-                "decompose": {
-                    "verifiable_subclaims": [
-                        {
-                            "relation": "Association",
-                            "subject": "TERT promoter mutation",
-                            "object": "survival of glioma patients",
-                            "search_query": "Verify that TERT promoter mutation is associated with survival of glioma patients."
-                        }
-                    ]
-                }
-            },
-            {
-                "verify_subclaim": {
-                    "subclaim_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that TERT promoter mutation is associated with survival of glioma patients.",
-                            "source": "literature",
-                            "query": "Mutation impact on survival",
-                            "sparse_top_k_chunks": [],
-                            "dense_top_k_chunks": [
+                            "confidence": 0.0166,
+                            "source": {
+                                "systematic_reviews": 0,
+                                "knowledge_base": 3,
+                                "literature": 0
+                            },
+                            "query": null,
+                            "chunks_count": 5,
+                            "retrieved_chunks": [
                                 {
-                                    "text": "This study demonstrated that the variation levels of mutations could provide more accurate prognostic stratification beyond mutation status, offering valuable evidence to refine ELN 2022 risk stratification criteria. Additionally, our established model, combining mutation status or variation levels of genes and cytogenetics, showed excellent prognostic stratification utility, indicating that integration of VAF may effectively improve risk stratification.",
+                                    "text": "Function: As part of the Fanconi anemia (FA) complex functions in DNA cross-links repair. Required for the nuclear accumulation of FANCC and provides a critical bridge between the FA complex and FANCD2 Interacts with: AKT1, FANCC, FANCD2",
                                     "metadata": {
-                                        "id": "42085510",
-                                        "title": "Clinical implications of variant allele frequencies of genes in patients with acute myeloid leukemia.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-05-01",
-                                        "url": "https://doi.org/10.1093/oncolo/oyag099",
+                                        "id": "Q9HB96",
+                                        "title": "Fanconi anemia group E protein",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q9HB96/entry",
                                         "extra_info": {
-                                            "doi": "10.1093/oncolo/oyag099"
+                                            "organism": "Homo sapiens",
+                                            "gene": "FANCE"
                                         }
                                     },
-                                    "score": 0.5747395157814026
+                                    "score": 0.6626715064048767,
+                                    "reranker_score": 4.442360877990723
                                 },
                                 {
-                                    "text": "The field of genetics and epigenetics of melanoma and non-melanoma skin cancer is rapidly evolving, driven by advancements in next-generation sequencing (NGS) technology. Recent studies have unveiled the complex genomic landscape of cutaneous malignancies, characterized by different pathogenic variants/genetic aberrations, thus providing valuable insights into the biological heterogeneity of these diseases with critical implications for prognosis and therapy. Alongside the genomic landscape, epigenetics - defined as a complex of nongenomic mechanisms that modulate gene expression without changing the genome sequence - has taken on an increasingly important role in the pathogenesis of these skin cancers. Indeed, epigenetic regulators such as DNA methylation, various histone modifications and noncoding RNAs have been identified as crucial players in the initiation and progression of cutaneous malignancies. Nevertheless, research into these individual contributors and how they converge remains fragmented and incomplete, highlighting the urgent need for comprehensive investigations that leverage cutting-edge technologies to elucidate the interplay of genetics and epigenetics underlying these diseases. These in-depth investigations will enable clinicians and researchers to identify predisposing genetic factors, biomarkers for disease progression and patient outcomes as well as novel potential targeted therapies (to be introduced in clinical practice also in combination with existing treatments like immunotherapy).",
+                                    "text": "Function: DNA repair protein required for FANCD2 ubiquitination",
                                     "metadata": {
-                                        "id": "41660045",
-                                        "title": "Editorial: Genetics and epigenetics of melanoma and non-melanoma skin cancer.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-01-23",
-                                        "url": "https://doi.org/10.3389/fgene.2026.1770737",
+                                        "id": "Q5XJY6",
+                                        "title": "Fanconi anemia group B protein homolog",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q5XJY6/entry",
                                         "extra_info": {
-                                            "doi": "10.3389/fgene.2026.1770737"
+                                            "organism": "Mus musculus",
+                                            "gene": "Fancb"
                                         }
                                     },
-                                    "score": 0.5591179132461548
+                                    "score": 0.6492844820022583,
+                                    "reranker_score": 3.2193381786346436
                                 },
                                 {
-                                    "text": "In this issue of Blood Advances , Zanwar et al 1 report results of an international multicenter investigation evaluating the prognostic value of progression of disease within 24 months (POD24) and mutations affecting MYD88 or CXCR4 as early surrogate end points for survival , in a large cohort of patients with Waldenstr\u00f6m macroglobulinemia (WM) treated with first-line bendamustine and rituximab (BR). Significantly worse progression-free survival (PFS) and overall survival (OS) outcomes were observed in the 11.5% of patients with POD24, as well as in those with CXCR4 mutations ( CXCR4 MUT ); in contrast, patients with MYD88 mutations ( MYD88 MUT ) did not have inferior survival outcomes.",
+                                    "text": "Function: DNA-binding component of the Fanconi anemia (FA) core complex. Required for the normal activation of the FA pathway, leading to monoubiquitination of the FANCI-FANCD2 complex in response to DNA damage, cellular resistance to DNA cross-linking drugs, and prevention of chromosomal breakage (PubMed:20347428, PubMed:20347429). In complex with CENPX (MHF heterodimer), crucial cofactor for FANCM in both binding and ATP-dependent remodeling of DNA. Stabilizes FANCM (PubMed:20347428, PubMed:20347429). In complex with CENPX and FANCM (but not other FANC proteins), rapidly recruited to blocked forks and promotes gene conversion at blocked replication forks (PubMed:20347428). In complex with CENPT, CENPW and CENPX (CENP-T-W-S-X heterotetramer), involved in the formation of a functional kinetochore outer plate, which is essential for kinetochore-microtubule attachment and faithful mitotic progression (PubMed:19620631). As a component of MHF and CENP-T-W-S-X complexes, binds DNA and bends it to form a nucleosome-like structure (PubMed:20347428, PubMed:22304917). DNA-binding function is fulfilled in the presence of CENPX, with the following preference for DNA substates: Holliday junction > double-stranded > splay arm > single-stranded. Does not bind DNA on its own (PubMed:20347428, PubMed:20347429) Interacts with: CENPX, CTNNA3, HOMEZ, HTT, LHX4, SPRED1",
                                     "metadata": {
-                                        "id": "41915451",
-                                        "title": "Refining prognostic tools in Waldenstr\u00f6m macroglobulinemia.",
-                                        "type": "Scientific Literature",
-                                        "date": "2026-04-01",
-                                        "url": "https://doi.org/10.1182/bloodadvances.2025019212",
+                                        "id": "Q8N2Z9",
+                                        "title": "Centromere protein S",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q8N2Z9/entry",
                                         "extra_info": {
-                                            "doi": "10.1182/bloodadvances.2025019212"
+                                            "organism": "Homo sapiens",
+                                            "gene": "CENPS"
                                         }
                                     },
-                                    "score": 0.5579172372817993
+                                    "extra_info": {
+                                        "score": 6.484020507305228
+                                    },
+                                    "reranker_score": 1.0453033447265625
+                                },
+                                {
+                                    "text": "Function: DNA-dependent helicase and 5' to 3' DNA helicase required for the maintenance of chromosomal stability. Acts late in the Fanconi anemia pathway, after FANCD2 ubiquitination. Involved in the repair of DNA double-strand breaks by homologous recombination in a manner that depends on its association with BRCA1. Involved in the repair of abasic sites at replication forks by promoting the degradation of DNA-protein cross-links: acts by catalyzing unfolding of HMCES DNA-protein cross-link via its helicase activity, exposing the underlying DNA and enabling cleavage of the DNA-protein adduct by the SPRTN metalloprotease. Can unwind RNA:DNA hybrids and G-quadruplex DNA",
+                                    "metadata": {
+                                        "id": "Q5SXJ3",
+                                        "title": "Fanconi anemia group J protein homolog",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q5SXJ3/entry",
+                                        "extra_info": {
+                                            "organism": "Mus musculus",
+                                            "gene": "Brip1"
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 6.2147685916967585
+                                    },
+                                    "reranker_score": 0.39084166288375854
+                                },
+                                {
+                                    "text": "Function: Accepts ubiquitin from the E1 complex and catalyzes its covalent attachment to other proteins. Catalyzes monoubiquitination. Involved in mitomycin-C (MMC)-induced DNA repair: acts as a specific E2 ubiquitin-conjugating enzyme for the Fanconi anemia complex by associating with E3 ubiquitin-protein ligase FANCL and catalyzing monoubiquitination of FANCD2, a key step in the DNA damage pathway. Also mediates monoubiquitination of FANCL and FANCI. May contribute to ubiquitination and degradation of BRCA1. In vitro able to promote polyubiquitination using all 7 ubiquitin Lys residues, but may prefer 'Lys-11'-, 'Lys-27'-, 'Lys-48'- and 'Lys-63'-linked polyubiquitination",
+                                    "metadata": {
+                                        "id": "Q9CQ37",
+                                        "title": "Ubiquitin-conjugating enzyme E2 T",
+                                        "type": "Protein Knowledge",
+                                        "date": "N/A",
+                                        "url": "https://www.uniprot.org/uniprotkb/Q9CQ37/entry",
+                                        "extra_info": {
+                                            "organism": "Mus musculus",
+                                            "gene": "Ube2t"
+                                        }
+                                    },
+                                    "extra_info": {
+                                        "score": 5.834236907422882
+                                    },
+                                    "reranker_score": 0.07764043658971786
                                 }
                             ]
                         }
-                    ],
-                    "evaluation_results": [
-                        {
-                            "subclaim_id": "sub_01",
-                            "subclaim": "Verify that TERT promoter mutation is associated with survival of glioma patients.",
-                            "justification": "The subclaim is supported by the evidence from Chunk 1, which suggests that the variation levels of mutations can provide more accurate prognostic stratification beyond mutation status. This is relevant to the subclaim as it implies that the TERT promoter mutation may be associated with survival of glioma patients. Additionally, Chunk 3 provides evidence that mutations affecting MYD88 or CXCR4 can be early surrogate end points for survival in patients with Waldenstr\u00f6m macroglobulinemia, which is a type of cancer that shares some similarities with glioma. Therefore, the reasoning conclusion is that the subclaim is supported by the evidence.",
-                            "key_evidence": [
-                                "This study demonstrated that the variation levels of mutations could provide more accurate prognostic stratification beyond mutation status",
-                                "Significantly worse progression-free survival (PFS) and overall survival (OS) outcomes were observed in the 11.5% of patients with POD24, as well as in those with CXCR4 mutations ( CXCR4 MUT )"
-                            ],
-                            "reasoning_conclusion": "supported",
-                            "label": "supported",
-                            "confidence": 0.9998,
-                            "source": "literature",
-                            "query": "Mutation impact on survival",
-                            "chunks_count": 3
-                        }
                     ]
                 }
             },
@@ -1070,13 +773,14 @@
                 "aggregate": {
                     "final_verdict": {
                         "label": "supported",
-                        "confidence": 0.9998,
+                        "confidence": 0.0166,
                         "total_subclaims": 1,
                         "subclaim_breakdown": [
                             {
                                 "subclaim_id": "sub_01",
+                                "subclaim": "There is a mouse model for Fanconi anemia.",
                                 "label": "supported",
-                                "confidence": 0.9998
+                                "confidence": 0.0166
                             }
                         ]
                     }
