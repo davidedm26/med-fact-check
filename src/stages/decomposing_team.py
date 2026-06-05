@@ -45,10 +45,16 @@ def build_decompose_graph(decomposition_agent, classification_agent):
         log.info("claim_classification start")
         predicates = state.get("predicates") or []
         # Pass only natural language queries to the classification agent
-        queries = [
+        raw_queries = [
             p.get("search_query") or " ".join(str(p.get(k, "")) for k in ("relation", "subject", "object")).strip()
             for p in predicates if isinstance(p, dict)
         ]
+        
+        queries = []
+        for q in raw_queries:
+            if q and q not in queries:
+                queries.append(q)
+                
         if not queries:
             log.info("No queries to classify; skipping classification agent.")
             return Command(

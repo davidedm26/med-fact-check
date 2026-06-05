@@ -29,6 +29,10 @@ INSTRUCTIONS:
    - Write a coherent final medical summary explaining the verdict. 
    - DO NOT list the subclaims ("Subclaim 1 was...", "Subclaim 2 was..."). Write it as a fluid, singular abstract.
    - If the claim is mostly supported but has a refuted caveat, explicitly state the caveat here.
+   
+4. **ANTI-HALLUCINATION (CRITICAL)**:
+   - You MUST blindly trust the labels assigned to the Evaluated Subclaims. 
+   - DO NOT alter, contradict, or reinterpret a subclaim's verdict. If a subclaim is labeled "supported", you must treat it as an absolute truth, regardless of what its justification text says or what your internal knowledge suggests.
 """
 
 aggregator_schema = {
@@ -40,7 +44,7 @@ aggregator_schema = {
         "properties": {
             "logical_relationship": {
                 "type": "string",
-                "description": "The deduced logical structure connecting the subclaims (e.g., 'AND: Both premises must be true').",
+                "description": "The deduced logical structure connecting the subclaims (e.g., 'AND: All premises must be true').",
             },
             "aggregation_analysis": {
                 "type": "string",

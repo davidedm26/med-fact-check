@@ -118,7 +118,8 @@ DECISION TREE (follow in order):
    d) TESTED AND FAILED: The intervention was explicitly tested and found to have no effect, no improvement, or no ability → REFUTED (NOT "not_enough_information").
    e) OVERBROAD CLAIM: Claim says "all" or "always", but evidence limits to a subgroup or shows it does not work for the general population → REFUTED.
    f) DOUBLE NEGATION: Claim says "X is ineffective", evidence says "X is among the most effective" → The evidence contradicts the claim → REFUTED.
-   → If any of (a)-(f) applies: label = "refuted".
+   g) PARTIAL SUCCESS/EFFICACY: If the evidence shows the intervention works or provides benefit, but maybe not 100% perfectly or "optimally" (e.g., 50% protection), do NOT refute it just because it isn't perfect. As long as the core medical premise (e.g., "it provides protection") is confirmed, label it "supported", and clarify the exact percentage/limitation in the justification.
+   → If any of (a)-(f) applies (and NOT g): label = "refuted".
 
 3. Is the evidence SILENT or UNRELATED?
    → Evidence discusses the entities separately without ever linking them → "not_enough_information".

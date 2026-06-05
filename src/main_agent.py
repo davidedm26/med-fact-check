@@ -426,5 +426,6 @@ if __name__ == "__main__":
     
     result = agent.process_claim(claim, verbose=False, recursion_limit=10)  # Set a reasonable recursion limit for testing
     print("\nFinal Result:")
-    print(result)
+    import json
+    print(json.dumps(result, indent=2, ensure_ascii=False).encode('cp1252', errors='replace').decode('cp1252'))
     
