@@ -64,7 +64,10 @@ def clean_europe_pmc_xml(xml_string: str, article_metadata: Dict) -> List[Dict]:
             logging.info(f"[Cleaner] Text+Metadata file saved for Member 3: {filename_chunks}")
         """
 
-        return paragraphs_with_metadata
+        # Limit the number of paragraphs per article to prevent chunk explosion (e.g. 700+ chunks)
+        from utils.config import config
+        max_paragraphs = config.get("retrieval.max_paragraphs_per_article", 20)
+        return paragraphs_with_metadata[:max_paragraphs]
     except Exception as e:
         log.error(f"XML cleanup error: {e}")
         return []
