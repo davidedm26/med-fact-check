@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. CSS Avanzato 
+# 2. CSS Avanzato
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -29,34 +29,19 @@ st.markdown("""
         background-color: #0f172a !important;
     }
     
-    /* AUMENTATO ULTERIORMENTE IL PADDING BOTTOM PER PROTEGGERE IL FOOTER */
     .main .block-container, [data-testid="stMainBlockContainer"], .block-container {
-        padding-top: 0rem !important;
-        padding-left: 0rem !important;
-        padding-right: 0rem !important;
-        padding-bottom: 250px !important; /* 250px di barriera di sicurezza */
-        margin: 0rem !important;
-        max-width: 100% !important;
-        width: 100% !important;
-        min-height: 100vh !important;
-        position: relative !important;
+        padding-top: 0rem !important; padding-left: 0rem !important; padding-right: 0rem !important;
+        padding-bottom: 0rem !important; margin: 0rem !important; max-width: 100% !important;
+        width: 100% !important; min-height: 100vh !important; position: relative !important;
         box-sizing: border-box !important;
     }
 
-    html, body {
-        font-family: 'Inter', sans-serif;
-        background-color: #0f172a !important;
-        color: #f8fafc;
-        margin: 0 !important; padding: 0 !important;
-    }
+    html, body { font-family: 'Inter', sans-serif; background-color: #0f172a !important; color: #f8fafc; margin: 0 !important; padding: 0 !important; }
 
     .navbar {
-        position: fixed;
-        top: 0; left: 0; width: 100%;
-        background-color: #0b1120;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        padding: 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center;
-        z-index: 9999; box-sizing: border-box;
+        position: fixed; top: 0; left: 0; width: 100%; background-color: #0b1120;
+        border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.5rem 4rem; display: flex; 
+        justify-content: space-between; align-items: center; z-index: 9999; box-sizing: border-box;
     }
     .nav-logo { font-size: 1.5rem; font-weight: 800; color: #3b82f6; }
 
@@ -83,7 +68,7 @@ st.markdown("""
     .badge { display: inline-block; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
     .badge.SUPPORTED { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
     .badge.REFUTED { background-color: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .badge.NEI { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge.NEI { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
     
     .evidence-box { background-color: #0b1120; border-left: 4px solid #3b82f6; padding: 14px; margin-top: 12px; font-size: 0.9rem; color: #cbd5e1; border-radius: 6px; }
 
@@ -100,11 +85,10 @@ st.markdown("""
     div.stButton > button[kind="secondary"] p { color: #cbd5e1 !important; font-weight: 600 !important; }
     div.stButton > button[kind="secondary"]:hover { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.1) !important; color: #38bdf8 !important; }
     
-    .footer { position: absolute; bottom: 0; left: 0; width: 100%; text-align: center; padding: 2rem 0; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); background-color: #0b1120; z-index: 90; }
+    .footer { width: 100%; text-align: center; padding: 2rem 0; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); background-color: #0b1120; margin-top: 150px; display: block; }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. Navbar Superiore
 st.markdown("""
     <div class="navbar">
         <div class="nav-logo">⚕️ Med Fact Check</div>
@@ -122,17 +106,11 @@ with col_main:
         st.switch_page("app.py")
 
     st.markdown('<div class="panel-title">Medical Fact Check Panel</div>', unsafe_allow_html=True)
-    st.markdown('<div class="panel-subtitle">Submit a medical claim and rigorously verify it against trusted scientific literature.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel-subtitle">Submit a medical claim and rigorously verify it against trusted scientific literature. (💡 Hint: Press <b>Ctrl+Enter</b> or <b>Cmd+Enter</b> to submit)</div>', unsafe_allow_html=True)
 
-    input_method = st.radio(
-        "Choose Input Method:",
-        ["✍️ Text Input", "📄 Upload TXT", "🔗 Provide URL"],
-        horizontal=True
-    )
-
+    input_method = st.radio("Choose Input Method:", ["✍️ Text Input", "📄 Upload TXT", "🔗 Provide URL"], horizontal=True)
     claim = ""
 
-    # ACQUISIZIONE INPUT UTENTE
     with st.container():
         if input_method == "✍️ Text Input":
             claim = st.text_area("Medical Claim:", height=130, placeholder="E.g., Taking a daily vitamin D supplement helps prevent osteoporosis...")
@@ -164,16 +142,14 @@ with col_main:
         st.session_state.real_results = None
 
     st.markdown("<br>", unsafe_allow_html=True)
-    
     error_placeholder = st.empty()
     
-    # GENERAZIONE DEL BOTTONE "VERIFY CLAIM"
     _, btn_col, _ = st.columns([1, 2, 1])
     with btn_col:
         verify_clicked = st.button("Verify Claim", type="primary", use_container_width=True)
 
     # ==========================================
-    # 5. LOGICA BACKEND STREAMING CON OVERLAY BLOCCO
+    # 5. LOGICA BACKEND E ANIMAZIONE DI CARICAMENTO PULITA
     # ==========================================
     if verify_clicked:
         if not claim.strip():
@@ -183,19 +159,74 @@ with col_main:
             overlay_placeholder = st.empty()
             error_placeholder.empty() 
             
-            def update_loading_screen(message):
-                overlay_placeholder.markdown(f"""
-                    <style>
-                    .stApp {{ pointer-events: none !important; overflow: hidden !important; }}
-                    .cyber-overlay {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.90); backdrop-filter: blur(10px); z-index: 9999999 !important; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto !important; }}
-                    .cyber-spinner {{ width: 90px; height: 90px; border: 5px solid rgba(255,255,255,0.05); border-top: 5px solid #00f2fe; border-right: 5px solid #4facfe; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 2.5rem; box-shadow: 0 0 30px rgba(0, 242, 254, 0.2); }}
-                    .cyber-title {{ font-size: 2.2rem; font-weight: 800; color: #f8fafc; letter-spacing: 2px; margin: 0; }}
-                    .cyber-subtitle {{ font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; color: #38bdf8; margin-top: 20px; }}
-                    </style>
-                    <div class="cyber-overlay"><div class="cyber-spinner"></div><div class="cyber-title">AI ANALYSIS IN PROGRESS</div><div class="cyber-subtitle">> {message}</div></div>
-                """, unsafe_allow_html=True)
+            def update_interactive_loading(step=1, subclaims=None, verified_count=0, total_to_verify=1):
+                if subclaims is None: subclaims = []
+                
+                if step == 1:
+                    central_title = "Initializing Medical AI Pipeline"
+                    central_subtitle = "Warming up decomposition agents..."
+                    anim_color = "#38bdf8"
+                elif step == 2:
+                    central_title = "RAG Database Ingestion"
+                    central_subtitle = "<span class='rag-messages'></span>"
+                    anim_color = "#818cf8"
+                elif step == 3:
+                    central_title = "Clinical Reasoning Agent"
+                    central_subtitle = f"Validating {verified_count} of {total_to_verify} extracted claims..."
+                    anim_color = "#a78bfa"
+                else:
+                    central_title = "Generating Final Consensus"
+                    central_subtitle = "Aggregating verdicts and calculating confidence score..."
+                    anim_color = "#10b981"
+                
+                sc_html = ""
+                if step >= 2 and subclaims:
+                    # NOTA BENE: Nessun a capo o indentazione all'interno di questa stringa f-string per evitare bug markdown!
+                    sc_html += "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:800px;'>"
+                    for i, sc in enumerate(subclaims):
+                        if step == 2: status = "⏳ Ingesting Literature..."
+                        elif step == 3 and i < verified_count: status = "✅ Verified"
+                        elif step == 3 and i == verified_count: status = "🔍 Evaluating..."
+                        else: status = "⏳ Pending"
+                        # Schiacciamo tutto su una sola riga senza indentazioni per evitare che diventi un blocco di codice
+                        sc_html += f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div></div>"
+                    sc_html += "</div>"
+
+                # TUTTO L'HTML A MARGINE SINISTRO
+                html_content = f"""
+<style>
+.stApp {{ pointer-events: none !important; overflow: hidden !important; }}
+.cyber-overlay {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: 9999999 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; pointer-events: auto !important; }}
+.pulse-container {{ position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; }}
+.pulse-ring {{ position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid {anim_color}; animation: pulsate 2s infinite ease-out; }}
+.pulse-ring:nth-child(2) {{ animation-delay: 0.6s; }}
+.pulse-ring:nth-child(3) {{ animation-delay: 1.2s; }}
+.pulse-core {{ width: 50px; height: 50px; background-color: {anim_color}; border-radius: 50%; box-shadow: 0 0 20px {anim_color}; z-index: 10; animation: core-glow 2s infinite alternate; }}
+@keyframes pulsate {{ 0% {{ transform: scale(0.5); opacity: 1; }} 100% {{ transform: scale(1.5); opacity: 0; }} }}
+@keyframes core-glow {{ 0% {{ transform: scale(0.9); box-shadow: 0 0 10px {anim_color}; }} 100% {{ transform: scale(1.1); box-shadow: 0 0 30px {anim_color}; }} }}
+.stage-title {{ font-size: 2.2rem; font-weight: 800; color: #f8fafc; letter-spacing: 1px; margin: 0 0 10px 0; text-align: center; }}
+.stage-subtitle {{ font-size: 1.1rem; color: #94a3b8; font-weight: 400; text-align: center; max-width: 600px; line-height:1.5; }}
+.phase-indicator {{ margin-top: 30px; font-size: 0.85rem; font-weight: 700; color: #475569; letter-spacing: 2px; text-transform: uppercase; }}
+.rag-messages::after {{ content: "Vectorizing PMC Literature..."; animation: changeText 12s infinite; }}
+@keyframes changeText {{ 
+0%, 25% {{ content: "Querying dense embeddings database..."; }} 
+26%, 50% {{ content: "Cross-referencing global medical trials..."; }} 
+51%, 75% {{ content: "Applying Reciprocal Rank Fusion..."; }} 
+76%, 100% {{ content: "Fetching highest accuracy documents..."; }} 
+}}
+</style>
+<div class="cyber-overlay">
+<div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
+<div class="stage-title">{central_title}</div>
+<div class="stage-subtitle">{central_subtitle}</div>
+<div class="phase-indicator">PIPELINE PHASE {step} / 4</div>
+{sc_html}
+</div>
+"""
+                overlay_placeholder.markdown(html_content, unsafe_allow_html=True)
             
-            update_loading_screen("Initializing Pipeline Engine...")
+            # Step 1
+            update_interactive_loading(step=1)
                 
             try:
                 response = requests.post("http://127.0.0.1:8000/api/v1/fact-check-stream", json={"claim": claim}, stream=True, timeout=900)
@@ -213,18 +244,21 @@ with col_main:
                                         error_placeholder.error(f"❌ Pipeline Error: {step_data['error']}")
                                         break
                                     if "decompose" in step_data:
-                                        update_loading_screen("Decomposing clinical text into atomic claims...")
                                         scs = step_data["decompose"].get("verifiable_subclaims", [])
                                         for sc in scs:
                                             sc_text = sc if isinstance(sc, str) else sc.get("claim", str(sc))
                                             current_subclaims.append(sc_text)
+                                        update_interactive_loading(step=2, subclaims=current_subclaims, verified_count=0, total_to_verify=len(current_subclaims))
+                                        
                                     elif "verify_subclaim" in step_data:
-                                        update_loading_screen(f"Cross-referencing claim {len(current_evaluations)+1} with scientific literature...")
                                         eval_results = step_data["verify_subclaim"].get("evaluation_results", [])
                                         for er in eval_results:
-                                            current_evaluations.append(er)
+                                            if er not in current_evaluations:
+                                                current_evaluations.append(er)
+                                        update_interactive_loading(step=3, subclaims=current_subclaims, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
+                                        
                                     elif "aggregate" in step_data:
-                                        update_loading_screen("Consensus Reached. Generating Interface Metrics...")
+                                        update_interactive_loading(step=4, subclaims=current_subclaims, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
                                         current_final = step_data["aggregate"].get("final_verdict", {})
                                         st.session_state.real_results = {
                                             "subclaims": current_subclaims,
@@ -239,7 +273,7 @@ with col_main:
                     error_placeholder.error(f"❌ Backend Connection Error (Status Code: {response.status_code})")
             except Exception as e:
                 overlay_placeholder.empty()
-                error_placeholder.error(f"❌ Failed to connect to the backend API. Ensure your FastAPI server is active on port 8000. Details: {str(e)}")
+                error_placeholder.error(f"❌ Failed to connect to the backend API: {str(e)}")
 
     # ==========================================
     # 6. RENDERING DINAMICO DEI RISULTATI
@@ -247,7 +281,6 @@ with col_main:
     if st.session_state.real_results:
         res = st.session_state.real_results
         
-        # ANCORA PER LO SCROLL AUTOMATICO
         st.markdown("<div id='results-anchor'></div>", unsafe_allow_html=True)
         st.markdown("<hr style='border-color:rgba(255,255,255,0.05); margin: 2rem 0;'>", unsafe_allow_html=True)
         
@@ -290,7 +323,7 @@ with col_main:
             
             evidence = ev.get("retrieved_chunks", [])
             if evidence:
-                with st.expander("🔬 Evidence Documents (Literature Sources)"):
+                with st.expander("🔬 Toggle Evidence Documents (Literature Sources)"):
                     for chunk in evidence:
                         if isinstance(chunk, dict):
                             text = chunk.get("text", "")
@@ -331,11 +364,7 @@ with col_main:
                 verdict_counts = df['Verdict'].value_counts().reset_index()
                 verdict_counts.columns = ['Verdict', 'Count']
                 
-                fig = px.pie(
-                    verdict_counts, values='Count', names='Verdict', color='Verdict',
-                    color_discrete_map={"SUPPORTED": "#10b981", "REFUTED": "#ef4444", "NEI": "#f59e0b"},
-                    hole=0.45
-                )
+                fig = px.pie(verdict_counts, values='Count', names='Verdict', color='Verdict', color_discrete_map={"SUPPORTED": "#10b981", "REFUTED": "#ef4444", "NEI": "#f59e0b"}, hole=0.45)
                 fig.update_layout(height=200, margin=dict(t=0, b=0, l=0, r=0), showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#f8fafc")
                 fig.update_traces(textposition='inside', textinfo='percent+label', marker=dict(line=dict(color='#0f172a', width=2)))
                 st.plotly_chart(fig, use_container_width=True)
@@ -347,38 +376,30 @@ with col_main:
             try:
                 import utils.pdf_generator
                 importlib.reload(utils.pdf_generator)
-                
-                pdf_bytes = utils.pdf_generator.generate_fact_check_pdf(
-                    claim=res['claim'], 
-                    final_verdict=res['final'], 
-                    subclaims=res['evaluations'] 
-                )
-                st.download_button(
-                    label="📄 Download Certified PDF Report",
-                    data=pdf_bytes,
-                    file_name="fact_check_report.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
-                )
+                pdf_bytes = utils.pdf_generator.generate_fact_check_pdf(claim=res['claim'], final_verdict=res['final'], subclaims=res['evaluations'])
+                st.download_button(label="📄 Download Certified PDF Report", data=pdf_bytes, file_name="fact_check_report.pdf", mime="application/pdf", use_container_width=True)
             except Exception as e: st.error(f"Could not generate PDF: {str(e)}")
 
-        # JAVASCRIPT PER AUTO-SCROLL
-        components.html(
-            """
-            <script>
-                var element = window.parent.document.getElementById('results-anchor');
-                if (element) {
-                    element.scrollIntoView({behavior: 'smooth', block: 'start'});
-                }
-            </script>
-            """,
-            height=0
-        )
+        components.html("""<script>var element = window.parent.document.getElementById('results-anchor'); if (element) {element.scrollIntoView({behavior: 'smooth', block: 'start'});}</script>""", height=0)
 
-# SPAZIATORE FISICO INFALLIBILE PER IMPEDIRE AL FOOTER DI TOCCARE IL BOTTONE
-st.markdown("<div style='height: 150px; width: 100%; display: block;'></div>", unsafe_allow_html=True)
+components.html("""
+    <script>
+    const doc = window.parent.document;
+    doc.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const active = doc.activeElement;
+            const isTextarea = active && active.tagName.toLowerCase() === 'textarea';
+            if (isTextarea && !(event.ctrlKey || event.metaKey)) return;
+            if (!event.shiftKey) {
+                const buttons = Array.from(doc.querySelectorAll('button[kind="primary"]'));
+                const verifyBtn = buttons.find(b => b.innerText && b.innerText.toLowerCase().includes('verify claim'));
+                if (verifyBtn) { verifyBtn.click(); event.preventDefault(); }
+            }
+        }
+    });
+    </script>
+""", height=0, width=0)
 
-# Footer
 st.markdown("""
 <div class="footer">
     MedFactCheck Project • Big Data Engineering MSc Unina • Powered by RAG & LLMs

@@ -3,11 +3,12 @@ import os
 from typing import List
 
 from tools.retrieve.core.connectors.europe_pmc_api import search_articles, fetch_full_text_xml
-from tools.retrieve.core.connectors.clinical_trials_api import search_trials
+from tools.retrieve.core.connectors.clinical_trials_api import search_trials  # kept for reference
 from tools.retrieve.core.connectors.uniprot_api import search_protein
+from tools.retrieve.core.connectors.pubmed_api import search_systematic_reviews
 
 
-from tools.retrieve.core.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot
+from tools.retrieve.core.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot, format_systematic_review
 
 from utils.logger import get_logger
 from utils.config import config
@@ -64,17 +65,17 @@ class IngestionNode:
             base_limit = config.get("retrieval.max_results_per_query", 5)
             api_limit = base_limit * count
             
-            if target == "clinical_trials":
-                # Fetch 10x more results because trials are not split into multiple chunks
-                extracted_trials = search_trials(query=single_query, limit=api_limit * 10) 
-                stats["documents_found"] += len(extracted_trials)
-                for trial in extracted_trials:
+            if target == "systematic_reviews":
+                # Fetch 10x more results because reviews are not split into multiple chunks
+                extracted_reviews = search_systematic_reviews(query=single_query, limit=api_limit * 10)
+                stats["documents_found"] += len(extracted_reviews)
+                for review in extracted_reviews:
                     raw_chunks.append({
-                        "text": format_clinical_trial(trial),
+                        "text": format_systematic_review(review),
                         "metadata": {
-                            "id": trial.get("nct_id"), "title": trial.get("title"), "type": "Clinical Trial",
-                            "date": trial.get("start_date"), "url": trial.get("url"),
-                            "extra_info": {"phase": trial.get("phase"), "status": trial.get("status")}
+                            "id": review.get("pmid"), "title": review.get("title"), "type": "Systematic Review",
+                            "date": review.get("date"), "url": review.get("url"),
+                            "extra_info": {"doi": review.get("doi"), "publication_types": review.get("publication_types", [])}
                         }
                     })
 
