@@ -117,6 +117,36 @@ claim_decomposition_examples = [
                 "search_query": "DPP-4 inhibitors should be considered as a treatment for type 2 diabetes mellitus if the patient has a history of lactic acidosis."
             }
         ]
+    },
+    {
+        "input_claim": "The daily use of sedatives and sleeping pills such as benzodiazepines increases the risk of Alzheimer's disease, but it has no effect on vascular dementia.",
+        "thought_process": "The input contains a compound subject ('sedatives' and 'sleeping pills such as benzodiazepines') and multiple distinct factual assertions ('increases the risk of Alzheimer's disease', 'has no effect on vascular dementia'). I must keep each predicate minimal and split conjunctions.",
+        "predicates": [
+            {
+                "relation": "IncreaseRisk",
+                "subject": "Sedatives",
+                "object": "Alzheimer's disease",
+                "search_query": "Sedatives increase the risk of Alzheimer's disease."
+            },
+            {
+                "relation": "IncreaseRisk",
+                "subject": "Sleeping pills such as benzodiazepines",
+                "object": "Alzheimer's disease",
+                "search_query": "Sleeping pills such as benzodiazepines increase the risk of Alzheimer's disease."
+            },
+            {
+                "relation": "HasNoEffect",
+                "subject": "Sedatives",
+                "object": "vascular dementia",
+                "search_query": "Sedatives have no effect on vascular dementia."
+            },
+            {
+                "relation": "HasNoEffect",
+                "subject": "Sleeping pills such as benzodiazepines",
+                "object": "vascular dementia",
+                "search_query": "Sleeping pills such as benzodiazepines have no effect on vascular dementia."
+            }
+        ]
     }
 ]
 
@@ -126,7 +156,7 @@ You are given a problem description and a claim. Split the claim into atomic pre
 
 Important:
 - EMPTY/FRAGMENTS: If the input is a single word, purely conversational, or a verb-less fragment (e.g., "wtf", "hello", "penicillin"), return an empty list `[]`. Do NOT guess or hallucinate facts from prompt examples.
-- ATOMICITY: Split compound/conjunctive claims into multiple subclaims. Each subclaim MUST contain exactly one independently verifiable fact.
+- ATOMICITY: Prefer 1 factual statement per subclaim. If the claim is compound, produce one subclaim for each independently checkable fact. Keep each predicate minimal (one fact per item). Do not group distinct subjects or objects. Split compound/conjunctive claims into multiple subclaims. Each subclaim MUST contain exactly one independently verifiable fact.
 - VERBATIM EXTRACTION (CRITICAL): Maintain the EXACT terminology used in the original text for clinical conditions, treatments, and technologies. DO NOT use generic synonyms or acronyms (e.g., do not translate "Magnetic resonance therapy" to "MRI"). Keep the original clinical words intact to avoid semantic drift during document retrieval. Extract EXACTLY what is asserted, even if false. Do NOT auto-correct or add external info. Do not invent facts.
 - EXTRACT EVERYTHING: Include subjective opinions, anecdotal reports, and recommendations. The downstream classifier will filter them.
 
@@ -140,7 +170,7 @@ Structural rules:
 
 Content rules:
 - EXHAUSTIVE EXTRACTION: Process ALL sentences and clauses in the input. Do not stop early. If there are multiple separate questions or statements, you MUST extract subclaims for EVERY single one of them.
-- SPLIT CONJUNCTIONS/DISJUNCTIONS: Always split "X or Y" and "X and Y" into two separate predicates. Never leave an "or" / "and" grouping distinct subjects or objects in a single subclaim.
+- SPLIT CONJUNCTIONS/DISJUNCTIONS: Always split "X or Y" and "X and Y" into two separate predicates. If the claim is "X and Y cause Z", you MUST output "X causes Z" and "Y causes Z". Never leave an "or" / "and" grouping distinct subjects or objects in a single subclaim.
 - CRITICAL: The `search_query` MUST be a positive, declarative statement. NEVER output a question. If the input is a question (e.g., "Does X cure Y?"), you MUST convert it into a declarative statement ("X cures Y"). NEVER include a question mark (?).
 - CRITICAL: Output valid JSON using DOUBLE QUOTES (") for strings.
 - Prefer explicit subjects and normalized nouns. Use active voice.
