@@ -1,11 +1,11 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
 import json
 from bs4 import BeautifulSoup
 import pandas as pd
 import plotly.express as px
 import importlib
+import streamlit.components.v1 as components
 
 # 1. Configurazione della Pagina
 st.set_page_config(
@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. CSS Avanzato
+# 2. CSS Avanzato Originale
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -106,7 +106,7 @@ with col_main:
         st.switch_page("app.py")
 
     st.markdown('<div class="panel-title">Medical Fact Check Panel</div>', unsafe_allow_html=True)
-    st.markdown('<div class="panel-subtitle">Submit a medical claim and rigorously verify it against trusted scientific literature. (💡 Hint: Press <b>Ctrl+Enter</b> or <b>Cmd+Enter</b> to submit)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel-subtitle">Submit a medical claim and rigorously verify it against trusted scientific literature.</div>', unsafe_allow_html=True)
 
     input_method = st.radio("Choose Input Method:", ["✍️ Text Input", "📄 Upload TXT", "🔗 Provide URL"], horizontal=True)
     claim = ""
@@ -149,7 +149,7 @@ with col_main:
         verify_clicked = st.button("Verify Claim", type="primary", use_container_width=True)
 
     # ==========================================
-    # 5. LOGICA BACKEND E ANIMAZIONE DI CARICAMENTO PULITA
+    # 5. LOGICA BACKEND E ANIMAZIONE CON CARTE MODALI ZOOMANTI
     # ==========================================
     if verify_clicked:
         if not claim.strip():
@@ -159,8 +159,9 @@ with col_main:
             overlay_placeholder = st.empty()
             error_placeholder.empty() 
             
-            def update_interactive_loading(step=1, subclaims=None, verified_count=0, total_to_verify=1):
+            def update_interactive_loading(step=1, subclaims=None, evaluations=None, verified_count=0, total_to_verify=1):
                 if subclaims is None: subclaims = []
+                if evaluations is None: evaluations = []
                 
                 if step == 1:
                     central_title = "Initializing Medical AI Pipeline"
@@ -179,20 +180,43 @@ with col_main:
                     central_subtitle = "Aggregating verdicts and calculating confidence score..."
                     anim_color = "#10b981"
                 
-                sc_html = ""
+                # CSS DELLE MODALI (POPUP)
+                modal_css = "<style>.modal-wrapper{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:10000000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}.modal-toggle:checked+.modal-wrapper{display:flex!important;}.modal-card{background:#0f172a;border:1px solid #38bdf8;border-radius:16px;padding:2rem;max-width:700px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 0 40px rgba(56,189,248,0.4);animation:zoomIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;}@keyframes zoomIn{0%{transform:scale(0.5);opacity:0;}100%{transform:scale(1);opacity:1;}}.close-btn{float:right;cursor:pointer;color:#f8fafc;background:#ef4444;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;transition:0.2s;font-size:14px;}.close-btn:hover{background:#dc2626;transform:scale(1.1);}</style>"
+                
+                sc_html = modal_css + "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
                 if step >= 2 and subclaims:
-                    # NOTA BENE: Nessun a capo o indentazione all'interno di questa stringa f-string per evitare bug markdown!
-                    sc_html += "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:800px;'>"
                     for i, sc in enumerate(subclaims):
+                        ev_data = next((e for e in evaluations if e.get("subclaim") == sc), None)
+                        
                         if step == 2: status = "⏳ Ingesting Literature..."
-                        elif step == 3 and i < verified_count: status = "✅ Verified"
+                        elif step == 3 and ev_data: status = f"✅ Valutato: {ev_data.get('label', 'NEI')}"
                         elif step == 3 and i == verified_count: status = "🔍 Evaluating..."
                         else: status = "⏳ Pending"
-                        # Schiacciamo tutto su una sola riga senza indentazioni per evitare che diventi un blocco di codice
-                        sc_html += f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div></div>"
-                    sc_html += "</div>"
+                        
+                        card_html = f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div>"
+                        
+                        # Se valutato, crea il tasto per aprire la modale
+                        if ev_data:
+                            reasoning = ev_data.get("justification", ev_data.get("selection_reasoning", "Nessun ragionamento fornito."))
+                            chunks = ev_data.get("retrieved_chunks", [])[:5]
+                            chunks_html = ""
+                            for c in chunks:
+                                c_text = c.get("text", "") if isinstance(c, dict) else str(c)
+                                c_meta = c.get("metadata", {}) if isinstance(c, dict) else {}
+                                # FIX SORGENTE SCONOSCIUTA NELLA MODALE
+                                c_source = c_meta.get("title") or c_meta.get("id") or (c.get("source") if isinstance(c, dict) else None) or "Documento di Riferimento"
+                                chunks_html += f"<div style='background:#1e293b; padding:10px; margin:8px 0; border-left:4px solid #38bdf8; border-radius:6px; font-size:0.85rem; text-align:left;'><strong style='color:#38bdf8;'>{c_source}</strong><br><em style='color:#cbd5e1;'>{c_text[:200]}...</em></div>"
+                            
+                            btn_html = f"<label for='modal-{i}' style='display:inline-block; margin-top:12px; padding:8px 16px; background:linear-gradient(135deg, #00f2fe, #4facfe); color:#0f172a; font-weight:800; border-radius:8px; cursor:pointer; font-size:0.8rem; transition:transform 0.2s;'>🔍 Esplora Analisi</label>"
+                            modal_html = f"<input type='checkbox' id='modal-{i}' class='modal-toggle' style='display:none;'><div class='modal-wrapper'><div class='modal-card'><label for='modal-{i}' class='close-btn'>✖</label><h3 style='color:#38bdf8; margin-top:0; text-align:left;'>Analisi Subclaim {i+1}</h3><p style='color:#e2e8f0; font-size:1.05rem; font-style:italic; text-align:left;'>\"{sc}\"</p><hr style='border:none; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;'><div style='text-align:left;'><strong style='color:#a78bfa; font-size:1.1rem;'>🧠 Ragionamento:</strong><p style='color:#f8fafc; font-size:0.95rem; line-height:1.6;'>{reasoning}</p></div><div style='text-align:left; margin-top:20px;'><strong style='color:#a78bfa; font-size:1.1rem;'>📄 Top 5 Evidenze:</strong>{chunks_html}</div></div></div>"
+                            
+                            card_html += btn_html + modal_html
+                            
+                        card_html += "</div>"
+                        sc_html += card_html
+                sc_html += "</div>"
 
-                # TUTTO L'HTML A MARGINE SINISTRO
+                # OVERLAY GLOBALE E ANIMAZIONI
                 html_content = f"""
 <style>
 .stApp {{ pointer-events: none !important; overflow: hidden !important; }}
@@ -225,7 +249,6 @@ with col_main:
 """
                 overlay_placeholder.markdown(html_content, unsafe_allow_html=True)
             
-            # Step 1
             update_interactive_loading(step=1)
                 
             try:
@@ -248,17 +271,17 @@ with col_main:
                                         for sc in scs:
                                             sc_text = sc if isinstance(sc, str) else sc.get("claim", str(sc))
                                             current_subclaims.append(sc_text)
-                                        update_interactive_loading(step=2, subclaims=current_subclaims, verified_count=0, total_to_verify=len(current_subclaims))
+                                        update_interactive_loading(step=2, subclaims=current_subclaims, evaluations=current_evaluations, verified_count=0, total_to_verify=len(current_subclaims))
                                         
                                     elif "verify_subclaim" in step_data:
                                         eval_results = step_data["verify_subclaim"].get("evaluation_results", [])
                                         for er in eval_results:
                                             if er not in current_evaluations:
                                                 current_evaluations.append(er)
-                                        update_interactive_loading(step=3, subclaims=current_subclaims, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
+                                        update_interactive_loading(step=3, subclaims=current_subclaims, evaluations=current_evaluations, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
                                         
                                     elif "aggregate" in step_data:
-                                        update_interactive_loading(step=4, subclaims=current_subclaims, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
+                                        update_interactive_loading(step=4, subclaims=current_subclaims, evaluations=current_evaluations, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
                                         current_final = step_data["aggregate"].get("final_verdict", {})
                                         st.session_state.real_results = {
                                             "subclaims": current_subclaims,
@@ -276,7 +299,7 @@ with col_main:
                 error_placeholder.error(f"❌ Failed to connect to the backend API: {str(e)}")
 
     # ==========================================
-    # 6. RENDERING DINAMICO DEI RISULTATI
+    # 6. RENDERING DINAMICO DEI RISULTATI FINALI
     # ==========================================
     if st.session_state.real_results:
         res = st.session_state.real_results
@@ -323,13 +346,16 @@ with col_main:
             
             evidence = ev.get("retrieved_chunks", [])
             if evidence:
-                with st.expander("🔬 Toggle Evidence Documents (Literature Sources)"):
+                with st.expander("🔬  Evidence Documents (Literature Sources)"):
                     for chunk in evidence:
                         if isinstance(chunk, dict):
                             text = chunk.get("text", "")
                             meta = chunk.get("metadata", {})
                             url = meta.get("url", "")
-                            source_title = meta.get("title", meta.get("id", "Unknown Source"))
+                            
+                            # FIX SORGENTE SCONOSCIUTA NEI RISULTATI FINALI
+                            source_title = meta.get("title") or meta.get("id") or chunk.get("source") or "Documento di Riferimento"
+                            
                             if url:
                                 st.markdown(f'<div class="evidence-box"><strong><a href="{url}" target="_blank" style="color:#38bdf8; text-decoration:none;">{source_title} ↗</a></strong>: <em>{text}</em></div>', unsafe_allow_html=True)
                             else:
@@ -379,26 +405,23 @@ with col_main:
                 pdf_bytes = utils.pdf_generator.generate_fact_check_pdf(claim=res['claim'], final_verdict=res['final'], subclaims=res['evaluations'])
                 st.download_button(label="📄 Download Certified PDF Report", data=pdf_bytes, file_name="fact_check_report.pdf", mime="application/pdf", use_container_width=True)
             except Exception as e: st.error(f"Could not generate PDF: {str(e)}")
-
-        components.html("""<script>var element = window.parent.document.getElementById('results-anchor'); if (element) {element.scrollIntoView({behavior: 'smooth', block: 'start'});}</script>""", height=0)
-
-components.html("""
-    <script>
-    const doc = window.parent.document;
-    doc.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            const active = doc.activeElement;
-            const isTextarea = active && active.tagName.toLowerCase() === 'textarea';
-            if (isTextarea && !(event.ctrlKey || event.metaKey)) return;
-            if (!event.shiftKey) {
-                const buttons = Array.from(doc.querySelectorAll('button[kind="primary"]'));
-                const verifyBtn = buttons.find(b => b.innerText && b.innerText.toLowerCase().includes('verify claim'));
-                if (verifyBtn) { verifyBtn.click(); event.preventDefault(); }
-            }
-        }
-    });
-    </script>
-""", height=0, width=0)
+            # Auto-scroll ai risultati
+        components.html(
+            """
+            <script>
+            // Un piccolo delay assicura che Streamlit abbia finito di renderizzare l'HTML prima di scrollare
+            setTimeout(function() {
+                const doc = window.parent.document;
+                const element = doc.getElementById('results-anchor');
+                if (element) {
+                    element.scrollIntoView({behavior: 'smooth', block: 'start'});
+                }
+            }, 500);
+            </script>
+            """,
+            height=0,
+            width=0
+        )
 
 st.markdown("""
 <div class="footer">

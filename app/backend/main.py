@@ -1,78 +1,82 @@
 import sys
-import os
 from pathlib import Path
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from starlette.concurrency import run_in_threadpool
+from pydantic import BaseModel
+import json
 
-# Add src to the Python path so we can import FactAgent
-# We are in app/backend/main.py, so we go up two levels to reach the root, then into src
+# Configurazione path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-import json
 from main_agent import FactAgent
 
 app = FastAPI(
-    title="Med-Fact-Check API", 
-    description="API for fact-checking medical claims.",
-    version="1.0.0"
+    title="Med-Fact-Check API",
+    description="API per fact-checking medico con streaming asincrono.",
+    version="1.1.0"
 )
 
-# Initialize the FactAgent on startup
+# Inizializzazione Agent
 try:
     agent = FactAgent()
 except Exception as e:
-    print(f"Failed to initialize FactAgent: {e}")
+    print(f"Errore inizializzazione FactAgent: {e}")
     agent = None
 
 class ClaimRequest(BaseModel):
     claim: str
 
+@app.post("/api/v1/fact-check-stream")
+async def fact_check_stream(request: ClaimRequest):
+    """
+    Endpoint per lo streaming dei risultati del fact-check.
+    Utilizza run_in_threadpool per evitare di bloccare l'event loop di FastAPI.
+    """
+    if agent is None:
+        raise HTTPException(status_code=500, detail="FactAgent non disponibile.")
+
+    async def generate():
+        try:
+            # Creiamo un generatore che esegue lo stream in modo sincrono
+            # ma lo avvolgiamo per un'esecuzione sicura
+            def get_stream():
+                return agent.stream_claim(request.claim)
+
+            # Esecuzione nel thread pool
+            stream = await run_in_threadpool(get_stream)
+            
+            for step in stream:
+                # Assicurati che lo step sia serializzabile in JSON
+                yield f"data: {json.dumps(step)}\n\n"
+                
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e), 'status': 'failed'})}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
+
 @app.post("/api/v1/fact-check")
 async def fact_check(request: ClaimRequest):
+    """
+    Endpoint per esecuzione singola (batch).
+    """
     if agent is None:
-        raise HTTPException(status_code=500, detail="FactAgent failed to initialize. Check API keys and configuration.")
+        raise HTTPException(status_code=500, detail="FactAgent non disponibile.")
         
     try:
-        # process_claim returns a list of dictionaries representing steps.
-        results = agent.process_claim(request.claim, verbose=False)
+        # Esecuzione asincrona del task pesante
+        results = await run_in_threadpool(lambda: agent.process_claim(request.claim, verbose=False))
         
         if not results:
-             raise HTTPException(status_code=500, detail="Pipeline returned no results.")
-        
-        # We return the last element which represents the final state
-        final_state = results[-1]
-        
-        # Extract final_verdict
-        verdict = None
-        if "aggregate" in final_state and "final_verdict" in final_state["aggregate"]:
-            verdict = final_state["aggregate"]["final_verdict"]
-        elif "final_verdict" in final_state:
-            verdict = final_state["final_verdict"]
+            raise HTTPException(status_code=500, detail="Nessun risultato prodotto.")
             
-        if verdict:
-            return {"status": "success", "verdict": verdict}
-        else:
-            return {"status": "success", "raw_result": final_state}
+        final_state = results[-1]
+        return {"status": "success", "result": final_state}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/v1/fact-check-stream")
-async def fact_check_stream(request: ClaimRequest):
-    if agent is None:
-        raise HTTPException(status_code=500, detail="FactAgent failed to initialize. Check API keys and configuration.")
-        
-    def generate():
-        try:
-            for step in agent.stream_claim(request.claim):
-                yield f"data: {json.dumps(step)}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
-
-    return StreamingResponse(generate(), media_type="text/event-stream")
-
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "agent_initialized": agent is not None}
+    return {"status": "ok", "agent_ready": agent is not None}
