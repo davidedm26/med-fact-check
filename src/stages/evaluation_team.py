@@ -225,21 +225,25 @@ def build_evaluation_graph(reasoning_agent):
         # Extract fields (handle both dict and object response formats)
         if isinstance(structured, dict):
             justification = structured.get("justification", "")
+            distilled_evidence = structured.get("distilled_evidence", "")
             key_evidence = structured.get("key_evidence", [])
             reasoning_conclusion = structured.get("reasoning_conclusion", "not_enough_information")
         else:
             justification = getattr(structured, "justification", "")
+            distilled_evidence = getattr(structured, "distilled_evidence", "")
             key_evidence = getattr(structured, "key_evidence", [])
             reasoning_conclusion = getattr(structured, "reasoning_conclusion", "not_enough_information")
 
         return {
             "subclaim_justification": justification,
+            "distilled_evidence": distilled_evidence,
             "key_evidence": key_evidence,
             "reasoning_conclusion": reasoning_conclusion,
             "messages": [
                 HumanMessage(
                     content=str({
                         "justification": justification,
+                        "distilled_evidence": distilled_evidence,
                         "reasoning_conclusion": reasoning_conclusion,
                     }),
                     name="reasoning_agent",
@@ -255,40 +259,69 @@ def build_evaluation_graph(reasoning_agent):
         # Collect fields from the previous node's output
         subclaim = state.get("subclaim") or ""
         justification = state.get("subclaim_justification") or ""
+        distilled_evidence = state.get("distilled_evidence") or ""
         subclaim_id = state.get("subclaim_id") or ""
         
         reasoning_conclusion = state.get("reasoning_conclusion", "")
 
-        # NLI premise: use retrieved evidence (primary) enriched with the
-        # generated justification, following the traccia requirement that
-        # the classifier uses "claim text, retrieved evidence, and generated justification".
-        evidence_text = state.get("evidence_text") or ""
-        premise = evidence_text if evidence_text else justification
-        hypothesis = subclaim
-            
-        # NLI pipeline input format: dict with text and text_pair for correct tokenizer handling
-        nli_input = {"text": premise, "text_pair": hypothesis}
-
-        try:
-            nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
-            log.debug(f"NLI raw output: {nli_results}")
-
-            if isinstance(nli_results, list) and len(nli_results) > 0:
-                if isinstance(nli_results[0], list):
-                    nli_results = nli_results[0]
-                
-                top = max(nli_results, key=lambda x: x.get("score", 0))
-                raw_label = top.get("label", "NEUTRAL").upper()
-                confidence = round(top.get("score", 0.0), 4)
-                label = _NLI_LABEL_MAP.get(raw_label, "nei")
+        # Consensus logic:
+        # 1. If Reasoning Agent concludes there is not enough information, set label to "nei" and confidence to 1.0.
+        if reasoning_conclusion == "not_enough_information":
+            label = "nei"
+            confidence = 1.0
+            log.info("Consensus override: LLM concluded not_enough_information. Setting label=nei, confidence=1.0")
+        else:
+            # NLI premise: use the LLM-purified distilled_evidence (which concentrates
+            # the relevant facts and filters noise/overlap). Fall back to justification or raw chunks if empty.
+            if distilled_evidence:
+                premise = distilled_evidence
             else:
+                evidence_text = state.get("evidence_text") or ""
+                premise = evidence_text if evidence_text else justification
+                
+            hypothesis = subclaim
+                
+            # NLI pipeline input format: dict with text and text_pair for correct tokenizer handling
+            nli_input = {"text": premise, "text_pair": hypothesis}
+
+            try:
+                nli_results = create_veracity_pipeline()(nli_input, truncation=True, max_length=512)
+                log.debug(f"NLI raw output: {nli_results}")
+
+                if isinstance(nli_results, list) and len(nli_results) > 0:
+                    if isinstance(nli_results[0], list):
+                        nli_results = nli_results[0]
+                    
+                    # Map labels and scores
+                    mapped_results = []
+                    for r in nli_results:
+                        mapped_label = _NLI_LABEL_MAP.get(r["label"].upper(), "nei")
+                        mapped_results.append({"label": mapped_label, "score": r.get("score", 0.0)})
+                    
+                    # Force choice between supported and refuted since reasoning says there is enough info
+                    filtered_results = [r for r in mapped_results if r["label"] in ("supported", "refuted")]
+                    if filtered_results:
+                        # The LLM's reasoning conclusion becomes the final label
+                        label = reasoning_conclusion
+                        log.info(f"Consensus: LLM label choice is '{label}'. Invoking NLI for confidence score.")
+                        
+                        # Extract NLI score for the LLM's chosen label
+                        llm_label_score = next((r["score"] for r in filtered_results if r["label"] == label), 0.0)
+                        
+                        # Normalize confidence over supported + refuted
+                        total_score = sum(r["score"] for r in filtered_results)
+                        confidence = round(llm_label_score / total_score if total_score > 0 else llm_label_score, 4)
+                    else:
+                        label = "nei"
+                        confidence = 0.0
+                else:
+                    label = "nei"
+                    confidence = 0.0
+
+            except Exception as exc:
+                log.error(f"NLI error: {exc}")
                 label = "nei"
                 confidence = 0.0
-
-        except Exception as exc:
-            log.error(f"NLI error: {exc}")
-            label = "nei"
-            confidence = 0.0
 
         log.info(f"label={label}, confidence={confidence}")
 
