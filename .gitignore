@@ -14,3 +14,4 @@ data/*.json
 data/test/*.json 
 *.pdf
 test/reports/
+index.html
