@@ -18,11 +18,11 @@ OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "results", "pipeline_p
 # RAPID EVALUATION SETTINGS
 # ==========================================
 # Change the dataset name here: "scifact", "bioasq", "healthfc", or "all" to run all
-DATASET_TO_EVALUATE = "all" 
+DATASET_TO_EVALUATE = "healthfc" 
 
 # Maximum number of samples PER CLASS (e.g. 5 supported, 5 refuted). 
 # Useful for getting almost immediate feedback.
-MAX_SAMPLES_PER_CLASS = 2
+MAX_SAMPLES_PER_CLASS = 10
 # ==========================================
 
 def run_rapid_evaluation():
@@ -141,7 +141,7 @@ def calculate_metrics():
         else:
             filtered_results = [
                 item for item in results 
-                if str(item.get("predicted_label", "")).upper() != "NEI"
+                if str(item.get("predicted_label", "")).upper() not in ["NEI", "NOT_ENOUGH_INFORMATION"]
             ]
             evaluated_claims = len(filtered_results)
             excluded_claims = total_claims - evaluated_claims

@@ -23,14 +23,19 @@
         }
     },
     "retrieval": {
+        "knowledge_cutoff_year": {
+            "scifact": 2020,
+            "bioasq": 2022,
+            "healthfc": 2024
+        },
         "dynamic_coins": 3,
-        "base_coins_per_source": 0,
+        "base_coins_per_source": 1,
         "max_results_per_query": 5,
         "hybrid": {
             "dense_top_k": 10,
             "sparse_top_k": 10,
             "rerank_top_k": 5,
-            "max_chunks_per_doc": 2
+            "max_chunks_per_doc": 3
         },
         "chunking": {
             "chunk_size": 300,
