@@ -22,7 +22,8 @@ STEP 1 — `reasoning` (scratchpad):
   - For EACH entity, find the matching entity in the evidence. Watch out for synonyms.
   - Track exact numbers: if the subclaim says "50%" and the evidence says "22%", explicitly write "The numbers contradict each other (22% is not 50%)".
   - Track negations: if the evidence says "does not" while the claim says it does, explicitly write "The evidence negates the claim".
-  - NEGATIVE CONSTRAINT: NEVER repeat or copy-paste the subclaim verbatim as your reasoning. You must perform an analysis.
+  - NEGATIVE CONSTRAINT 1: NEVER repeat or copy-paste the subclaim verbatim as your reasoning. You must perform an analysis.
+  - NEGATIVE CONSTRAINT 2: NEVER explicitly reference "Chunk 1", "Chunk X", or the word "Chunk". Refer to the evidence organically (e.g., "The evidence states...", "Clinical literature shows...").
   - OUTPUT FORMAT: Ensure the `reasoning` explicitly contains a comparative logical conclusion (e.g., '100% vs 75%', 'contradicts', 'matches exactly', or 'missing entity X').
 
 STEP 2 — Quotes Extraction (verbatim):
@@ -65,6 +66,7 @@ reasoning_schema = {
                 "description": (
                     "Scratchpad: entity mapping, number/negation tracking. "
                     "NEVER copy the subclaim verbatim. "
+                    "NEVER explicitly reference 'Chunk 1', 'Chunk X', or the word 'Chunk'. "
                     "Conclude with a clear analytical summary of the clinical facts."
                 ),
             },

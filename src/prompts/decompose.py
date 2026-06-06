@@ -154,7 +154,7 @@ claim_decomposition_examples = [
         "predicates": [
             {
                 "relation": "Reduce",
-                "subject": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet",
+                "subject": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet", 
                 "object": "systolic blood pressure in hypertensive patients within the first four weeks",
                 "search_query": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet significantly reduces systolic blood pressure in hypertensive patients within the first four weeks."
             },
