@@ -382,10 +382,13 @@ class FactAgent:
 
         
         # Inject current dataset into global config for retrieval APIs
-        current_dataset = getattr(self, "dataset", "scifact")
+        current_dataset = getattr(self, "dataset", None)
         config.set("current_dataset", current_dataset)
         
         log.info(f"pipeline run_id: {run_id}")
+        
+        import time
+        t0 = time.perf_counter()
         
         results = []
         log.info("starting graph stream")

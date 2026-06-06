@@ -15,6 +15,25 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+import re
+
+def highlight_quotes(text, supp, ref):
+    hl = text
+    if isinstance(supp, str): supp = [supp]
+    if isinstance(ref, str): ref = [ref]
+    for q in (supp or []):
+        if q and len(q) > 5:
+            q_pattern = r'\s+'.join(re.escape(word) for word in q.split())
+            pattern = re.compile(q_pattern, re.IGNORECASE)
+            hl = pattern.sub(r"<span style='background-color: rgba(16, 185, 129, 0.2); color: #34d399;'>\g<0></span>", hl)
+    for q in (ref or []):
+        if q and len(q) > 5:
+            q_pattern = r'\s+'.join(re.escape(word) for word in q.split())
+            pattern = re.compile(q_pattern, re.IGNORECASE)
+            hl = pattern.sub(r"<span style='background-color: rgba(239, 68, 68, 0.2); color: #f87171;'>\g<0></span>", hl)
+    return hl
+
+
 # 2. CSS Avanzato Originale
 st.markdown("""
     <style>
@@ -155,99 +174,296 @@ with col_main:
         if not claim.strip():
             st.warning("Please provide a valid claim or document before verifying.")
         else:
+            import base64
+            from utils.pdf_generator import generate_fact_check_pdf
             current_subclaims, current_evaluations = [], []
             overlay_placeholder = st.empty()
             error_placeholder.empty() 
             
-            def update_interactive_loading(step=1, subclaims=None, evaluations=None, verified_count=0, total_to_verify=1):
+            def update_interactive_loading(step=1, subclaims=None, evaluations=None, verified_count=0, total_to_verify=1, final_verdict=None):
+                all_modals_html = ""
                 if subclaims is None: subclaims = []
                 if evaluations is None: evaluations = []
                 
-                if step == 1:
-                    central_title = "Initializing Medical AI Pipeline"
-                    central_subtitle = "Warming up decomposition agents..."
-                    anim_color = "#38bdf8"
-                elif step == 2:
-                    central_title = "RAG Database Ingestion"
-                    central_subtitle = "<span class='rag-messages'></span>"
-                    anim_color = "#818cf8"
-                elif step == 3:
-                    central_title = "Clinical Reasoning Agent"
-                    central_subtitle = f"Validating {verified_count} of {total_to_verify} extracted claims..."
-                    anim_color = "#a78bfa"
+                if final_verdict:
+                    verdict = final_verdict.get("final_verdict", "NEI")
+                    conf = final_verdict.get("confidence_score", 0)
+                    if verdict == "SUPPORTED":
+                        anim_color = "#10b981"
+                        central_title = "Fact-Checking Completed!"
+                        central_subtitle = "Final results are ready for analysis."
+                    elif verdict == "REFUTED":
+                        anim_color = "#ef4444"
+                        central_title = "Fact-Checking Completed!"
+                        central_subtitle = "Final results are ready for analysis."
+                    else:
+                        anim_color = "#f59e0b"
+                        central_title = "Fact-Checking Completed!"
+                        central_subtitle = "Final results are ready for analysis."
                 else:
-                    central_title = "Generating Final Consensus"
-                    central_subtitle = "Aggregating verdicts and calculating confidence score..."
-                    anim_color = "#10b981"
+                    if step == 1:
+                        central_title = "Initializing Medical AI Pipeline"
+                        central_subtitle = "Warming up decomposition agents..."
+                        anim_color = "#38bdf8"
+                    elif step == 2:
+                        central_title = "RAG Database Ingestion"
+                        central_subtitle = "<span class='rag-messages'></span>"
+                        anim_color = "#818cf8"
+                    elif step == 3:
+                        central_title = "Clinical Reasoning Agent"
+                        central_subtitle = f"Validating {verified_count} of {total_to_verify} extracted claims..."
+                        anim_color = "#a78bfa"
+                    else:
+                        central_title = "Generating Final Consensus"
+                        central_subtitle = "Aggregating verdicts and calculating confidence score..."
+                        anim_color = "#10b981"
                 
-                # CSS DELLE MODALI (POPUP)
+                # CSS DELLE MODALI (POPUP) E DEL CAROSELLO A 4 FASI
                 modal_css = "<style>.modal-wrapper{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:10000000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}.modal-toggle:checked+.modal-wrapper{display:flex!important;}.modal-card{background:#0f172a;border:1px solid #38bdf8;border-radius:16px;padding:2rem;max-width:700px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 0 40px rgba(56,189,248,0.4);animation:zoomIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;}@keyframes zoomIn{0%{transform:scale(0.5);opacity:0;}100%{transform:scale(1);opacity:1;}}.close-btn{float:right;cursor:pointer;color:#f8fafc;background:#ef4444;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;transition:0.2s;font-size:14px;}.close-btn:hover{background:#dc2626;transform:scale(1.1);}</style>"
                 
-                sc_html = modal_css + "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
-                if step >= 2 and subclaims:
+                def get_cards_html(target_phase):
+                    nonlocal all_modals_html
+                    if not subclaims: return "<div style='color:#94a3b8; margin-top:20px; font-style:italic;'>⏳ Waiting for pipeline...</div>"
+                    html = "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
                     for i, sc in enumerate(subclaims):
                         ev_data = next((e for e in evaluations if e.get("subclaim") == sc), None)
-                        
-                        if step == 2: status = "⏳ Ingesting Literature..."
-                        elif step == 3 and ev_data: status = f"✅ Valutato: {ev_data.get('label', 'NEI')}"
-                        elif step == 3 and i == verified_count: status = "🔍 Evaluating..."
-                        else: status = "⏳ Pending"
-                        
-                        card_html = f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div>"
-                        
-                        # Se valutato, crea il tasto per aprire la modale
-                        if ev_data:
-                            reasoning = ev_data.get("justification", ev_data.get("selection_reasoning", "Nessun ragionamento fornito."))
+                        if target_phase == 2:
+                            if step < 2: status = "⏳ Pending..."
+                            elif step == 2: status = "⏳ Retrieving Literature..."
+                            else: status = "✅ Documents Retrieved"
+                            has_modal = False
+                        elif target_phase == 3:
+                            if step < 3: status = "⏳ Pending..."
+                            elif step == 3 and ev_data: status = f"✅ Evaluated: {ev_data.get('label', 'NEI')}"
+                            elif step == 3 and i == verified_count: status = "🔍 Evaluating..."
+                            elif step == 3: status = "⏳ Waiting in queue..."
+                            else: status = f"✅ Evaluated: {ev_data.get('label', 'NEI')}" if ev_data else "✅ Evaluated"
+                            has_modal = bool(ev_data)
+                        else:
+                            status = f"✅ Evaluated: {ev_data.get('label', 'NEI')}" if ev_data else "✅ Completed"
+                            has_modal = bool(ev_data)
+                            
+                        if has_modal:
+                            card_html = f"<label for='modal-p{target_phase}-{i}' style='display:block; cursor:pointer; position:relative; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left; transition: transform 0.2s, border-color 0.2s;' onmouseover=\"this.style.transform='translateY(-3px)'; this.style.borderColor='#38bdf8';\" onmouseout=\"this.style.transform='translateY(0)'; this.style.borderColor='rgba(255,255,255,0.1)';\"><div style='position:absolute; right:10px; bottom:10px; font-size:4rem; opacity:0.04; pointer-events:none; z-index:0;'>🔍</div><div style='position:relative; z-index:2; font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='position:relative; z-index:2; font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='position:relative; z-index:2; font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div>"
+                        else:
+                            card_html = f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div>"
+                        if has_modal:
+                            reasoning = ev_data.get("justification", ev_data.get("selection_reasoning", "No reasoning provided."))
                             chunks = ev_data.get("retrieved_chunks", [])[:5]
+                            supp = ev_data.get("supporting_quotes", [])
+                            ref = ev_data.get("refuting_quotes", [])
                             chunks_html = ""
                             for c in chunks:
                                 c_text = c.get("text", "") if isinstance(c, dict) else str(c)
                                 c_meta = c.get("metadata", {}) if isinstance(c, dict) else {}
-                                # FIX SORGENTE SCONOSCIUTA NELLA MODALE
-                                c_source = c_meta.get("title") or c_meta.get("id") or (c.get("source") if isinstance(c, dict) else None) or "Documento di Riferimento"
-                                chunks_html += f"<div style='background:#1e293b; padding:10px; margin:8px 0; border-left:4px solid #38bdf8; border-radius:6px; font-size:0.85rem; text-align:left;'><strong style='color:#38bdf8;'>{c_source}</strong><br><em style='color:#cbd5e1;'>{c_text[:200]}...</em></div>"
-                            
-                            btn_html = f"<label for='modal-{i}' style='display:inline-block; margin-top:12px; padding:8px 16px; background:linear-gradient(135deg, #00f2fe, #4facfe); color:#0f172a; font-weight:800; border-radius:8px; cursor:pointer; font-size:0.8rem; transition:transform 0.2s;'>🔍 Esplora Analisi</label>"
-                            modal_html = f"<input type='checkbox' id='modal-{i}' class='modal-toggle' style='display:none;'><div class='modal-wrapper'><div class='modal-card'><label for='modal-{i}' class='close-btn'>✖</label><h3 style='color:#38bdf8; margin-top:0; text-align:left;'>Analisi Subclaim {i+1}</h3><p style='color:#e2e8f0; font-size:1.05rem; font-style:italic; text-align:left;'>\"{sc}\"</p><hr style='border:none; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;'><div style='text-align:left;'><strong style='color:#a78bfa; font-size:1.1rem;'>🧠 Ragionamento:</strong><p style='color:#f8fafc; font-size:0.95rem; line-height:1.6;'>{reasoning}</p></div><div style='text-align:left; margin-top:20px;'><strong style='color:#a78bfa; font-size:1.1rem;'>📄 Top 5 Evidenze:</strong>{chunks_html}</div></div></div>"
-                            
-                            card_html += btn_html + modal_html
-                            
-                        card_html += "</div>"
-                        sc_html += card_html
-                sc_html += "</div>"
+                                c_source = c_meta.get("title") or c_meta.get("id") or (c.get("source") if isinstance(c, dict) else None) or "Reference Document"
+                                hl_text = highlight_quotes(c_text, supp, ref)
+                                chunks_html += f"<div style='background:#1e293b; padding:10px; margin:8px 0; border-left:4px solid #38bdf8; border-radius:6px; font-size:0.85rem; text-align:left;'><strong style='color:#38bdf8;'>{c_source}</strong><br><em style='color:#cbd5e1;'>{hl_text}</em></div>"
+                            modal_html = f"<input type='checkbox' id='modal-p{target_phase}-{i}' class='modal-toggle' style='display:none;'><div class='modal-wrapper'><div class='modal-card'><label for='modal-p{target_phase}-{i}' class='close-btn'>✖</label><h3 style='color:#38bdf8; margin-top:0; text-align:left;'>Subclaim Analysis {i+1}</h3><p style='color:#e2e8f0; font-size:1.05rem; font-style:italic; text-align:left;'>\"{sc}\"</p><hr style='border:none; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;'><div style='text-align:left;'><strong style='color:#a78bfa; font-size:1.1rem;'>🧠 Reasoning:</strong><p style='color:#f8fafc; font-size:0.95rem; line-height:1.6;'>{reasoning}</p></div><div style='text-align:left; margin-top:20px;'><strong style='color:#a78bfa; font-size:1.1rem;'>📄 Top 5 Evidences:</strong>{chunks_html}</div></div></div>"
+                            all_modals_html += modal_html
+                            card_html += "</label>"
+                        else:
+                            card_html += "</div>"
+                        html += card_html
+                    html += "</div>"
+                    return html
 
-                # OVERLAY GLOBALE E ANIMAZIONI
+                sc_html_p2 = get_cards_html(2)
+                sc_html_p3 = get_cards_html(3)
+                
+                if final_verdict:
+                    verdict = final_verdict.get("final_verdict", "NEI")
+                    conf = final_verdict.get("confidence_score", 0)
+                    just = final_verdict.get("justification", "")
+                    if verdict == "SUPPORTED": v_color, v_icon = "#10b981", "✅"
+                    elif verdict == "REFUTED": v_color, v_icon = "#ef4444", "❌"
+                    else: v_color, v_icon = "#f59e0b", "⚠️"
+                    
+                    # I bottoni nativi verranno generati fuori dall'overlay in puro Streamlit
+                    buttons_html = ""
+
+                    slide4_content = f"""
+                      <div class="slide-header">Final Fact-Checking Result</div>
+                      <div style="display:flex; width:100%; max-width:900px; gap:30px; margin-top:20px;">
+                        <div style="flex:1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:30px; display:flex; flex-direction:column; align-items:center; text-align:center; box-shadow: 0 0 30px rgba(0,0,0,0.3);">
+                           <div style="font-size:3rem; margin-bottom:10px;">{v_icon}</div>
+                           <div style="color:{v_color}; font-size:2rem; font-weight:900; letter-spacing:2px; margin-bottom:20px;">{verdict}</div>
+                           
+                           <div style="position:relative; width:150px; height:150px; border-radius:50%; background:conic-gradient({v_color} {conf}%, #1e293b 0); display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px {v_color}40;">
+                               <div style="position:absolute; width:130px; height:130px; background:#0f172a; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                   <span style="font-size:2.5rem; font-weight:800; color:#f8fafc;">{conf}%</span>
+                                   <span style="font-size:0.8rem; color:#94a3b8; text-transform:uppercase;">Confidence</span>
+                               </div>
+                           </div>
+                        </div>
+                        <div style="flex:1.5; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:30px; text-align:left; display:flex; flex-direction:column; box-shadow: 0 0 30px rgba(0,0,0,0.3);">
+                            <h3 style="color:#a78bfa; margin-top:0; font-size:1.3rem;">Medical Justification</h3>
+                            <div style="color:#f8fafc; font-size:1.05rem; line-height:1.6; flex:1; overflow-y:auto; max-height: 200px; padding-right: 10px;">{just}</div>
+                            {buttons_html}
+                        </div>
+                      </div>
+                    """
+                else:
+                    slide4_content = f"""
+                      <div class="slide-header">Final Consensus & Aggregation</div>
+                      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">⚖️</div>
+                        <div style="color: #10b981; font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 15px;">
+                            Drafting Final Verdict
+                        </div>
+                        <div style="color: #94a3b8; font-size: 1.1rem; text-align: center; max-width: 600px; line-height: 1.6;">
+                            The pipeline is aggregating the Clinical Agent's results across all extracted claims.<br>
+                            <br>
+                            <em style="color: #a78bfa;">Calculating the overall confidence score and formulating the final medical justification...</em>
+                        </div>
+                      </div>
+                    """
+                
+                if step == 1:
+                    slide1_status = "<div style='color:#38bdf8; margin-top:15px; font-weight:600;'>⏳ Awaiting decomposition...</div>"
+                    slide1_tree = ""
+                else:
+                    slide1_status = ""
+                    tree_cards = ""
+                    for i, sc in enumerate(subclaims):
+                        tree_cards += f'<div style="flex:1; min-width:250px; background:rgba(255,255,255,0.03); border:1px solid rgba(129,140,248,0.3); border-top:4px solid #818cf8; border-radius:12px; padding:15px; color:#e2e8f0; font-size:0.95rem; text-align:left; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s;" onmouseover="this.style.transform=\\\'translateY(-5px)\\\';" onmouseout="this.style.transform=\\\'translateY(0)\\\';"><div style="font-size:0.75rem; color:#818cf8; font-weight:bold; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Subclaim {i+1}</div>{sc}</div>'
+                    slide1_tree = f'<div style="display:flex; flex-direction:column; align-items:center; margin: 15px 0;"><div style="width:2px; height:40px; background:linear-gradient(to bottom, #38bdf8, #818cf8);"></div><div style="width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:10px solid #818cf8;"></div></div><div style="display:flex; justify-content:center; flex-wrap:wrap; gap:20px; width:100%; max-width:1000px; position:relative;">{tree_cards}</div>'
+                
+                safe_claim = claim.replace('"', '&quot;')
+                slide1_content = f'''
+                  <div class="slide-header">Original Claim Decomposition</div>
+                  <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:12px; padding:20px 30px; color:#f8fafc; font-size:1.1rem; text-align:center; font-style:italic; max-width:800px; box-shadow: 0 0 20px rgba(56,189,248,0.2); margin-top:20px;">
+                      "{safe_claim}"
+                  </div>
+                  {slide1_status}
+                  {slide1_tree}
+                '''
+                
+                progress_percent = (step - 1) * 33.33
+                stepper_html = f"""
+                <div class="stepper-container">
+                    <div class="stepper-line"><div class="stepper-progress" style="width: {progress_percent}%;"></div></div>
+                    <div class="stepper-steps">
+                        <label for="{f'slide-1' if step >= 1 else ''}" class="step step-ui-1 {'active' if step >= 1 else ''}" style="cursor:{'pointer' if step >= 1 else 'not-allowed'};"><div class="step-dot">1</div><div class="step-label">Input</div></label>
+                        <label for="{f'slide-2' if step >= 2 else ''}" class="step step-ui-2 {'active' if step >= 2 else ''}" style="cursor:{'pointer' if step >= 2 else 'not-allowed'};"><div class="step-dot">2</div><div class="step-label">RAG</div></label>
+                        <label for="{f'slide-3' if step >= 3 else ''}" class="step step-ui-3 {'active' if step >= 3 else ''}" style="cursor:{'pointer' if step >= 3 else 'not-allowed'};"><div class="step-dot">3</div><div class="step-label">Eval</div></label>
+                        <label for="{f'slide-4' if step >= 4 else ''}" class="step step-ui-4 {'active' if step >= 4 else ''}" style="cursor:{'pointer' if step >= 4 else 'not-allowed'};"><div class="step-dot">4</div><div class="step-label">Done</div></label>
+                    </div>
+                </div>
+                """
+
                 html_content = f"""
+{modal_css}
 <style>
 .stApp {{ pointer-events: none !important; overflow: hidden !important; }}
-.cyber-overlay {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: 9999999 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; pointer-events: auto !important; }}
-.pulse-container {{ position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; }}
+.cyber-overlay {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: 9999999 !important; overflow: hidden; pointer-events: auto !important; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; }}
+
+.carousel-viewport {{ width: 100vw; height: calc(100vh - 350px); position: relative; overflow: hidden; margin-top: 30px; }}
+.slider-container {{ display: flex; width: 400vw; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }}
+#slide-1:checked ~ .carousel-viewport .slider-container {{ transform: translateX(0); }}
+#slide-2:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-100vw); }}
+#slide-3:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-200vw); }}
+#slide-4:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-300vw); }}
+
+.slide {{ width: 100vw; height: 100%; position: relative; padding: 0 80px; box-sizing: border-box; }}
+.slide-content {{ width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }}
+
+.global-arrow {{ position: absolute; top: 50%; transform: translateY(-50%); background: rgba(56,189,248,0.1); color: #38bdf8; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; border: 1px solid rgba(56,189,248,0.3); z-index: 10000; }}
+.global-arrow:hover {{ background: rgba(56,189,248,0.4); color: #fff; transform: translateY(-50%) scale(1.1); }}
+.left-arrow {{ left: 30px; }}
+.right-arrow {{ right: 30px; }}
+
+#slide-1:checked ~ .carousel-viewport .show-1 {{ display: flex; }}
+#slide-2:checked ~ .carousel-viewport .show-2 {{ display: flex; }}
+#slide-3:checked ~ .carousel-viewport .show-3 {{ display: flex; }}
+#slide-4:checked ~ .carousel-viewport .show-4 {{ display: flex; }}
+
+.slide-header {{ color: rgba(248,250,252,0.6); font-size: 1.2rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; width: 100%; max-width: 900px; text-align: center; }}
+
+.pulse-container {{ position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }}
 .pulse-ring {{ position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid {anim_color}; animation: pulsate 2s infinite ease-out; }}
 .pulse-ring:nth-child(2) {{ animation-delay: 0.6s; }}
 .pulse-ring:nth-child(3) {{ animation-delay: 1.2s; }}
-.pulse-core {{ width: 50px; height: 50px; background-color: {anim_color}; border-radius: 50%; box-shadow: 0 0 20px {anim_color}; z-index: 10; animation: core-glow 2s infinite alternate; }}
+.pulse-core {{ width: 40px; height: 40px; background-color: {anim_color}; border-radius: 50%; box-shadow: 0 0 20px {anim_color}; z-index: 10; animation: core-glow 2s infinite alternate; }}
 @keyframes pulsate {{ 0% {{ transform: scale(0.5); opacity: 1; }} 100% {{ transform: scale(1.5); opacity: 0; }} }}
 @keyframes core-glow {{ 0% {{ transform: scale(0.9); box-shadow: 0 0 10px {anim_color}; }} 100% {{ transform: scale(1.1); box-shadow: 0 0 30px {anim_color}; }} }}
-.stage-title {{ font-size: 2.2rem; font-weight: 800; color: #f8fafc; letter-spacing: 1px; margin: 0 0 10px 0; text-align: center; }}
-.stage-subtitle {{ font-size: 1.1rem; color: #94a3b8; font-weight: 400; text-align: center; max-width: 600px; line-height:1.5; }}
-.phase-indicator {{ margin-top: 30px; font-size: 0.85rem; font-weight: 700; color: #475569; letter-spacing: 2px; text-transform: uppercase; }}
-.rag-messages::after {{ content: "Vectorizing PMC Literature..."; animation: changeText 12s infinite; }}
-@keyframes changeText {{ 
-0%, 25% {{ content: "Querying dense embeddings database..."; }} 
-26%, 50% {{ content: "Cross-referencing global medical trials..."; }} 
-51%, 75% {{ content: "Applying Reciprocal Rank Fusion..."; }} 
-76%, 100% {{ content: "Fetching highest accuracy documents..."; }} 
+.stage-title {{ font-size: 2rem; font-weight: 800; color: #f8fafc; letter-spacing: 1px; margin: 0 0 5px 0; text-align: center; }}
+.stage-subtitle {{ font-size: 1rem; color: #94a3b8; font-weight: 400; text-align: center; max-width: 600px; line-height:1.5; }}
+
+.stepper-container {{ width: 100%; max-width: 500px; margin: 20px auto 0 auto; position: relative; padding-top: 10px; }}
+.stepper-line {{ position: absolute; top: 25px; left: 12.5%; width: 75%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; z-index: 1; }}
+.stepper-progress {{ height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8, #a78bfa, #10b981); border-radius: 2px; transition: width 0.5s ease-in-out; }}
+.stepper-steps {{ display: flex; justify-content: space-between; position: relative; z-index: 2; }}
+.step {{ display: flex; flex-direction: column; align-items: center; width: 25%; position: relative; }}
+.step-dot {{ width: 30px; height: 30px; border-radius: 50%; background: #0f172a; border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: #64748b; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 8px; z-index: 2; }}
+.step.active .step-dot {{ border-color: {anim_color}; color: #f8fafc; background: #0f172a; }}
+.step-label {{ font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; text-align: center; transition: color 0.3s; margin-top: 5px; }}
+.step.active .step-label {{ color: #e2e8f0; }}
+
+#slide-1:checked ~ .stepper-container .step-ui-1 .step-dot,
+#slide-2:checked ~ .stepper-container .step-ui-2 .step-dot,
+#slide-3:checked ~ .stepper-container .step-ui-3 .step-dot,
+#slide-4:checked ~ .stepper-container .step-ui-4 .step-dot {{
+    background: {anim_color}; color: #0f172a; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; transform: scale(1.2);
+}}
+
+#slide-1:checked ~ .stepper-container .step-ui-1 .step-label,
+#slide-2:checked ~ .stepper-container .step-ui-2 .step-label,
+#slide-3:checked ~ .stepper-container .step-ui-3 .step-label,
+#slide-4:checked ~ .stepper-container .step-ui-4 .step-label {{
+    color: {anim_color}; text-shadow: 0 0 10px rgba(255,255,255,0.1);
 }}
 </style>
+
 <div class="cyber-overlay">
-<div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
-<div class="stage-title">{central_title}</div>
-<div class="stage-subtitle">{central_subtitle}</div>
-<div class="phase-indicator">PIPELINE PHASE {step} / 4</div>
-{sc_html}
+    <input type="radio" name="slider" id="slide-1" {'checked' if step == 1 else ''} style="display:none;">
+    <input type="radio" name="slider" id="slide-2" {'checked' if step == 2 else ''} style="display:none;">
+    <input type="radio" name="slider" id="slide-3" {'checked' if step == 3 else ''} style="display:none;">
+    <input type="radio" name="slider" id="slide-4" {'checked' if step == 4 else ''} style="display:none;">
+
+  <div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
+  <div class="stage-title">{central_title}</div>
+  <div class="stage-subtitle">{central_subtitle}</div>
+  {stepper_html}
+
+  <div class="carousel-viewport">
+
+    <label for="slide-2" class="global-arrow right-arrow show-1" style="{'display:none !important;' if step < 2 else ''}">▶</label>
+    <label for="slide-1" class="global-arrow left-arrow show-2">◀</label>
+    <label for="slide-3" class="global-arrow right-arrow show-2" style="{'display:none !important;' if step < 3 else ''}">▶</label>
+    <label for="slide-2" class="global-arrow left-arrow show-3">◀</label>
+    <label for="slide-4" class="global-arrow right-arrow show-3" style="{'display:none !important;' if step < 4 else ''}">▶</label>
+    <label for="slide-3" class="global-arrow left-arrow show-4">◀</label>
+
+    <div class="slider-container">
+      <div class="slide">
+        <div class="slide-content">
+          {slide1_content}
+        </div>
+      </div>
+      <div class="slide">
+        <div class="slide-content">
+          <div class="slide-header">Document Retrieval Extracts (RAG)</div>
+          {sc_html_p2}
+        </div>
+      </div>
+      <div class="slide">
+        <div class="slide-content">
+          <div class="slide-header">Clinical Reasoning Agent Results</div>
+          {sc_html_p3}
+        </div>
+      </div>
+      <div class="slide">
+        <div class="slide-content">
+          {slide4_content}
+        </div>
+      </div>
+    </div>
+  </div>
+  {all_modals_html}
 </div>
 """
-                overlay_placeholder.markdown(html_content, unsafe_allow_html=True)
+                overlay_placeholder.html(html_content)
             
             update_interactive_loading(step=1)
                 
@@ -281,150 +497,75 @@ with col_main:
                                         update_interactive_loading(step=3, subclaims=current_subclaims, evaluations=current_evaluations, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
                                         
                                     elif "aggregate" in step_data:
-                                        update_interactive_loading(step=4, subclaims=current_subclaims, evaluations=current_evaluations, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims))
                                         current_final = step_data["aggregate"].get("final_verdict", {})
-                                        st.session_state.real_results = {
-                                            "subclaims": current_subclaims,
-                                            "evaluations": current_evaluations,
-                                            "final": current_final,
-                                            "claim": claim
-                                        }
-                                        st.rerun()
+                                        st.session_state.current_final = current_final
+                                        update_interactive_loading(step=4, subclaims=current_subclaims, evaluations=current_evaluations, verified_count=len(current_evaluations), total_to_verify=len(current_subclaims), final_verdict=current_final)
                                 except json.JSONDecodeError: pass
                 else:
-                    overlay_placeholder.empty()
                     error_placeholder.error(f"❌ Backend Connection Error (Status Code: {response.status_code})")
             except Exception as e:
-                overlay_placeholder.empty()
                 error_placeholder.error(f"❌ Failed to connect to the backend API: {str(e)}")
 
-    # ==========================================
-    # 6. RENDERING DINAMICO DEI RISULTATI FINALI
-    # ==========================================
-    if st.session_state.real_results:
-        res = st.session_state.real_results
-        
-        st.markdown("<div id='results-anchor'></div>", unsafe_allow_html=True)
-        st.markdown("<hr style='border-color:rgba(255,255,255,0.05); margin: 2rem 0;'>", unsafe_allow_html=True)
-        
-        total_sc = len(res['subclaims'])
-        supported_count = sum(1 for e in res['evaluations'] if e.get('label', '').upper() == 'SUPPORTED')
-        refuted_count = sum(1 for e in res['evaluations'] if e.get('label', '').upper() == 'REFUTED')
-        avg_conf = pd.DataFrame([e.get('confidence', 0.0) for e in res['evaluations']])[0].mean() if res['evaluations'] else 0.0
 
-        st.markdown(f"""
-            <div class="metric-container">
-                <div class="metric-card"><div class="metric-val" style="color:#38bdf8;">{total_sc}</div><div class="metric-label">Subclaims Found</div></div>
-                <div class="metric-card"><div class="metric-val" style="color:#10b981;">{supported_count}</div><div class="metric-label">Verified Components</div></div>
-                <div class="metric-card"><div class="metric-val" style="color:#ef4444;">{refuted_count}</div><div class="metric-label">Refuted Components</div></div>
-                <div class="metric-card"><div class="metric-val" style="color:#f59e0b;">{avg_conf:.2f}</div><div class="metric-label">Avg Pipeline Confidence</div></div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.write("### 🧬 Granular Evidence Breakdown")
-        
-        for ev in res['evaluations']:
-            sc_text = ev.get("subclaim", "Unknown Subclaim")
-            lbl = ev.get("label", "nei").upper()
-            conf = ev.get("confidence", 0.0)
-            just = ev.get("justification", "No justification provided.")
-            icon = "✅" if lbl == "SUPPORTED" else "❌" if lbl == "REFUTED" else "❓"
-            
-            st.markdown(f"""
-                <div class="subclaim-card {lbl}">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:700; font-size:1.15rem; color:#f8fafc; display:flex; align-items:center; gap:8px;">{icon} Statement Component</span>
-                        <span class="badge {lbl}">{lbl} • CONF: {conf:.2f}</span>
-                    </div>
-                    <p style="margin-top:10px; font-size:1.05rem; color:#e2e8f0; font-style:italic; line-height:1.5;">"{sc_text}"</p>
-                    <div style="margin-top:15px; border-top: 1px solid rgba(255,255,255,0.04); padding-top:10px;">
-                        <span style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:#64748b; display:block; margin-bottom:4px;">Scientific Justification</span>
-                        <p style="color:#cbd5e1; font-size:0.95rem; line-height:1.6; margin:0;">{just}</p>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            evidence = ev.get("retrieved_chunks", [])
-            if evidence:
-                with st.expander("🔬  Evidence Documents (Literature Sources)"):
-                    for chunk in evidence:
-                        if isinstance(chunk, dict):
-                            text = chunk.get("text", "")
-                            meta = chunk.get("metadata", {})
-                            url = meta.get("url", "")
-                            
-                            # FIX SORGENTE SCONOSCIUTA NEI RISULTATI FINALI
-                            source_title = meta.get("title") or meta.get("id") or chunk.get("source") or "Documento di Riferimento"
-                            
-                            if url:
-                                st.markdown(f'<div class="evidence-box"><strong><a href="{url}" target="_blank" style="color:#38bdf8; text-decoration:none;">{source_title} ↗</a></strong>: <em>{text}</em></div>', unsafe_allow_html=True)
-                            else:
-                                st.markdown(f'<div class="evidence-box"><strong>{source_title}</strong>: <em>{text}</em></div>', unsafe_allow_html=True)
-                        else:
-                            st.markdown(f'<div class="evidence-box"><em>{chunk}</em></div>', unsafe_allow_html=True)
-
-        st.markdown("<hr style='border-color:rgba(255,255,255,0.05); margin: 3rem 0;'>", unsafe_allow_html=True)
-        st.write("### 📊 System Consensus Summary")
-        
-        col1, col2 = st.columns([1, 1])
-        
-        with col1:
-            lbl = res['final'].get("label", "nei").lower()
-            conf = res['final'].get("confidence", 0.0)
-            css_class = lbl if lbl in ["supported", "refuted"] else "nei"
-            st.markdown(f"""
-                <div class="verdict-box {css_class}">
-                    Final Consensus Verdict: {lbl.upper()} <br>
-                    <span style="font-size: 0.95rem; font-weight: 500; color:#94a3b8; text-transform:none; letter-spacing:0;">Calculated Pipeline Confidence Score: {conf:.2f}</span>
-                </div>
-            """, unsafe_allow_html=True)
-                
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🗑_ Clear Analysis & Start New Check", type="secondary", use_container_width=True):
-                st.session_state.real_results = None
-                st.rerun()
-                
-        with col2:
-            try:
-                df = pd.DataFrame([e.get('label', 'nei').upper() for e in res['evaluations']], columns=['Verdict'])
-                verdict_counts = df['Verdict'].value_counts().reset_index()
-                verdict_counts.columns = ['Verdict', 'Count']
-                
-                fig = px.pie(verdict_counts, values='Count', names='Verdict', color='Verdict', color_discrete_map={"SUPPORTED": "#10b981", "REFUTED": "#ef4444", "NEI": "#f59e0b"}, hole=0.45)
-                fig.update_layout(height=200, margin=dict(t=0, b=0, l=0, r=0), showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#f8fafc")
-                fig.update_traces(textposition='inside', textinfo='percent+label', marker=dict(line=dict(color='#0f172a', width=2)))
-                st.plotly_chart(fig, use_container_width=True)
-            except: pass
-                
-        st.markdown("<br>", unsafe_allow_html=True)
-        _, center_down_col, _ = st.columns([1, 1, 1])
-        with center_down_col:
-            try:
-                import utils.pdf_generator
-                importlib.reload(utils.pdf_generator)
-                pdf_bytes = utils.pdf_generator.generate_fact_check_pdf(claim=res['claim'], final_verdict=res['final'], subclaims=res['evaluations'])
-                st.download_button(label="📄 Download Certified PDF Report", data=pdf_bytes, file_name="fact_check_report.pdf", mime="application/pdf", use_container_width=True)
-            except Exception as e: st.error(f"Could not generate PDF: {str(e)}")
-            # Auto-scroll ai risultati
-        components.html(
-            """
-            <script>
-            // Un piccolo delay assicura che Streamlit abbia finito di renderizzare l'HTML prima di scrollare
-            setTimeout(function() {
-                const doc = window.parent.document;
-                const element = doc.getElementById('results-anchor');
-                if (element) {
-                    element.scrollIntoView({behavior: 'smooth', block: 'start'});
-                }
-            }, 500);
-            </script>
-            """,
-            height=0,
-            width=0
-        )
 
 st.markdown("""
 <div class="footer">
     MedFactCheck Project • Big Data Engineering MSc Unina • Powered by RAG & LLMs
 </div>
 """, unsafe_allow_html=True)
+
+if getattr(st.session_state, "current_final", None):
+    try:
+        pdf_bytes = generate_fact_check_pdf(claim=st.session_state.get("fact_check_claim", claim), final_verdict=st.session_state.current_final, subclaims=current_evaluations)
+    except:
+        pdf_bytes = b""
+        
+    st.markdown("""
+    <style>
+    /* Identify the elements precisely using adjacent sibling selectors and custom markers */
+    .element-container:has(.marker-dl-btn) + .element-container {
+        position: fixed !important;
+        bottom: 40px !important;
+        left: 50% !important;
+        transform: translateX(-105%) !important;
+        z-index: 2147483647 !important;
+        pointer-events: auto !important;
+    }
+    .element-container:has(.marker-new-btn) + .element-container {
+        position: fixed !important;
+        bottom: 40px !important;
+        left: 50% !important;
+        transform: translateX(5%) !important;
+        z-index: 2147483647 !important;
+        pointer-events: auto !important;
+    }
+    
+    .element-container:has(.marker-dl-btn) + .element-container button, 
+    .element-container:has(.marker-new-btn) + .element-container button {
+        padding: 15px 30px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        color: white !important;
+        border: none !important;
+        font-weight: bold !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+    .element-container:has(.marker-dl-btn) + .element-container button { 
+        background: linear-gradient(135deg, #10b981, #059669) !important; 
+    }
+    .element-container:has(.marker-new-btn) + .element-container button { 
+        background: linear-gradient(135deg, #38bdf8, #0284c7) !important; 
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<span class="marker-dl-btn" style="display:none;"></span>', unsafe_allow_html=True)
+    st.download_button("📄 Download PDF Report", data=pdf_bytes, file_name="FactCheck_Report.pdf", mime="application/pdf", key="pdf_dl")
+    
+    st.markdown('<span class="marker-new-btn" style="display:none;"></span>', unsafe_allow_html=True)
+    if st.button("🔄 New Analysis", key="new_analysis"):
+        if "current_final" in st.session_state: del st.session_state["current_final"]
+        if "fact_check_claim" in st.session_state: del st.session_state["fact_check_claim"]
+        st.rerun()
