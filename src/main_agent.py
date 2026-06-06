@@ -119,27 +119,29 @@ class FactAgent:
 
         self.decomposition_agent = self.base_llm.with_structured_output(
             claim_decomposition, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
+        
         self.classification_agent = self.base_llm.with_structured_output(
             claim_classification, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
 
         self.source_selector_agent = self.base_llm.with_structured_output(
             retrieval_source_selection_schema, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
 
         # ── Evaluation Team agents ──
         self.reasoning_agent = self.base_llm.with_structured_output(
             reasoning_schema, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
+        
         self.veracity_agent = self.base_llm.with_structured_output(
             veracity_schema, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
         
         # ── Aggregator Agent ──
         self.aggregator_agent = self.base_llm.with_structured_output(
             aggregator_schema, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
         
     def _build_graphs(self):
         """Build the state graphs for the workflow."""
@@ -346,6 +348,13 @@ class FactAgent:
 
         
     
+    def _clean_step(self, data):
+        if isinstance(data, dict):
+            return {k: self._clean_step(v) for k, v in data.items() if k != "messages"}
+        elif isinstance(data, list):
+            return [self._clean_step(item) for item in data]
+        return data
+
     def process_claim(self, claim: str, recursion_limit: int = 150, verbose: bool = False):
         """
         Process a single claim through the fact-checking pipeline.
@@ -360,6 +369,11 @@ class FactAgent:
         """
         messages = [("user", claim)]
         run_id = str(uuid.uuid4())
+        
+        # Inject current dataset into global config for retrieval APIs
+        current_dataset = getattr(self, "dataset", "scifact")
+        config.set("current_dataset", current_dataset)
+        
         log.info(f"pipeline run_id: {run_id}")
         
         import time
@@ -371,10 +385,11 @@ class FactAgent:
             {"messages": messages, "run_id": run_id}, # initial state with the claim as the first user message
             {"recursion_limit": recursion_limit} # recursion limit to prevent infinite loops in case of errors
         ):
+            clean_s = self._clean_step(step)
             if verbose:
-                log.info(f"Step output: {step}")
+                log.info(f"Step output: {clean_s}")
                 print("---")
-            results.append(step)
+            results.append(clean_s)
         
         elapsed = time.perf_counter() - t0
         log.info(f"graph stream finished in {elapsed:.2f}s")
@@ -386,13 +401,6 @@ class FactAgent:
         Generator that yields each step of the pipeline.
         Strips 'messages' to ensure JSON serialization.
         """
-        def _clean_step(data):
-            if isinstance(data, dict):
-                return {k: _clean_step(v) for k, v in data.items() if k != "messages"}
-            elif isinstance(data, list):
-                return [_clean_step(item) for item in data]
-            return data
-
         messages = [("user", claim)]
         run_id = str(uuid.uuid4())
         log.info(f"pipeline stream run_id: {run_id}")
@@ -401,7 +409,7 @@ class FactAgent:
             {"messages": messages, "run_id": run_id},
             {"recursion_limit": recursion_limit}
         ):
-            yield _clean_step(step)
+            yield self._clean_step(step)
 
     
 
@@ -419,7 +427,7 @@ if __name__ == "__main__":
         "Ivermectin has shown efficacy in treating COVID-19"
     ]
     
-    idx = 4  # Cambia questo indice (0-5) per testare un claim diverso
+    idx = 0  # Cambia questo indice (0-5) per testare un claim diverso
     claim = claim_list[idx]
     
     log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")
