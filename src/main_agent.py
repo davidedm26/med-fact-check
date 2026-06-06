@@ -370,6 +370,17 @@ class FactAgent:
         messages = [("user", claim)]
         run_id = str(uuid.uuid4())
         
+        if not claim or not str(claim).strip():
+            log.warning("Empty claim detected. Skipping pipeline execution.")
+            return {
+                "claim": "",
+                "true_label": "nei",
+                "predicted_label": "not_enough_information",
+                "confidence": 0.0,
+                "subclaims": []
+            }
+
+        
         # Inject current dataset into global config for retrieval APIs
         current_dataset = getattr(self, "dataset", "scifact")
         config.set("current_dataset", current_dataset)
@@ -405,6 +416,11 @@ class FactAgent:
         run_id = str(uuid.uuid4())
         log.info(f"pipeline stream run_id: {run_id}")
         
+        if not claim or not str(claim).strip():
+            log.warning("Empty claim detected. Skipping pipeline stream execution.")
+            yield {"error": "Claim cannot be empty or whitespace.", "claim": ""}
+            return
+
         for step in self.super_graph.stream(
             {"messages": messages, "run_id": run_id},
             {"recursion_limit": recursion_limit}
@@ -424,10 +440,11 @@ if __name__ == "__main__":
         "il fumo causa cancro, forse è meglio non fumare",
         "The use of corticosteroids in the treatment of severe COVID-19 cases reduces mortality rates by mitigating the hyperinflammatory response, but it may increase the risk of secondary infections and should be used with caution in patients with a history of immunosuppression.",
         "COVID-19 vaccines are effective in preventing severe illness and hospitalization, but their efficacy may wane over time, necessitating booster doses to maintain optimal protection, especially against emerging variants.",
-        "Ivermectin has shown efficacy in treating COVID-19"
+        "Ivermectin has shown efficacy in treating COVID-19",
+        "Regular intake of 5mg of Amlodipine, combined with a low-sodium diet, significantly reduces systolic blood pressure in hypertensive patients within the first four weeks, without causing clinically relevant metabolic side effects.",
     ]
     
-    idx = 0  # Cambia questo indice (0-5) per testare un claim diverso
+    idx = -1  # Cambia questo indice  per testare un claim diverso
     claim = claim_list[idx]
     
     log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")

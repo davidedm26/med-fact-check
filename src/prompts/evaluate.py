@@ -24,9 +24,10 @@ STEP 1 — `reasoning` (scratchpad):
   - Track exact qualifiers: if the subclaim says "all adults" and the evidence says "institutionalized elderly women", note the mismatch.
   - Track negations: if the evidence says "does not", "no demonstrated ability", "did not improve", "no significant", note these as explicit negations.
 
-STEP 2 — `key_evidence` (verbatim quotes):
-  - Copy-paste the EXACT sentences from the chunks that are relevant. Do NOT paraphrase. Do NOT write "Chunk 1 says X". Copy the actual sentence.
-  - If no chunk is relevant, return an empty array [].
+STEP 2 — Quotes Extraction (verbatim):
+  - In `supporting_quotes`, copy-paste the EXACT sentences from the chunks that support the subclaim.
+  - In `refuting_quotes`, copy-paste the EXACT sentences from the chunks that contradict or refute the subclaim.
+  - Do NOT paraphrase. If no chunk is relevant for a category, return an empty array [].
 
 STEP 3 — `distilled_evidence` (purified facts):
   - Write a concise list of facts (max 120 words) using ONLY information from the chunks.
@@ -65,12 +66,15 @@ reasoning_schema = {
                     "number tracking, negation tracking."
                 ),
             },
-            "key_evidence": {
+            "supporting_quotes": {
                 "type": "array",
                 "items": {"type": "string"},
-                "description": (
-                    "Exact verbatim sentences copied from the evidence chunks."
-                ),
+                "description": "Exact verbatim sentences copied from chunks that SUPPORT the claim.",
+            },
+            "refuting_quotes": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Exact verbatim sentences copied from chunks that CONTRADICT or REFUTE the claim.",
             },
             "distilled_evidence": {
                 "type": "string",
@@ -88,7 +92,7 @@ reasoning_schema = {
             },
         },
         "additionalProperties": False,
-        "required": ["reasoning", "key_evidence", "distilled_evidence", "evidence_verdict_hint"],
+        "required": ["reasoning", "supporting_quotes", "refuting_quotes", "distilled_evidence", "evidence_verdict_hint"],
     },
 }
 
@@ -108,7 +112,8 @@ DECISION TREE (follow in order):
 
 1. Does the evidence DIRECTLY AFFIRM the subclaim?
    → If yes, check that the direction, quantity, and population match.
-   → If everything matches: label = "supported".
+   → Check Evidence Quality: If the evidence relies ONLY on a single small study, a case report, or vague anecdotal phrases (e.g., "patients generally report"), label it "not_enough_information". You need robust clinical evidence (RCTs, Systematic Reviews, or clear consensus) to support a medical claim.
+   → If everything matches and evidence is solid: label = "supported".
 
 2. Does the evidence CONTRADICT the subclaim? Check for:
    a) DIRECT NEGATION: Evidence says "does not", "no significant", "incapable", "ineffective", "no demonstrated ability" about the same intervention/relationship.

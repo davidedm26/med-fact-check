@@ -147,6 +147,24 @@ claim_decomposition_examples = [
                 "search_query": "Sleeping pills such as benzodiazepines have no effect on vascular dementia."
             }
         ]
+    },
+    {
+        "input_claim": "Regular intake of 5mg of Amlodipine, combined with a low-sodium diet, significantly reduces systolic blood pressure in hypertensive patients within the first four weeks, without causing clinically relevant metabolic side effects.",
+        "thought_process": "The input contains a combination therapy ('Amlodipine, combined with a low-sodium diet') and two assertions (reduces blood pressure, does not cause side effects). I must keep the combination therapy as a single subject. I must also preserve the population ('in hypertensive patients') and the timeframe ('within the first four weeks').",
+        "predicates": [
+            {
+                "relation": "Reduce",
+                "subject": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet",
+                "object": "systolic blood pressure in hypertensive patients within the first four weeks",
+                "search_query": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet significantly reduces systolic blood pressure in hypertensive patients within the first four weeks."
+            },
+            {
+                "relation": "Cause",
+                "subject": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet",
+                "object": "clinically relevant metabolic side effects",
+                "search_query": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet does not cause clinically relevant metabolic side effects."
+            }
+        ]
     }
 ]
 
@@ -170,7 +188,8 @@ Structural rules:
 
 Content rules:
 - EXHAUSTIVE EXTRACTION: Process ALL sentences and clauses in the input. Do not stop early. If there are multiple separate questions or statements, you MUST extract subclaims for EVERY single one of them.
-- SPLIT CONJUNCTIONS/DISJUNCTIONS: Always split "X or Y" and "X and Y" into two separate predicates. If the claim is "X and Y cause Z", you MUST output "X causes Z" and "Y causes Z". Never leave an "or" / "and" grouping distinct subjects or objects in a single subclaim.
+- SPLIT CONJUNCTIONS CAREFULLY: Do not split "X and Y" or "X combined with Y" if they represent a COMBINATION THERAPY or a synergistic effect (e.g., "Drug A combined with Diet B reduces BP"). Only split them if they are completely independent assertions (e.g., "Drug A reduces BP and Drug B cures headache" -> split into two). If the claim is about the combined effect of two things, keep them together in a single subclaim.
+- PRESERVE QUALIFIERS (CRITICAL): Never drop timeframes (e.g., "within the first four weeks"), populations (e.g., "in hypertensive patients"), dosages (e.g., "5mg"), or specific contexts. They are critical to the medical validity of the claim. Include them in the `object` or `subject`, and naturally in the `search_query`.
 - CRITICAL: The `search_query` MUST be a positive, declarative statement. NEVER output a question. If the input is a question (e.g., "Does X cure Y?"), you MUST convert it into a declarative statement ("X cures Y"). NEVER include a question mark (?).
 - CRITICAL: Output valid JSON using DOUBLE QUOTES (") for strings.
 - Prefer explicit subjects and normalized nouns. Use active voice.

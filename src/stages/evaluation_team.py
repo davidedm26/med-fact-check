@@ -82,24 +82,28 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
         # Extract fields (handle both dict and object response formats)
         if isinstance(structured, dict):
             reasoning_chain = structured.get("reasoning", "")
-            key_evidence = structured.get("key_evidence", [])
+            supporting_quotes = structured.get("supporting_quotes", [])
+            refuting_quotes = structured.get("refuting_quotes", [])
             distilled_evidence = structured.get("distilled_evidence", "")
             evidence_verdict_hint = structured.get("evidence_verdict_hint", "")
         else:
             reasoning_chain = getattr(structured, "reasoning", "")
-            key_evidence = getattr(structured, "key_evidence", [])
+            supporting_quotes = getattr(structured, "supporting_quotes", [])
+            refuting_quotes = getattr(structured, "refuting_quotes", [])
             distilled_evidence = getattr(structured, "distilled_evidence", "")
             evidence_verdict_hint = getattr(structured, "evidence_verdict_hint", "")
 
         return {
             "distilled_evidence": distilled_evidence,
-            "key_evidence": key_evidence,
+            "supporting_quotes": supporting_quotes,
+            "refuting_quotes": refuting_quotes,
             "evidence_verdict_hint": evidence_verdict_hint,
             "messages": [
                 HumanMessage(
                     content=str({
                         "reasoning": reasoning_chain,
-                        "key_evidence": key_evidence,
+                        "supporting_quotes": supporting_quotes,
+                        "refuting_quotes": refuting_quotes,
                         "distilled_evidence": distilled_evidence,
                         "evidence_verdict_hint": evidence_verdict_hint,
                     }),
@@ -164,7 +168,8 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
             "subclaim_id": subclaim_id,
             "subclaim": subclaim,
             "justification": justification,
-            "key_evidence": state.get("key_evidence", []),
+            "supporting_quotes": state.get("supporting_quotes", []),
+            "refuting_quotes": state.get("refuting_quotes", []),
             "label": label,
             "confidence": confidence,
         }

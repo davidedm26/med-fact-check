@@ -30,12 +30,12 @@
         },
         "dynamic_coins": 3,
         "base_coins_per_source": 1,
-        "max_results_per_query": 5,
+        "max_results_per_query": 10,
         "hybrid": {
-            "dense_top_k": 10,
-            "sparse_top_k": 10,
-            "rerank_top_k": 5,
-            "max_chunks_per_doc": 3
+            "dense_top_k": 20,
+            "sparse_top_k": 20,
+            "rerank_top_k": 10,
+            "max_chunks_per_doc": 10
         },
         "chunking": {
             "chunk_size": 300,
