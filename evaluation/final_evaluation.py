@@ -37,7 +37,7 @@ def run_final_evaluation():
     print(f"STARTING FINAL EVALUATION (MULTI-SESSION)\n" + "="*50)
     print("Progress will be saved automatically to allow resuming execution later.")
     
-    agent = FactAgent(dataset="evaluation_run")
+    agent = FactAgent()
     
     for ds_name in DATASETS:
         csv_path = os.path.join(DATASETS_DIR, f"{ds_name}_clean.csv")
@@ -50,8 +50,8 @@ def run_final_evaluation():
         print(f"\nProcessing dataset: {ds_name.upper()}")
         df = pd.read_csv(csv_path)
         
-        # EXCLUDE claims with true_label == "NEI" before running the pipeline
-        df = df[df['true_label'].str.upper() != "NEI"].copy()
+        # Do NOT exclude claims with true_label == "NEI" before running the pipeline
+        # df = df[df['true_label'].str.upper() != "NEI"].copy()
         
         # Load previous progress
         predictions = load_progress(output_json_path)
@@ -128,18 +128,29 @@ def calculate_final_metrics():
         if total_claims == 0:
             continue
             
-        filtered_results = [
-            item for item in results 
-            if str(item["true_label"]).upper() != "NEI" and str(item["predicted_label"]).upper() != "NEI"
-        ]
-        evaluated_claims = len(filtered_results)
-        excluded_claims = total_claims - evaluated_claims
+        # Determine if dataset is natively 3-class (contains NEI true labels)
+        has_nei_true = any(str(item.get("true_label", "")).upper() == "NEI" for item in results)
         
-        print(f"\nAnalyzing: {ds_name.upper()}")
-        print("-" * 40)
-        print(f"Total claims:     {total_claims}")
-        print(f"Excluded 'NEI':   {excluded_claims} (True or Predicted)")
-        print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted)")
+        if has_nei_true:
+            filtered_results = results
+            excluded_claims = 0
+            evaluated_claims = len(results)
+            print(f"\nAnalyzing: {ds_name.upper()} (3-class dataset)")
+            print("-" * 40)
+            print(f"Total claims:     {total_claims}")
+            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted/NEI)")
+        else:
+            filtered_results = [
+                item for item in results 
+                if str(item.get("predicted_label", "")).upper() != "NEI"
+            ]
+            evaluated_claims = len(filtered_results)
+            excluded_claims = total_claims - evaluated_claims
+            print(f"\nAnalyzing: {ds_name.upper()} (Binary dataset)")
+            print("-" * 40)
+            print(f"Total claims:     {total_claims}")
+            print(f"Excluded 'NEI':   {excluded_claims} (Predicted NEI removed)")
+            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted)")
         
         if evaluated_claims == 0:
             continue
@@ -148,9 +159,9 @@ def calculate_final_metrics():
         y_pred = [str(item["predicted_label"]).lower() for item in filtered_results]
         
         acc = accuracy_score(y_true, y_pred)
-        prec = precision_score(y_true, y_pred, average='weighted', zero_division=0)
-        rec = recall_score(y_true, y_pred, average='weighted', zero_division=0)
-        f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
+        prec = precision_score(y_true, y_pred, average='macro', zero_division=0)
+        rec = recall_score(y_true, y_pred, average='macro', zero_division=0)
+        f1 = f1_score(y_true, y_pred, average='macro', zero_division=0)
         
         print(f"Accuracy:  {acc:.4f}  ({acc*100:.2f}%)")
         print(f"Precision: {prec:.4f}  ({prec*100:.2f}%)")
@@ -170,7 +181,7 @@ def calculate_final_metrics():
 
     if all_metrics:
         df_metrics = pd.DataFrame(all_metrics)
-        output_csv = "final_evaluation_summary.csv"
+        output_csv = os.path.join(OUTPUT_DIR, "final_evaluation_summary.csv")
         df_metrics.to_csv(output_csv, index=False)
         print(f"\nSave complete! Final summary table exported to:\n->  {output_csv}")
 

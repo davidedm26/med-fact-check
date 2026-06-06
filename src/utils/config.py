@@ -44,5 +44,12 @@ class Config:
         except (KeyError, TypeError):
             return default
 
+    def set(self, key_path: str, value):
+        keys = key_path.split('.')
+        val = self._config_data
+        for k in keys[:-1]:
+            val = val.setdefault(k, {})
+        val[keys[-1]] = value
+
 # Global singleton
 config = Config()

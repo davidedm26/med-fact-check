@@ -23,13 +23,19 @@
         }
     },
     "retrieval": {
-        "dynamic_coins": 1,
-        "base_coins_per_source": 1,
-        "max_results_per_query": 5,
+        "knowledge_cutoff_year": {
+            "scifact": 2020,
+            "bioasq": 2022,
+            "healthfc": 2024
+        },
+        "dynamic_coins": 6,
+        "base_coins_per_source": 0,
+        "max_results_per_query": 10,
         "hybrid": {
-            "alpha": 0.5,
-            "top_k": 5,
-            "max_chunks_per_doc": 2
+            "dense_top_k": 20,
+            "sparse_top_k": 20,
+            "rerank_top_k": 10,
+            "max_chunks_per_doc": 10
         },
         "chunking": {
             "chunk_size": 300,
@@ -37,9 +43,13 @@
         },
         "dense": {
             "model_name": "medcpt"
+        },
+        "reranker": {
+            "model_name": "ncbi/MedCPT-Cross-Encoder"
         }
     },
     "evaluation": {
-        "veracity_model_name": "pritamdeka/PubMedBERT-MNLI-MedNLI"
+        "mode": "api",
+        "veracity_model_name": "MoritzLaurer/deberta-v3-large-zeroshot-v1.1-all-33"
     }
 }

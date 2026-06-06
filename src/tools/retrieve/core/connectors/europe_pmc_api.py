@@ -7,15 +7,17 @@ log = get_logger("EuropePMC_API")
 BASE_URL_SEARCH = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
 BASE_URL_FULLTEXT = "https://www.ebi.ac.uk/europepmc/webservices/rest/{}/fullTextXML"
 
-def search_articles(query: str, limit: int = 10) -> List[Dict]: # Limit a 10
+def search_articles(query: str, limit: int = 10, max_year: int = None) -> List[Dict]: # Limit a 10
     """
     Search Europe PMC for articles using keywords.
     Enforces Open Access search and extracts the core metadata.
     """
-    log.info(f"Searching articles for query: '{query}'")
+    log.info(f"Searching articles for query: '{query}' (limit={limit}, max_year={max_year})")
     
-    # Keep the OPEN_ACCESS:y filter to ensure full-text access
-    structured_query = f"{query} OPEN_ACCESS:y"
+    # Keep the OPEN_ACCESS:y filter to ensure full-text access, but allow abstract fallback
+    structured_query = f"({query}) AND OPEN_ACCESS:y"
+    if max_year:
+        structured_query += f" AND (FIRST_PDATE:[* TO {max_year}-12-31])"
     
     params = {
         'query': structured_query,
@@ -64,11 +66,14 @@ def fetch_full_text_xml(pmcid: str) -> Optional[str]:
     
     try:
         response = requests.get(url, timeout=30) 
+        if response.status_code == 404:
+            log.debug(f"XML non disponibile per PMCID {pmcid} (404 Not Found).")
+            return None
         response.raise_for_status()
         return response.text
         
     except requests.exceptions.RequestException as e:
-        log.error(f"Error downloading PMCID {pmcid}: {e}")
+        log.warning(f"Error downloading PMCID {pmcid}: {e}")
         return None
 
 # Local test block

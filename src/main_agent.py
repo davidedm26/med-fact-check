@@ -11,7 +11,9 @@ from prompts.retrieve import (
 )
 from prompts.evaluate import (
     reasoning_schema,
+    veracity_schema,
 )
+from prompts.aggregate import aggregator_schema
 from tools.retrieve.download import (
     download_documents,
 )
@@ -117,19 +119,29 @@ class FactAgent:
 
         self.decomposition_agent = self.base_llm.with_structured_output(
             claim_decomposition, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
+        
         self.classification_agent = self.base_llm.with_structured_output(
             claim_classification, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
 
         self.source_selector_agent = self.base_llm.with_structured_output(
             retrieval_source_selection_schema, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
 
         # ── Evaluation Team agents ──
         self.reasoning_agent = self.base_llm.with_structured_output(
             reasoning_schema, method="function_calling"
-        )
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
+        
+        self.veracity_agent = self.base_llm.with_structured_output(
+            veracity_schema, method="function_calling"
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
+        
+        # ── Aggregator Agent ──
+        self.aggregator_agent = self.base_llm.with_structured_output(
+            aggregator_schema, method="function_calling"
+        ).with_retry(stop_after_attempt=5, wait_exponential_jitter=True)
         
     def _build_graphs(self):
         """Build the state graphs for the workflow."""
@@ -165,12 +177,13 @@ class FactAgent:
         from stages.evaluation_team import build_evaluation_graph
         self.evaluation_graph = build_evaluation_graph(
             self.reasoning_agent,
+            self.veracity_agent,
         )
 
     def _build_aggregator(self):
         """Build the aggregator node."""
         from stages.aggregator import build_aggregate_node
-        self.aggregate_node = build_aggregate_node()
+        self.aggregate_node = build_aggregate_node(self.aggregator_agent)
 
     def _build_main_graph(self):
         """Build the main workflow graph."""
@@ -335,6 +348,13 @@ class FactAgent:
 
         
     
+    def _clean_step(self, data):
+        if isinstance(data, dict):
+            return {k: self._clean_step(v) for k, v in data.items() if k != "messages"}
+        elif isinstance(data, list):
+            return [self._clean_step(item) for item in data]
+        return data
+
     def process_claim(self, claim: str, recursion_limit: int = 150, verbose: bool = False):
         """
         Process a single claim through the fact-checking pipeline.
@@ -349,7 +369,26 @@ class FactAgent:
         """
         messages = [("user", claim)]
         run_id = str(uuid.uuid4())
+        
+        if not claim or not str(claim).strip():
+            log.warning("Empty claim detected. Skipping pipeline execution.")
+            return {
+                "claim": "",
+                "true_label": "nei",
+                "predicted_label": "not_enough_information",
+                "confidence": 0.0,
+                "subclaims": []
+            }
+
+        
+        # Inject current dataset into global config for retrieval APIs
+        current_dataset = getattr(self, "dataset", "scifact")
+        config.set("current_dataset", current_dataset)
+        
         log.info(f"pipeline run_id: {run_id}")
+        
+        import time
+        t0 = time.perf_counter()
         
         results = []
         log.info("starting graph stream")
@@ -357,11 +396,14 @@ class FactAgent:
             {"messages": messages, "run_id": run_id}, # initial state with the claim as the first user message
             {"recursion_limit": recursion_limit} # recursion limit to prevent infinite loops in case of errors
         ):
+            clean_s = self._clean_step(step)
             if verbose:
-                log.info(f"Step output: {step}")
+                log.info(f"Step output: {clean_s}")
                 print("---")
-            results.append(step)
-        log.info("graph stream finished")
+            results.append(clean_s)
+        
+        elapsed = time.perf_counter() - t0
+        log.info(f"graph stream finished in {elapsed:.2f}s")
         
         return results
 
@@ -370,22 +412,20 @@ class FactAgent:
         Generator that yields each step of the pipeline.
         Strips 'messages' to ensure JSON serialization.
         """
-        def _clean_step(data):
-            if isinstance(data, dict):
-                return {k: _clean_step(v) for k, v in data.items() if k != "messages"}
-            elif isinstance(data, list):
-                return [_clean_step(item) for item in data]
-            return data
-
         messages = [("user", claim)]
         run_id = str(uuid.uuid4())
         log.info(f"pipeline stream run_id: {run_id}")
         
+        if not claim or not str(claim).strip():
+            log.warning("Empty claim detected. Skipping pipeline stream execution.")
+            yield {"error": "Claim cannot be empty or whitespace.", "claim": ""}
+            return
+
         for step in self.super_graph.stream(
             {"messages": messages, "run_id": run_id},
             {"recursion_limit": recursion_limit}
         ):
-            yield _clean_step(step)
+            yield self._clean_step(step)
 
     
 
@@ -394,17 +434,19 @@ class FactAgent:
 if __name__ == "__main__":
     agent = FactAgent()
 
+    claim_list = [
+        "Birth-weight is negatively associated with breast cancer",
+        "Autophagy deficiency in the liver increases vulnerability to insulin resistance",
+        "Metformin reduces the risk of cardiovascular events in Type 2 Diabetes patients, but it significantly increases the risk of lactic acidosis."
+    ]
     
-    #claim = "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis."
-    #claim = "The continuous use of a wearable AI-powered glucose monitoring system improves long-term metabolic health outcomes in adults with Type 2 Diabetes by improving daily glucose stability, increasing adherence to treatment plans, and reducing diabetes-related complications."
-    #claim = "il fumo causa cancro, forse è meglio non fumare"
-    #claim = "The use of corticosteroids in the treatment of severe COVID-19 cases reduces mortality rates by mitigating the hyperinflammatory response, but it may increase the risk of secondary infections and should be used with caution in patients with a history of immunosuppression."
+    idx = 2  # Cambia questo indice  per testare un claim diverso
+    claim = claim_list[idx]
     
-    # Shorter claim
-    claim = "COVID-19 vaccines are effective in preventing severe illness and hospitalization, but their efficacy may wane over time, necessitating booster doses to maintain optimal protection, especially against emerging variants."
-    
+    log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")
     
     result = agent.process_claim(claim, verbose=False, recursion_limit=10)  # Set a reasonable recursion limit for testing
     print("\nFinal Result:")
-    print(result)
+    import json
+    print(json.dumps(result, indent=2, ensure_ascii=False).encode('cp1252', errors='replace').decode('cp1252'))
     

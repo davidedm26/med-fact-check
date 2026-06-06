@@ -22,7 +22,7 @@ DATASET_TO_EVALUATE = "healthfc"
 
 # Maximum number of samples PER CLASS (e.g. 5 supported, 5 refuted). 
 # Useful for getting almost immediate feedback.
-MAX_SAMPLES_PER_CLASS = 5
+MAX_SAMPLES_PER_CLASS = 10
 # ==========================================
 
 def run_rapid_evaluation():
@@ -32,7 +32,7 @@ def run_rapid_evaluation():
     print(f"Selected dataset: {DATASET_TO_EVALUATE.upper()}")
     print(f"Max samples per class: {MAX_SAMPLES_PER_CLASS}")
     
-    agent = FactAgent(dataset="evaluation_run")
+    agent = FactAgent()
     
     datasets_to_run = ["scifact", "bioasq", "healthfc"] if DATASET_TO_EVALUATE.lower() == "all" else [DATASET_TO_EVALUATE]
     
@@ -47,8 +47,8 @@ def run_rapid_evaluation():
         print(f"\nProcessing dataset: {ds_name.upper()}")
         df = pd.read_csv(csv_path)
         
-        # EXCLUDE claims with true_label == "NEI" before running the pipeline
-        df = df[df['true_label'].str.upper() != "NEI"].copy()
+        # Do NOT exclude claims with true_label == "NEI" before running the pipeline
+        # df = df[df['true_label'].str.upper() != "NEI"].copy()
         
         sampled_dfs = []
         for label, group in df.groupby('true_label'):
@@ -127,18 +127,29 @@ def calculate_metrics():
         if total_claims == 0:
             continue
             
-        filtered_results = [
-            item for item in results 
-            if str(item["true_label"]).upper() != "NEI" and str(item["predicted_label"]).upper() != "NEI"
-        ]
-        evaluated_claims = len(filtered_results)
-        excluded_claims = total_claims - evaluated_claims
+        # Determine if dataset is natively 3-class (contains NEI true labels)
+        has_nei_true = any(str(item.get("true_label", "")).upper() == "NEI" for item in results)
         
-        print(f"\nAnalyzing: {ds_name.upper()}")
-        print("-" * 40)
-        print(f"Total claims:     {total_claims}")
-        print(f"Excluded 'NEI':   {excluded_claims} (True or Predicted)")
-        print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted)")
+        if has_nei_true:
+            filtered_results = results
+            excluded_claims = 0
+            evaluated_claims = len(results)
+            print(f"\nAnalyzing: {ds_name.upper()} (3-class dataset)")
+            print("-" * 40)
+            print(f"Total claims:     {total_claims}")
+            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted/NEI)")
+        else:
+            filtered_results = [
+                item for item in results 
+                if str(item.get("predicted_label", "")).upper() not in ["NEI", "NOT_ENOUGH_INFORMATION"]
+            ]
+            evaluated_claims = len(filtered_results)
+            excluded_claims = total_claims - evaluated_claims
+            print(f"\nAnalyzing: {ds_name.upper()} (Binary dataset)")
+            print("-" * 40)
+            print(f"Total claims:     {total_claims}")
+            print(f"Excluded 'NEI':   {excluded_claims} (Predicted NEI removed)")
+            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted)")
         
         if evaluated_claims == 0:
             continue
@@ -147,9 +158,9 @@ def calculate_metrics():
         y_pred = [str(item["predicted_label"]).lower() for item in filtered_results]
         
         acc = accuracy_score(y_true, y_pred)
-        prec = precision_score(y_true, y_pred, average='weighted', zero_division=0)
-        rec = recall_score(y_true, y_pred, average='weighted', zero_division=0)
-        f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
+        prec = precision_score(y_true, y_pred, average='macro', zero_division=0)
+        rec = recall_score(y_true, y_pred, average='macro', zero_division=0)
+        f1 = f1_score(y_true, y_pred, average='macro', zero_division=0)
         
         print(f"Accuracy:  {acc:.4f}  ({acc*100:.2f}%)")
         print(f"Precision: {prec:.4f}  ({prec*100:.2f}%)")

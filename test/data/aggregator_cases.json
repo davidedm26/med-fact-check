@@ -1,0 +1,90 @@
+[
+  {
+    "eval_id": "agg_01",
+    "main_claim": "Drug X treats condition Y and has absolutely no side effects.",
+    "subclaims": [
+      {
+        "subclaim_id": "sub_01",
+        "subclaim": "Drug X treats condition Y.",
+        "label": "supported",
+        "confidence": 0.9,
+        "justification": "Clinical trials show Drug X effectively treats condition Y."
+      },
+      {
+        "subclaim_id": "sub_02",
+        "subclaim": "Drug X has no side effects.",
+        "label": "refuted",
+        "confidence": 0.95,
+        "justification": "Multiple studies document severe side effects including nausea and headaches."
+      }
+    ],
+    "expected_label": "refuted",
+    "description": "AND logic where one critical premise is refuted."
+  },
+  {
+    "eval_id": "agg_02",
+    "main_claim": "Condition Z can be treated with either Drug A or Surgery B.",
+    "subclaims": [
+      {
+        "subclaim_id": "sub_01",
+        "subclaim": "Condition Z can be treated with Drug A.",
+        "label": "supported",
+        "confidence": 0.85,
+        "justification": "Drug A is a standard first-line treatment for Condition Z."
+      },
+      {
+        "subclaim_id": "sub_02",
+        "subclaim": "Condition Z can be treated with Surgery B.",
+        "label": "refuted",
+        "confidence": 0.8,
+        "justification": "Surgery B is contraindicated and never used for Condition Z."
+      }
+    ],
+    "expected_label": "supported",
+    "description": "OR logic where one pathway is supported, so the overall claim is partially/mostly supported."
+  },
+  {
+    "eval_id": "agg_03",
+    "main_claim": "Vaccine V is highly effective against the virus, but requires a booster after 6 months to maintain protection.",
+    "subclaims": [
+      {
+        "subclaim_id": "sub_01",
+        "subclaim": "Vaccine V is highly effective against the virus.",
+        "label": "supported",
+        "confidence": 0.9,
+        "justification": "Efficacy is over 90%."
+      },
+      {
+        "subclaim_id": "sub_02",
+        "subclaim": "Vaccine V requires a booster after 6 months.",
+        "label": "not_enough_information",
+        "confidence": 1.0,
+        "justification": "There is no clinical data on the necessity of a booster after 6 months."
+      }
+    ],
+    "expected_label": "not_enough_information",
+    "description": "AND logic where one premise lacks information, leading to NEI for the whole claim."
+  },
+  {
+    "eval_id": "agg_04",
+    "main_claim": "Therapy T improves memory and reduces joint pain in elderly patients.",
+    "subclaims": [
+      {
+        "subclaim_id": "sub_01",
+        "subclaim": "Therapy T improves memory in elderly patients.",
+        "label": "supported",
+        "confidence": 0.85,
+        "justification": "Cognitive scores improve."
+      },
+      {
+        "subclaim_id": "sub_02",
+        "subclaim": "Therapy T reduces joint pain in elderly patients.",
+        "label": "supported",
+        "confidence": 0.8,
+        "justification": "Inflammation markers drop."
+      }
+    ],
+    "expected_label": "supported",
+    "description": "AND logic where both premises are supported."
+  }
+]

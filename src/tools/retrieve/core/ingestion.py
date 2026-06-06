@@ -3,11 +3,12 @@ import os
 from typing import List
 
 from tools.retrieve.core.connectors.europe_pmc_api import search_articles, fetch_full_text_xml
-from tools.retrieve.core.connectors.clinical_trials_api import search_trials
+from tools.retrieve.core.connectors.clinical_trials_api import search_trials  # kept for reference
 from tools.retrieve.core.connectors.uniprot_api import search_protein
+from tools.retrieve.core.connectors.pubmed_api import search_systematic_reviews
 
 
-from tools.retrieve.core.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot
+from tools.retrieve.core.text_cleaner import clean_europe_pmc_xml, format_clinical_trial, format_uniprot, format_systematic_review
 
 from utils.logger import get_logger
 from utils.config import config
@@ -64,17 +65,21 @@ class IngestionNode:
             base_limit = config.get("retrieval.max_results_per_query", 5)
             api_limit = base_limit * count
             
-            if target == "clinical_trials":
-                # Fetch 10x more results because trials are not split into multiple chunks
-                extracted_trials = search_trials(query=single_query, limit=api_limit * 10) 
-                stats["documents_found"] += len(extracted_trials)
-                for trial in extracted_trials:
+            # Read max_year dynamically based on the current dataset
+            current_dataset = config.get("current_dataset", "scifact")
+            max_year = config.get(f"retrieval.knowledge_cutoff_year.{current_dataset}")
+            
+            if target == "systematic_reviews":
+                # Fetch 10x more results because reviews are not split into multiple chunks
+                extracted_reviews = search_systematic_reviews(query=single_query, limit=api_limit * 10, max_year=max_year)
+                stats["documents_found"] += len(extracted_reviews)
+                for review in extracted_reviews:
                     raw_chunks.append({
-                        "text": format_clinical_trial(trial),
+                        "text": format_systematic_review(review),
                         "metadata": {
-                            "id": trial.get("nct_id"), "title": trial.get("title"), "type": "Clinical Trial",
-                            "date": trial.get("start_date"), "url": trial.get("url"),
-                            "extra_info": {"phase": trial.get("phase"), "status": trial.get("status")}
+                            "id": review.get("pmid"), "title": review.get("title"), "type": "Systematic Review",
+                            "date": review.get("date"), "url": review.get("url"),
+                            "extra_info": {"doi": review.get("doi"), "publication_types": review.get("publication_types", [])}
                         }
                     })
 
@@ -93,7 +98,7 @@ class IngestionNode:
                     })
 
             elif target == "literature":
-                articles = search_articles(query=single_query, limit=api_limit)
+                articles = search_articles(query=single_query, limit=api_limit, max_year=max_year)
                 stats["documents_found"] += len(articles)
                 for article in tqdm(articles, desc=f"[{sub_id} | {target.upper()} | query_{query_index}] articles", unit="article", leave=False):
                     stats["articles_download_attempted"] += 1
@@ -116,7 +121,21 @@ class IngestionNode:
                                 }
                             })
                     else:
-                        stats["articles_download_failed"] += 1
+                        abstract = article.get("abstract")
+                        if abstract:
+                            log.debug(f"XML not found for {pmcid}, falling back to abstract.")
+                            stats["articles_downloaded_success"] += 1
+                            raw_chunks.append({
+                                "text": f"ABSTRACT: {abstract}",
+                                "metadata": {
+                                    "id": article.get("pmid"), "title": article.get("title"), "type": "Scientific Literature Abstract",
+                                    "date": article.get("date"),
+                                    "url": f"https://doi.org/{article.get('doi')}" if article.get("doi") else "",
+                                    "extra_info": {"doi": article.get("doi"), "is_abstract_fallback": True}
+                                }
+                            })
+                        else:
+                            stats["articles_download_failed"] += 1
             else:
                 log.error(f"Source '{target}' not supported.")
                 continue

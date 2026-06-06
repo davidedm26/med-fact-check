@@ -226,10 +226,14 @@ def log_node(stage: str) -> Callable:
                 if db is None:
                     return result
 
+                messages = state.get("messages", []) if isinstance(state, dict) else getattr(state, "messages", [])
+                main_claim = getattr(messages[0], "content", None) if messages else None
+
                 document = {
                     "run_id": state.get("run_id") if isinstance(state, dict) else getattr(state, "run_id", None),
                     "node_name": func.__name__,
                     "stage": stage,
+                    "main_claim": main_claim,
                     "subclaim_id": state.get("subclaim_id") if isinstance(state, dict) else getattr(state, "subclaim_id", None),
                     "subclaim": state.get("subclaim") if isinstance(state, dict) else getattr(state, "subclaim", None),
                     "timestamp": datetime.now(timezone.utc),
