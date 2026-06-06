@@ -28,8 +28,8 @@
             "bioasq": 2022,
             "healthfc": 2024
         },
-        "dynamic_coins": 3,
-        "base_coins_per_source": 1,
+        "dynamic_coins": 6,
+        "base_coins_per_source": 0,
         "max_results_per_query": 10,
         "hybrid": {
             "dense_top_k": 20,
@@ -50,6 +50,6 @@
     },
     "evaluation": {
         "mode": "api",
-        "veracity_model_name": "pritamdeka/PubMedBERT-MNLI-MedNLI"
+        "veracity_model_name": "MoritzLaurer/deberta-v3-large-zeroshot-v1.1-all-33"
     }
 }

@@ -19,10 +19,11 @@ STEP-BY-STEP INSTRUCTIONS:
 
 STEP 1 — `reasoning` (scratchpad):
   - List every named entity in the subclaim (drugs, genes, proteins, diseases, numbers, populations).
-  - For EACH entity, find the matching entity in the evidence. Watch out for synonyms (e.g., "heart attack" = "myocardial infarction", "adult-onset diabetes" = "type 2 diabetes", "levothyroxine" ≈ "thyroxine").
-  - Track exact numbers: if the subclaim says "50%" and the evidence says "22%", write both numbers down.
-  - Track exact qualifiers: if the subclaim says "all adults" and the evidence says "institutionalized elderly women", note the mismatch.
-  - Track negations: if the evidence says "does not", "no demonstrated ability", "did not improve", "no significant", note these as explicit negations.
+  - For EACH entity, find the matching entity in the evidence. Watch out for synonyms.
+  - Track exact numbers: if the subclaim says "50%" and the evidence says "22%", explicitly write "The numbers contradict each other (22% is not 50%)".
+  - Track negations: if the evidence says "does not" while the claim says it does, explicitly write "The evidence negates the claim".
+  - NEGATIVE CONSTRAINT: NEVER repeat or copy-paste the subclaim verbatim as your reasoning. You must perform an analysis.
+  - OUTPUT FORMAT: Ensure the `reasoning` explicitly contains a comparative logical conclusion (e.g., '100% vs 75%', 'contradicts', 'matches exactly', or 'missing entity X').
 
 STEP 2 — Quotes Extraction (verbatim):
   - In `supporting_quotes`, copy-paste the EXACT sentences from the chunks that support the subclaim.
@@ -62,8 +63,9 @@ reasoning_schema = {
             "reasoning": {
                 "type": "string",
                 "description": (
-                    "Scratchpad: entity mapping, synonym resolution, "
-                    "number tracking, negation tracking."
+                    "Scratchpad: entity mapping, number/negation tracking. "
+                    "NEVER copy the subclaim verbatim. "
+                    "Conclude with a clear analytical summary of the clinical facts."
                 ),
             },
             "supporting_quotes": {
@@ -123,8 +125,9 @@ DECISION TREE (follow in order):
    d) TESTED AND FAILED: The intervention was explicitly tested and found to have no effect, no improvement, or no ability → REFUTED (NOT "not_enough_information").
    e) OVERBROAD CLAIM: Claim says "all" or "always", but evidence limits to a subgroup or shows it does not work for the general population → REFUTED.
    f) DOUBLE NEGATION: Claim says "X is ineffective", evidence says "X is among the most effective" → The evidence contradicts the claim → REFUTED.
-   g) PARTIAL SUCCESS/EFFICACY: If the evidence shows the intervention works or provides benefit, but maybe not 100% perfectly or "optimally" (e.g., 50% protection), do NOT refute it just because it isn't perfect. As long as the core medical premise (e.g., "it provides protection") is confirmed, label it "supported", and clarify the exact percentage/limitation in the justification.
-   → If any of (a)-(f) applies (and NOT g): label = "refuted".
+   g) STATISTICAL UNCERTAINTY / LACK OF PROOF: If the claim states a definitive effect (e.g. "reduces risk", "causes X"), but the evidence explicitly concludes the effect is "uncertain", "not statistically significant", or "unproven", treat this as REFUTED because the definitive claim is false. Do NOT use not_enough_information.
+   h) PARTIAL SUCCESS/EFFICACY: If the evidence shows the intervention works or provides benefit, but maybe not 100% perfectly or "optimally" (e.g., 50% protection), do NOT refute it just because it isn't perfect. As long as the core medical premise (e.g., "it provides protection") is confirmed, label it "supported", and clarify the exact percentage/limitation in the justification.
+   → If any of (a)-(g) applies (and NOT h): label = "refuted".
 
 3. Is the evidence SILENT or UNRELATED?
    → Evidence discusses the entities separately without ever linking them → "not_enough_information".
@@ -149,6 +152,7 @@ CONFIDENCE scoring (float 0.0–1.0):
 JUSTIFICATION rules:
 - Write a factual clinical summary based ONLY on the evidence.
 - Do NOT mention the subclaim, and avoid meta-words ("supports", "refutes", "contradicts", "true", "false").
+- CRITICAL NEGATIVE CONSTRAINT: You MUST end the justification abruptly with the clinical facts. NEVER append concluding sentences like "Therefore, this evidence supports the subclaim", "In conclusion...", or "This refutes the claim".
 
 --- EXAMPLES ---
 

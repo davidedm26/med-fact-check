@@ -435,16 +435,12 @@ if __name__ == "__main__":
     agent = FactAgent()
 
     claim_list = [
-        "Taking a daily vitamin D supplement helps prevent osteoporosis in postmenopausal women, but it should be avoided by those with kidney stones to prevent worsening nephrolithiasis.",
-        "The continuous use of a wearable AI-powered glucose monitoring system improves long-term metabolic health outcomes in adults with Type 2 Diabetes by improving daily glucose stability, increasing adherence to treatment plans, and reducing diabetes-related complications.",
-        "il fumo causa cancro, forse è meglio non fumare",
-        "The use of corticosteroids in the treatment of severe COVID-19 cases reduces mortality rates by mitigating the hyperinflammatory response, but it may increase the risk of secondary infections and should be used with caution in patients with a history of immunosuppression.",
-        "COVID-19 vaccines are effective in preventing severe illness and hospitalization, but their efficacy may wane over time, necessitating booster doses to maintain optimal protection, especially against emerging variants.",
-        "Ivermectin has shown efficacy in treating COVID-19",
-        "Regular intake of 5mg of Amlodipine, combined with a low-sodium diet, significantly reduces systolic blood pressure in hypertensive patients within the first four weeks, without causing clinically relevant metabolic side effects.",
+        "Birth-weight is negatively associated with breast cancer",
+        "Autophagy deficiency in the liver increases vulnerability to insulin resistance",
+        "Metformin reduces the risk of cardiovascular events in Type 2 Diabetes patients, but it significantly increases the risk of lactic acidosis."
     ]
     
-    idx = -1  # Cambia questo indice  per testare un claim diverso
+    idx = 2  # Cambia questo indice  per testare un claim diverso
     claim = claim_list[idx]
     
     log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")

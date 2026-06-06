@@ -9,9 +9,12 @@ The graph is invoked once per subclaim from the main workflow.
 """
 
 import json
+import os
+import time
 
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, SystemMessage
+from huggingface_hub import InferenceClient
 
 from state import State
 from prompts.evaluate import reasoning_prompt, reasoning_schema, veracity_prompt, veracity_schema
@@ -119,44 +122,75 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
 
         subclaim = state.get("subclaim") or ""
         distilled_evidence = state.get("distilled_evidence") or ""
-        evidence_verdict_hint = state.get("evidence_verdict_hint") or ""
         subclaim_id = state.get("subclaim_id") or ""
-
-        # User prompt for the Judge — includes the verdict hint from the Reasoning Agent
-        user_content = (
-            f"## Subclaim\n{subclaim}\n\n"
-            f"## Distilled Evidence\n{distilled_evidence}\n\n"
-            f"## Evidence Verdict Hint\n{evidence_verdict_hint}"
-        )
-
-        messages = [
-            SystemMessage(content=veracity_prompt),
-            HumanMessage(content=user_content),
-        ]
+        # Build Mega-Premise using Reasoning Agent outputs
+        justification_text = ""
+        for msg in state.get("messages", []):
+            if getattr(msg, "name", "") == "reasoning_agent":
+                try:
+                    content_dict = eval(msg.content)
+                    justification_text = content_dict.get("reasoning", "")
+                except Exception:
+                    justification_text = msg.content
+                    
+        supporting_quotes = state.get("supporting_quotes", [])
+        refuting_quotes = state.get("refuting_quotes", [])
+        
+        # DeBERTa v3 large has a context limit. The HF API will error if inputs are too long.
+        def safe_truncate(text: str, max_chars: int = 600) -> str:
+            if not text: return ""
+            return text[:max_chars] + "..." if len(text) > max_chars else text
+            
+        just_str = safe_truncate(justification_text, 600)
+        supp_str = safe_truncate(" ".join(supporting_quotes), 600)
+        ref_str = safe_truncate(" ".join(refuting_quotes), 600)
+        
+        # Build the structured premise context
+        premise = f"Justification: {just_str}\n"
+        if supp_str:
+            premise += f"Supporting Evidence: {supp_str}\n"
+        if ref_str:
+            premise += f"Refuting Evidence: {ref_str}\n"
+        # HF Transformers pipeline using Hugging Face Hub InferenceClient
+        label = "nei"
+        confidence = 0.0
+        logical_analysis = premise
+        justification = justification_text
 
         try:
-            structured = veracity_agent.invoke(messages)
-            log.info("veracity_agent response received")
+            model_name = config.get("evaluation", {}).get("veracity_model_name", "MoritzLaurer/deberta-v3-large-zeroshot-v1.1-all-33")
+            hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_API_KEY", "")
             
-            if isinstance(structured, dict):
-                logical_analysis = structured.get("logical_analysis", "")
-                label = structured.get("label", "nei")
-                justification = structured.get("justification", "")
-                try:
-                    confidence = float(structured.get("confidence", 0.0))
-                except (ValueError, TypeError):
-                    confidence = 0.0
+            # Initialize client
+            client = InferenceClient(model=model_name, token=hf_token)
+            
+            candidate_labels = ["supported", "refuted", "unverifiable"]
+            
+            log.info(f"Running zero-shot classification via InferenceClient on {len(premise)} chars premise...")
+            
+            # Use candidate_labels and text
+            result = client.zero_shot_classification(
+                text=premise,
+                candidate_labels=candidate_labels,
+                hypothesis_template=f"The claim '{subclaim}' is {{}}."
+            )
+            
+            # The result is a list of dicts: [{'label': 'supported', 'score': 0.9}, ...]
+            if isinstance(result, list) and len(result) > 0:
+                best_label = result[0].get("label", "").lower()
+                confidence = float(result[0].get("score", 0.0))
+                
+                if best_label == "supported":
+                    label = "supported"
+                elif best_label == "refuted":
+                    label = "refuted"
+                else:
+                    label = "nei"
             else:
-                logical_analysis = getattr(structured, "logical_analysis", "")
-                label = getattr(structured, "label", "nei")
-                justification = getattr(structured, "justification", "")
-                try:
-                    confidence = float(getattr(structured, "confidence", 0.0))
-                except (ValueError, TypeError):
-                    confidence = 0.0
-                    
+                log.warning(f"Unexpected InferenceClient response format: {result}")
+                
         except Exception as exc:
-            log.error(f"Veracity Agent error: {exc}")
+            log.error(f"Veracity Agent Pipeline error: {exc}")
             logical_analysis = f"Error: {exc}"
             label = "nei"
             confidence = 0.0
