@@ -132,6 +132,8 @@ CRITICAL RULES:
 - If the evidence says a treatment was tested and found ineffective, that is REFUTED, not "not_enough_information".
 - ANTI-HALLUCINATION: Do NOT invent studies, facts, or reasoning not present in the evidence. If the evidence is insufficient, choose "not_enough_information".
 - Recognise medical synonyms: "heart attack" = "myocardial infarction", "adult-onset diabetes" = "type 2 diabetes", "levothyroxine" ≈ "thyroxine".
+- Medical literature often uses cautious language (e.g., "results suggest", "further research is needed"). Do NOT default to "not_enough_information" just because the language is cautious. If the evidence shows a benefit or points clearly towards supporting/refuting the claim, classify it as SUPPORTED/REFUTED.
+- Absence of evidence is NOT evidence of absence. If a claim asserts the lack of something (e.g., "has no interactions"), and the evidence simply fails to mention an interaction, you MUST output "not_enough_information", NOT "supported".
 
 CONFIDENCE scoring (float 0.0–1.0):
 - 1.0 = Certain. Evidence directly and unambiguously addresses the claim.

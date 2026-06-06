@@ -239,6 +239,7 @@ An OUT-OF-DOMAIN claim is one that:
 
 ## Critical rules — do NOT make these mistakes:
 - CLINICAL RECOMMENDATIONS / NECESSITY: Claims stating a medical treatment or action is "necessary", "recommended", or "should be done" are VERIFIABLE if they imply a standard of care or clinical efficacy (e.g., "Booster doses are necessary to maintain protection" -> VERIFIABLE).
+- SAFETY CLAIMS: Statements asserting that a drug, treatment, or substance is "safe" or "unsafe" are VERIFIABLE since safety, tolerability, and adverse effects are checked against clinical studies (e.g., "It is safe to take isotretinoin during pregnancy" -> VERIFIABLE).
 - A claim with a NEGATION is still verifiable ("X does NOT cause Y" → VERIFIABLE)
 - A claim about an OBSCURE or CONTROVERSIAL product is still verifiable ("The Zisano bracelet strengthens the immune system" → VERIFIABLE)
 - A claim phrased as a QUESTION is still verifiable ("Does X treat Y?" → VERIFIABLE)
@@ -255,7 +256,7 @@ An OUT-OF-DOMAIN claim is one that:
 
 ## Examples of NON-VERIFIABLE claims:
 - "Climate change is the most important issue facing humanity today." (Subjective opinion)
-- "People with kidney stones should avoid daily vitamin D supplementation." (Unattributed recommendation / normative)
+- "Medical research should receive more funding because health is the most important thing." (Subjective value statement)
 - "Leading experts feel the new mRNA vaccine is the most elegant medical breakthrough of our generation." (Vague qualitative opinion)
 - "Patients generally report feeling more energetic after the second dose." (Anecdotal / lacking metrics)
 

@@ -10,8 +10,8 @@ The sub-claim will be provided in the HumanMessage.
 
 Available sources:
 - `systematic_reviews`: high-level evidence from systematic reviews and meta-analyses. Use when the sub-claim involves treatment comparisons, aggregated outcomes, or established clinical consensus.
-- `knowledge_base`: proteins, genes, receptors, binding, expression, or molecular pathways. Use when the sub-claim focuses on molecular biology or genetics.
-- `literature`: broad medical research, general drug efficacy, mortality, side effects, or epidemiological stats.
+- `knowledge_base`: proteins, genes, receptors, binding, expression, or molecular pathways. DO NOT use this for complex in-vivo experiments, animal models (e.g., knockin mice), or specific research findings. Use ONLY for basic molecular/genetic definitions.
+- `literature`: broad medical research, general drug efficacy, mortality, side effects, epidemiological stats, animal models, and specific laboratory experiments.
 
 Examples for a budget of 3 coins:
 1. "Varenicline monotherapy is more effective than combination nicotine replacement therapies." -> systematic_reviews: 3, knowledge_base: 0, literature: 0 (comparing therapies with aggregated evidence)
@@ -69,9 +69,9 @@ Follow these guidelines:
 6. CRITICAL: NEVER drop the primary subject, disease, or core entity from the original claim (e.g. if the claim is about 'COVID-19', 'Alzheimer', or 'Metformin', that exact entity MUST be present in every generated query).
 
 Tailor the queries to the selected source:
-- `systematic_reviews`: emphasize treatment comparisons, aggregated outcomes, pooled estimates, risk ratios, or evidence synthesis.
-- `knowledge_base`: emphasize proteins, genes, receptors, binding, expression, or pathways.
-- `literature`: emphasize drug/treatment claims, efficacy, mortality, side effects, infection risk, prognosis, and general medical research.
+- `systematic_reviews`: extract ONLY 2-3 core medical keywords (e.g. disease and drug). CRITICAL: DO NOT add meta-words like "treatment", "comparison", "risk", "outcomes", or "systematic review" because the search engine automatically applies these filters.
+- `knowledge_base`: extract ONLY 1-2 core keywords (the exact protein, gene, or pathway name). CRITICAL: DO NOT add meta-words like "pathway", "expression", "protein", or "binding".
+- `literature`: emphasize drug/treatment claims, efficacy, mortality, side effects, infection risk, prognosis, and general medical research (max 4-5 words).
 
 Do not invent evidence.
 """
