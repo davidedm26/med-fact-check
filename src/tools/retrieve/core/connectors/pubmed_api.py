@@ -30,12 +30,15 @@ def _build_params(base_params: dict) -> dict:
     return base_params
 
 
-def _esearch(query: str, limit: int) -> List[str]:
+def _esearch(query: str, limit: int, max_year: int = None) -> List[str]:
     """
     Phase 1: Use ESearch to find PMIDs matching the query + SR/MA filter.
     Returns a list of PMID strings.
     """
     full_query = f"({query}) AND {SR_MA_FILTER}"
+    if max_year:
+        full_query += f' AND ("1800"[Date - Publication] : "{max_year}"[Date - Publication])'
+
     params = _build_params({
         "db": "pubmed",
         "term": full_query,
@@ -175,7 +178,7 @@ def _parse_efetch_xml(xml_text: str) -> List[Dict]:
     return articles
 
 
-def search_systematic_reviews(query: str, limit: int = 10) -> List[Dict]:
+def search_systematic_reviews(query: str, limit: int = 10, max_year: int = None) -> List[Dict]:
     """
     Search PubMed for Systematic Reviews and Meta-Analyses matching the query.
 
@@ -186,15 +189,16 @@ def search_systematic_reviews(query: str, limit: int = 10) -> List[Dict]:
     Args:
         query: The search query (medical terms).
         limit: Maximum number of results to return.
+        max_year: Maximum publication year for the results.
 
     Returns:
         A list of dicts, each with keys:
         pmid, title, abstract_text, doi, date, url, publication_types
     """
-    log.info(f"Searching systematic reviews for query: '{query}' (limit={limit})")
+    log.info(f"Searching systematic reviews for query: '{query}' (limit={limit}, max_year={max_year})")
 
     # Phase 1: ESearch → get PMIDs
-    pmids = _esearch(query, limit)
+    pmids = _esearch(query, limit, max_year=max_year)
     if not pmids:
         log.warning(f"No systematic reviews found for query: '{query}'")
         return []
