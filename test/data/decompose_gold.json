@@ -362,6 +362,86 @@
           "type": "verifiable"
         }
       ]
+    },
+    {
+      "claim_id": "bioasq_54_mod",
+      "source_dataset": "bioasq",
+      "claim": "Is there any link between CTF4 and CTF18 during sister chromatid cohesion? Can CTF18 be considered a key factor in this process?",
+      "true_label": "Supported",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Two questions combined, needs decomposition into two declarative sentences.",
+      "expected_queries": [
+        {
+          "query": "There is a link between CTF4 and CTF18 during sister chromatid cohesion.",
+          "type": "verifiable"
+        },
+        {
+          "query": "CTF18 is a key factor during sister chromatid cohesion.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_64_mod",
+      "source_dataset": "bioasq",
+      "claim": "Is it safe to take isotretinoin during pregnancy? Does it increase the risk of birth defects?",
+      "true_label": "Refuted",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Pregnancy safety compound question.",
+      "expected_queries": [
+        {
+          "query": "It is safe to take isotretinoin during pregnancy.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Isotretinoin increases the risk of birth defects during pregnancy.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "healthfc_60_syn",
+      "source_dataset": "healthfc",
+      "claim": "Does vitamin C supplementation prevent the common cold in the general population? Does it reduce the duration of symptoms?",
+      "true_label": "Supported",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Two questions comparing prevention and duration reduction.",
+      "expected_queries": [
+        {
+          "query": "Vitamin C supplementation prevents the common cold in the general population.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Vitamin C supplementation reduces the duration of common cold symptoms.",
+          "type": "verifiable"
+        }
+      ]
+    },
+    {
+      "claim_id": "bioasq_90_syn",
+      "source_dataset": "bioasq",
+      "claim": "Is depression a risk factor for Alzheimer's disease? And what about anxiety disorders?",
+      "true_label": "Supported",
+      "expected_predicate_count": 2,
+      "expected_verifiable_count": 2,
+      "complexity": "compound",
+      "notes": "Elliptical second question 'And what about...'",
+      "expected_queries": [
+        {
+          "query": "Depression is a risk factor for Alzheimer's disease.",
+          "type": "verifiable"
+        },
+        {
+          "query": "Anxiety disorders are a risk factor for Alzheimer's disease.",
+          "type": "verifiable"
+        }
+      ]
     }
   ]
 }

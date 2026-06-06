@@ -6,6 +6,10 @@ claim_decomposition = {
     "parameters": { # Define the structure of the expected output from the LLM
         "type": "object", # The output should be a JSON object
         "properties": {
+            "thought_process": {
+                "type": "string",
+                "description": "Analyze the claim step by step, identify conditions, and plan the decomposition before generating the predicates."
+            },
             "predicates": { 
                 "type": "array",
                 "items": {
@@ -25,7 +29,7 @@ claim_decomposition = {
                         },
                         "search_query": {
                             "type": "string",
-                            "description": "A concise query to verify the predicate."
+                            "description": "A concise declarative statement to verify the predicate."
                         }
                     },
                     "additionalProperties": False, # Ensure no extra fields are included in each predicate object
@@ -35,7 +39,7 @@ claim_decomposition = {
             }
         },
         "additionalProperties": False, # Ensure no extra fields are included in the main object
-        "required": ["predicates"]
+        "required": ["thought_process", "predicates"]
     }
 }
 
@@ -44,45 +48,13 @@ claim_decomposition = {
 # Claim decomposition examples
 claim_decomposition_examples = [
     {
-        "input_claim": "Despite the regulator's recent ban, their latest compound saw a drop in sales.",
-        "predicates": [
-            {
-                "relation": "Ban",
-                "subject": "The regulator",
-                "object": "the latest compound",
-                "search_query": "There is a recent ban by the regulator."
-            },
-            {
-                "relation": "Drop",
-                "subject": "The regulator's latest compound",
-                "object": "sales",
-                "search_query": "The regulator's latest compound saw a drop in sales."
-            }
-        ],
-    },
-    {
         "input_claim": "ciao / hello there! wtf",
+        "thought_process": "The input is conversational fragments and slang. No verifiable medical facts are present.",
         "predicates": []
     },
     {
-        "input_claim": "Daily vitamin D supplementation reduces the risk of osteoporosis in postmenopausal women, and people with kidney stones are sometimes advised to avoid it because it can worsen nephrolithiasis.",
-        "predicates": [
-            {
-                "relation": "ReduceRisk",
-                "subject": "Daily vitamin D supplementation",
-                "object": "osteoporosis in postmenopausal women",
-                "search_query": "Daily vitamin D supplementation reduces the risk of osteoporosis in postmenopausal women."
-            },
-            {
-                "relation": "Avoid",
-                "subject": "People with kidney stones",
-                "object": "daily vitamin D supplementation",
-                "search_query": "People with kidney stones should avoid daily vitamin D supplementation to prevent worsening nephrolithiasis."
-            }
-        ],
-    },
-    {
         "input_claim": "They're pushing this new injection that's supposed to clear it up in weeks, but everyone online says it just makes the redness worse and your wallet lighter.",
+        "thought_process": "The input contains an assertion about a new injection's intended effect and an anecdotal rumor. I will extract both as declarative statements, preserving the attribution for the rumor.",
         "predicates": [
             {
                 "relation": "Supposed to clear",
@@ -96,10 +68,11 @@ claim_decomposition_examples = [
                 "object": "the new injection just makes the redness worse and your wallet lighter",
                 "search_query": "Everyone online says the new injection just makes the redness worse and your wallet lighter."
             }
-        ],
+        ]
     },
     {
         "input_claim": "Does the Mediterranean diet improve cardiovascular health? Can it reduce the risk of heart attacks?",
+        "thought_process": "The input contains questions ('Does the Mediterranean diet improve...', 'Can it reduce...'). According to the rules, I MUST convert questions into positive, declarative statements. The statements will be: 'The Mediterranean diet improves cardiovascular health' and 'The Mediterranean diet reduces the risk of heart attacks'. Now I will extract the predicates from these statements.",
         "predicates": [
             {
                 "relation": "Improve",
@@ -113,39 +86,11 @@ claim_decomposition_examples = [
                 "object": "heart attacks",
                 "search_query": "The Mediterranean diet reduces the risk of heart attacks."
             }
-        ],
-    },
-    {
-        "input_claim": "If the patient presents with an EGFR gene mutation or an ALK translocation, non-small cell lung cancer (NSCLC) responds positively to targeted molecular therapies, although acquired resistance may develop within 10-14 months of starting treatment.",
-        "predicates": [
-            {
-                "relation": "Responds",
-                "subject": "NSCLC with EGFR gene mutation",
-                "object": "targeted molecular therapies",
-                "search_query": "NSCLC responds positively to targeted molecular therapies in patients with an EGFR gene mutation."
-            },
-            {
-                "relation": "Responds",
-                "subject": "NSCLC with ALK translocation",
-                "object": "targeted molecular therapies",
-                "search_query": "NSCLC responds positively to targeted molecular therapies in patients with an ALK translocation."
-            },
-            {
-                "relation": "Develop",
-                "subject": "Acquired resistance to targeted molecular therapies",
-                "object": "within 10-14 months of starting treatment",
-                "search_query": "Acquired resistance to targeted molecular therapies may develop within 10-14 months of starting treatment in NSCLC patients with an EGFR gene mutation."
-            },
-            {
-                "relation": "Develop",
-                "subject": "Acquired resistance to targeted molecular therapies",
-                "object": "within 10-14 months of starting treatment",
-                "search_query": "Acquired resistance to targeted molecular therapies may develop within 10-14 months of starting treatment in NSCLC patients with an ALK translocation."
-            }
-        ],
+        ]
     },
     {
         "input_claim": "Metformin is recommended as a first-line pharmacological treatment for type 2 diabetes mellitus, unless the patient has severe renal impairment (eGFR < 30 mL/min) or a history of lactic acidosis, in which case DPP-4 inhibitors should be considered instead.",
+        "thought_process": "The input contains conditional recommendations ('unless...'). I need to distribute these conditions. Metformin is recommended IF NO severe renal impairment AND IF NO history of lactic acidosis. DPP-4 inhibitors are recommended IF severe renal impairment OR IF history of lactic acidosis.",
         "predicates": [
             {
                 "relation": "Recommended",
@@ -171,109 +116,55 @@ claim_decomposition_examples = [
                 "object": "type 2 diabetes mellitus",
                 "search_query": "DPP-4 inhibitors should be considered as a treatment for type 2 diabetes mellitus if the patient has a history of lactic acidosis."
             }
-        ],
+        ]
     },
     {
-        "input_claim": "Patients with acute ischemic stroke should receive intravenous alteplase within 4.5 hours of symptom onset, but only if their blood pressure is strictly maintained below 185/110 mmHg; otherwise, mechanical thrombectomy is preferred.",
+        "input_claim": "The daily use of sedatives and sleeping pills such as benzodiazepines increases the risk of Alzheimer's disease, but it has no effect on vascular dementia.",
+        "thought_process": "The input contains a compound subject ('sedatives' and 'sleeping pills such as benzodiazepines') and multiple distinct factual assertions ('increases the risk of Alzheimer's disease', 'has no effect on vascular dementia'). I must keep each predicate minimal and split conjunctions.",
         "predicates": [
             {
-                "relation": "Recommended",
-                "subject": "intravenous alteplase",
-                "object": "within 4.5 hours of symptom onset",
-                "search_query": "Patients with acute ischemic stroke should receive intravenous alteplase within 4.5 hours of symptom onset if their blood pressure is maintained below 185/110 mmHg."
+                "relation": "IncreaseRisk",
+                "subject": "Sedatives",
+                "object": "Alzheimer's disease",
+                "search_query": "Sedatives increase the risk of Alzheimer's disease."
             },
             {
-                "relation": "Recommended",
-                "subject": "mechanical thrombectomy",
-                "object": "patients with acute ischemic stroke",
-                "search_query": "Mechanical thrombectomy is preferred for patients with acute ischemic stroke within 4.5 hours of symptom onset if their blood pressure is NOT maintained below 185/110 mmHg."
+                "relation": "IncreaseRisk",
+                "subject": "Sleeping pills such as benzodiazepines",
+                "object": "Alzheimer's disease",
+                "search_query": "Sleeping pills such as benzodiazepines increase the risk of Alzheimer's disease."
+            },
+            {
+                "relation": "HasNoEffect",
+                "subject": "Sedatives",
+                "object": "vascular dementia",
+                "search_query": "Sedatives have no effect on vascular dementia."
+            },
+            {
+                "relation": "HasNoEffect",
+                "subject": "Sleeping pills such as benzodiazepines",
+                "object": "vascular dementia",
+                "search_query": "Sleeping pills such as benzodiazepines have no effect on vascular dementia."
             }
-        ],
+        ]
     },
     {
-        "input_claim": "The actor Tom Hanks won an Oscar in 1994, and recently he stated that daily aspirin prevents heart attacks in healthy adults.",
+        "input_claim": "Regular intake of 5mg of Amlodipine, combined with a low-sodium diet, significantly reduces systolic blood pressure in hypertensive patients within the first four weeks, without causing clinically relevant metabolic side effects.",
+        "thought_process": "The input contains a combination therapy ('Amlodipine, combined with a low-sodium diet') and two assertions (reduces blood pressure, does not cause side effects). I must keep the combination therapy as a single subject. I must also preserve the population ('in hypertensive patients') and the timeframe ('within the first four weeks').",
         "predicates": [
             {
-                "relation": "Won",
-                "subject": "The actor Tom Hanks",
-                "object": "an Oscar in 1994",
-                "search_query": "The actor Tom Hanks won an Oscar in 1994."
+                "relation": "Reduce",
+                "subject": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet",
+                "object": "systolic blood pressure in hypertensive patients within the first four weeks",
+                "search_query": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet significantly reduces systolic blood pressure in hypertensive patients within the first four weeks."
             },
             {
-                "relation": "Prevents",
-                "subject": "Daily aspirin",
-                "object": "heart attacks in healthy adults",
-                "search_query": "Daily aspirin prevents heart attacks in healthy adults."
+                "relation": "Cause",
+                "subject": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet",
+                "object": "clinically relevant metabolic side effects",
+                "search_query": "Regular intake of 5mg of Amlodipine combined with a low-sodium diet does not cause clinically relevant metabolic side effects."
             }
-        ],
-    },
-    {
-        "input_claim": "Although the manufacturer's stock price surged by 18% on the Nasdaq last week, their new monoclonal antibody reduces amyloid plaque buildup in Alzheimer's patients by 25%, an achievement that is widely felt to be the most magical scientific triumph of our era.",
-        "predicates": [
-            {
-                "relation": "Surged",
-                "subject": "The manufacturer's stock price",
-                "object": "by 18% on the Nasdaq last week",
-                "search_query": "The manufacturer's stock price surged by 18% on the Nasdaq last week."
-            },
-            {
-                "relation": "Reduces",
-                "subject": "The new monoclonal antibody",
-                "object": "amyloid plaque buildup in Alzheimer's patients by 25%",
-                "search_query": "The new monoclonal antibody reduces amyloid plaque buildup in Alzheimer's patients by 25%."
-            },
-            {
-                "relation": "Felt to be",
-                "subject": "The reduction of amyloid plaque buildup by the new monoclonal antibody",
-                "object": "the most magical scientific triumph of our era",
-                "search_query": "The reduction of amyloid plaque buildup by the new monoclonal antibody is widely felt to be the most magical scientific triumph of our era."
-            }
-        ],
-    },
-    {
-        "input_claim": "Following the Ministry of Health's unexpected budget cuts, clinicians are now instructed to prescribe generic amoxicillin instead of targeted cephalosporins unless the patient has a documented penicillin allergy or severe hepatic failure, a policy shift that local tabloids call a murderous attack on the poor.",
-        "predicates": [
-            {
-                "relation": "Budget cuts",
-                "subject": "The Ministry of Health",
-                "object": "unexpected budget cuts",
-                "search_query": "There are unexpected budget cuts by the Ministry of Health."
-            },
-            {
-                "relation": "Instructed to prescribe",
-                "subject": "Clinicians",
-                "object": "generic amoxicillin",
-                "search_query": "Clinicians are instructed to prescribe generic amoxicillin in patients without a documented penicillin allergy."
-            },
-            {
-                "relation": "Instructed to prescribe",
-                "subject": "Clinicians",
-                "object": "generic amoxicillin",
-                "search_query": "Clinicians are instructed to prescribe generic amoxicillin in patients without severe hepatic failure."
-            },
-            {
-                "relation": "Instructed to prescribe",
-                "subject": "Clinicians",
-                "object": "targeted cephalosporins",
-                "search_query": "Clinicians are instructed to prescribe targeted cephalosporins if the patient has a documented penicillin allergy."
-            },
-            {
-                "relation": "Instructed to prescribe",
-                "subject": "Clinicians",
-                "object": "targeted cephalosporins",
-                "search_query": "Clinicians are instructed to prescribe targeted cephalosporins if the patient has severe hepatic failure."
-            },
-            {
-                "relation": "Call",
-                "subject": "Local tabloids",
-                "object": "the policy shift a murderous attack on the poor",
-                "search_query": "Local tabloids call the policy shift to prescribe generic amoxicillin instead of targeted cephalosporins a murderous attack on the poor."
-            }
-        ],
-    },
-    {
-        "input_claim": "penicillina",
-        "predicates": []
+        ]
     }
 ]
 
@@ -283,8 +174,8 @@ You are given a problem description and a claim. Split the claim into atomic pre
 
 Important:
 - EMPTY/FRAGMENTS: If the input is a single word, purely conversational, or a verb-less fragment (e.g., "wtf", "hello", "penicillin"), return an empty list `[]`. Do NOT guess or hallucinate facts from prompt examples.
-- ATOMICITY: Split compound/conjunctive claims into multiple subclaims. Each subclaim MUST contain exactly one independently verifiable fact.
-- FAITHFULNESS: Extract EXACTLY what is asserted, even if false. Do NOT auto-correct or add external info. Do not invent facts.
+- ATOMICITY: Prefer 1 factual statement per subclaim. If the claim is compound, produce one subclaim for each independently checkable fact. Keep each predicate minimal (one fact per item). Do not group distinct subjects or objects. Split compound/conjunctive claims into multiple subclaims. Each subclaim MUST contain exactly one independently verifiable fact.
+- VERBATIM EXTRACTION (CRITICAL): Maintain the EXACT terminology used in the original text for clinical conditions, treatments, and technologies. DO NOT use generic synonyms or acronyms (e.g., do not translate "Magnetic resonance therapy" to "MRI"). Keep the original clinical words intact to avoid semantic drift during document retrieval. Extract EXACTLY what is asserted, even if false. Do NOT auto-correct or add external info. Do not invent facts.
 - EXTRACT EVERYTHING: Include subjective opinions, anecdotal reports, and recommendations. The downstream classifier will filter them.
 
 Structural rules:
@@ -296,7 +187,10 @@ Structural rules:
 - BACKGROUND FACTS: Extract embedded contextual facts (e.g., "Despite the lawsuit..." -> "There is a lawsuit").
 
 Content rules:
-- Subclaims MUST be self-contained natural language statement sentences (not questions).
+- EXHAUSTIVE EXTRACTION: Process ALL sentences and clauses in the input. Do not stop early. If there are multiple separate questions or statements, you MUST extract subclaims for EVERY single one of them.
+- SPLIT CONJUNCTIONS CAREFULLY: Do not split "X and Y" or "X combined with Y" if they represent a COMBINATION THERAPY or a synergistic effect (e.g., "Drug A combined with Diet B reduces BP"). Only split them if they are completely independent assertions (e.g., "Drug A reduces BP and Drug B cures headache" -> split into two). If the claim is about the combined effect of two things, keep them together in a single subclaim.
+- PRESERVE QUALIFIERS (CRITICAL): Never drop timeframes (e.g., "within the first four weeks"), populations (e.g., "in hypertensive patients"), dosages (e.g., "5mg"), or specific contexts. They are critical to the medical validity of the claim. Include them in the `object` or `subject`, and naturally in the `search_query`.
+- CRITICAL: The `search_query` MUST be a positive, declarative statement. NEVER output a question. If the input is a question (e.g., "Does X cure Y?"), you MUST convert it into a declarative statement ("X cures Y"). NEVER include a question mark (?).
 - CRITICAL: Output valid JSON using DOUBLE QUOTES (") for strings.
 - Prefer explicit subjects and normalized nouns. Use active voice.
 
@@ -316,6 +210,10 @@ claim_classification = {
     "parameters": {
         "type": "object",
         "properties": {
+            "thought_process": {
+                "type": "string",
+                "description": "Analyze each query to determine if it asserts a checkable medical fact, a subjective opinion, or an out-of-domain fact."
+            },
             "predicate_type_dict": {
                 "type": "array",
                 "items": {
@@ -338,7 +236,7 @@ claim_classification = {
             }
         },
         "additionalProperties": False,
-        "required": ["predicate_type_dict"]
+        "required": ["thought_process", "predicate_type_dict"]
     }
 }
 
@@ -360,6 +258,7 @@ An OUT-OF-DOMAIN claim is one that:
 
 ## Critical rules — do NOT make these mistakes:
 - CLINICAL RECOMMENDATIONS / NECESSITY: Claims stating a medical treatment or action is "necessary", "recommended", or "should be done" are VERIFIABLE if they imply a standard of care or clinical efficacy (e.g., "Booster doses are necessary to maintain protection" -> VERIFIABLE).
+- SAFETY CLAIMS: Statements asserting that a drug, treatment, or substance is "safe" or "unsafe" are VERIFIABLE since safety, tolerability, and adverse effects are checked against clinical studies (e.g., "It is safe to take isotretinoin during pregnancy" -> VERIFIABLE).
 - A claim with a NEGATION is still verifiable ("X does NOT cause Y" → VERIFIABLE)
 - A claim about an OBSCURE or CONTROVERSIAL product is still verifiable ("The Zisano bracelet strengthens the immune system" → VERIFIABLE)
 - A claim phrased as a QUESTION is still verifiable ("Does X treat Y?" → VERIFIABLE)
@@ -376,7 +275,7 @@ An OUT-OF-DOMAIN claim is one that:
 
 ## Examples of NON-VERIFIABLE claims:
 - "Climate change is the most important issue facing humanity today." (Subjective opinion)
-- "People with kidney stones should avoid daily vitamin D supplementation." (Unattributed recommendation / normative)
+- "Medical research should receive more funding because health is the most important thing." (Subjective value statement)
 - "Leading experts feel the new mRNA vaccine is the most elegant medical breakthrough of our generation." (Vague qualitative opinion)
 - "Patients generally report feeling more energetic after the second dose." (Anecdotal / lacking metrics)
 
@@ -392,5 +291,24 @@ Classify each query only by whether it can be checked against objective evidence
 CRITICAL RULES FOR JSON OUTPUT:
 1. You must output valid JSON using DOUBLE QUOTES (") for all string keys and values.
 2. The `query` field in your output MUST be an exact, character-for-character copy of the input query. NEVER substitute the query with an example from this prompt. If the input query is "ciao", the output query MUST be "ciao".
+
+Here is an example of the expected JSON output format:
+{{
+    "thought_process": "1. 'Booster doses are necessary...' is a clinical recommendation regarding vaccine efficacy, which can be checked against scientific consensus, so it is 'verifiable'. 2. 'AWS S3 storage fees...' is a factual statement but belongs to cloud computing, so it is 'out-of-domain'. 3. 'Patients generally report feeling more energetic...' is purely anecdotal and lacks clinical metrics, so it is 'non-verifiable'.",
+    "predicate_type_dict": [
+        {{
+            "query": "Booster doses are necessary to maintain optimal protection against COVID-19.",
+            "type": "verifiable"
+        }},
+        {{
+            "query": "AWS S3 storage fees have recently increased by 15%.",
+            "type": "out-of-domain"
+        }},
+        {{
+            "query": "Patients generally report feeling more energetic after the second dose.",
+            "type": "non-verifiable"
+        }}
+    ]
+}}
 """
 
