@@ -6,9 +6,9 @@
         "timeout": 60,
         "providers": {
             "nvidia": {
-                "selected_model": 2,
+                "selected_model": 0,
                 "available_models": [
-                    "meta/llama3.1-8b-instruct",
+                    "meta/llama-3.1-8b-instruct",
                     "nvidia/nemotron-3-nano-30b-a3b",
                     "nvidia/nvidia-nemotron-nano-9b-v2",
                     "nvidia/llama-3.3-nemotron-super-49b-v1.5"
@@ -34,7 +34,7 @@
             "bioasq": 2022,
             "healthfc": 2024
         },
-        "dynamic_coins": 6,
+        "dynamic_coins": 3,
         "base_coins_per_source": 0,
         "max_results_per_query": 10,
         "max_chunks_per_subclaim": 100,

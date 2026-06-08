@@ -124,10 +124,8 @@ st.markdown("""
         border: 1px solid rgba(255,255,255,0.05);
         padding: 2.5rem 2rem;
         border-radius: 16px;
-        transition: all 0.3s ease;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
-    .action-card:hover { transform: translateY(-5px); border-color: #3b82f6; }
     .card-icon { font-size: 2.5rem; margin-bottom: 1.5rem; }
     .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; color: #f1f5f9; }
     .card-desc { font-size: 0.95rem; color: #94a3b8; line-height: 1.6; }

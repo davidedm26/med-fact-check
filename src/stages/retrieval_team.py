@@ -22,8 +22,8 @@ from utils.config import config
 
 log = get_logger("RetrievalTeam")
 
-def build_retrieval_graph(source_selector_llm, base_llm):
-    """Build the unified retrieval subgraph."""
+def get_retrieval_nodes(source_selector_llm, base_llm):
+    """Get the individual retrieval node functions."""
 
     RETRIEVAL_STRATEGY_TO_NODE = {
         "sparse": "sparse_retriever",
@@ -91,6 +91,7 @@ def build_retrieval_graph(source_selector_llm, base_llm):
 
         log.info(f"source_selector allocated coins {coins} (LLM reasoning: {reasoning})")
         return {
+            "subclaim_id": subclaim_id,
             "retrieval_source": coins,
             "messages": [
                 HumanMessage(
@@ -200,10 +201,12 @@ def build_retrieval_graph(source_selector_llm, base_llm):
         combined_reasoning = " | ".join(reasonings) or "fallback to input query"
 
         return {
+            "subclaim_id": subclaim_id,
             "retrieval_source": allocated_coins,
             "queries_by_source": queries_by_source,
             "download_stats": download_stats,
             "downloaded_chunks": all_downloaded_chunks,
+            "downloaded_chunks_count": len(all_downloaded_chunks),
             "messages": [
                 HumanMessage(
                     content=str({
@@ -223,6 +226,7 @@ def build_retrieval_graph(source_selector_llm, base_llm):
         log.info("hybrid_retriever start")
         # We MUST use the full subclaim for semantic (dense) retrieval, not the short keyword queries.
         subclaim = state.get("subclaim") or _message_text(state["messages"][0])
+        subclaim_id = state.get("subclaim_id")
         queries_by_source = state.get("queries_by_source") or {}
         
         # Flatten the dictionary to get all keyword queries for sparse retrieval
@@ -290,7 +294,9 @@ def build_retrieval_graph(source_selector_llm, base_llm):
         log.info(f"hybrid_retriever selected {len(final_chunks)} final chunks after reranking and diversity constraint (max {max_per_doc}/doc).")
         
         return {
+            "subclaim_id": subclaim_id,
             "retrieved_chunks": final_chunks,
+            "retrieved_chunks_count": len(final_chunks),
             "messages": [
                 HumanMessage(
                     content=str({
@@ -303,10 +309,19 @@ def build_retrieval_graph(source_selector_llm, base_llm):
             ],
         }
 
+    return {
+        "source_selector": source_selector_node,
+        "downloader_agent": downloader_agent_node,
+        "hybrid_retriever": hybrid_retriever_node,
+    }
+
+def build_retrieval_graph(source_selector_llm, base_llm):
+    """Build the unified retrieval subgraph."""
+    nodes = get_retrieval_nodes(source_selector_llm, base_llm)
     builder = StateGraph(State)
-    builder.add_node("source_selector", source_selector_node)
-    builder.add_node("downloader_agent", downloader_agent_node)
-    builder.add_node("hybrid_retriever", hybrid_retriever_node)
+    builder.add_node("source_selector", nodes["source_selector"])
+    builder.add_node("downloader_agent", nodes["downloader_agent"])
+    builder.add_node("hybrid_retriever", nodes["hybrid_retriever"])
 
     builder.add_edge(START, "source_selector")
     builder.add_edge("source_selector", "downloader_agent")
