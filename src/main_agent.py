@@ -31,6 +31,7 @@ from utils.config import config
 
 from state import State, _message_text
 from utils.logger import get_logger
+from utils.mongo_logger import log_pipeline_run
 
 log = get_logger("MainAgent")
 
@@ -405,6 +406,9 @@ class FactAgent:
         elapsed = time.perf_counter() - t0
         log.info(f"graph stream finished in {elapsed:.2f}s")
         
+        final_verdict = results[-1].get("aggregate", {}).get("final_verdict", {}) if results else {}
+        log_pipeline_run(run_id, claim, final_verdict, elapsed)
+        
         return results
 
     def stream_claim(self, claim: str, recursion_limit: int = 150):
@@ -421,11 +425,21 @@ class FactAgent:
             yield {"error": "Claim cannot be empty or whitespace.", "claim": ""}
             return
 
+        import time
+        t0 = time.perf_counter()
+        final_verdict = {}
+
         for step in self.super_graph.stream(
             {"messages": messages, "run_id": run_id},
             {"recursion_limit": recursion_limit}
         ):
-            yield self._clean_step(step)
+            clean_s = self._clean_step(step)
+            if "aggregate" in clean_s:
+                final_verdict = clean_s["aggregate"].get("final_verdict", {})
+            yield clean_s
+            
+        elapsed = time.perf_counter() - t0
+        log_pipeline_run(run_id, claim, final_verdict, elapsed)
 
     
 
@@ -437,10 +451,12 @@ if __name__ == "__main__":
     claim_list = [
         "Birth-weight is negatively associated with breast cancer",
         "Autophagy deficiency in the liver increases vulnerability to insulin resistance",
-        "Metformin reduces the risk of cardiovascular events in Type 2 Diabetes patients, but it significantly increases the risk of lactic acidosis."
+        "Metformin reduces the risk of cardiovascular events in Type 2 Diabetes patients, but it significantly increases the risk of lactic acidosis.", 
+        "Vitamin D deficiency is common in older adults and has been linked to an increased risk of falls and fractures.",
+        "Regular physical activity improves cardiovascular health and can reduce the risk of chronic diseases like diabetes and obesity."
     ]
     
-    idx = 2  # Cambia questo indice  per testare un claim diverso
+    idx = 4  # Cambia questo indice  per testare un claim diverso
     claim = claim_list[idx]
     
     log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")
