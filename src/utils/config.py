@@ -25,6 +25,21 @@ class Config:
             try:
                 with open(config_path, 'r', encoding='utf-8') as f:
                     self._config_data = json.load(f)
+
+                # Post-process config to support available_models and selected_model
+                llm_config = self._config_data.get("llm", {})
+                providers = llm_config.get("providers", {})
+                for provider_name, provider_cfg in providers.items():
+                    if isinstance(provider_cfg, dict):
+                        if "available_models" in provider_cfg and "selected_model" in provider_cfg:
+                            if "model_name" not in provider_cfg:
+                                try:
+                                    selected_idx = provider_cfg["selected_model"]
+                                    models = provider_cfg["available_models"]
+                                    provider_cfg["model_name"] = models[selected_idx]
+                                except (IndexError, TypeError):
+                                    pass
+
                 log.info(f"Loaded configuration from {config_path}")
             except Exception as e:
                 log.error(f"Error reading config.json: {e}")

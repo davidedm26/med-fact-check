@@ -456,13 +456,22 @@ if __name__ == "__main__":
         "Regular physical activity improves cardiovascular health and can reduce the risk of chronic diseases like diabetes and obesity."
     ]
     
-    idx = 4  # Cambia questo indice  per testare un claim diverso
+    idx = 3  # Cambia questo indice  per testare un claim diverso
     claim = claim_list[idx]
     
     log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")
     
     result = agent.process_claim(claim, verbose=False, recursion_limit=10)  # Set a reasonable recursion limit for testing
-    print("\nFinal Result:")
+    
+    # Extract and print only the final aggregated verdict
+    final_verdict = {}
+    if result:
+        for step in reversed(result):
+            if "aggregate" in step:
+                final_verdict = step["aggregate"].get("final_verdict", {})
+                break
+                
+    print("\nFinal Verdict:")
     import json
-    print(json.dumps(result, indent=2, ensure_ascii=False).encode('cp1252', errors='replace').decode('cp1252'))
+    print(json.dumps(final_verdict, indent=2, ensure_ascii=False).encode('cp1252', errors='replace').decode('cp1252'))
     

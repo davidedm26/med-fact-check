@@ -165,6 +165,38 @@ def build_retrieval_graph(source_selector_llm, base_llm):
                 except Exception as exc:
                     log.error(f"downloader_agent error for {src}: {exc}")
 
+        # Fallback to literature if too few chunks were retrieved
+        min_chunks = config.get("retrieval.min_chunks_per_subclaim", 5)
+        if len(all_downloaded_chunks) < min_chunks:
+            fallback_coins = config.get("retrieval.dynamic_coins", 3)
+            log.warning(f"Only {len(all_downloaded_chunks)} chunks retrieved. Falling back to literature with {fallback_coins} coins.")
+            try:
+                sq, docs, rsn, stats = process_source("literature", fallback_coins)
+                if "literature" in queries_by_source:
+                    queries_by_source["literature"].extend(sq)
+                else:
+                    queries_by_source["literature"] = sq
+                
+                all_downloaded_chunks.extend(docs)
+                
+                if "literature" in download_stats:
+                    for k, v in stats.items():
+                        if isinstance(v, int):
+                            download_stats["literature"][k] = download_stats["literature"].get(k, 0) + v
+                else:
+                    download_stats["literature"] = stats
+                    
+                if rsn:
+                    reasonings.append(f"literature (fallback): {rsn}")
+            except Exception as exc:
+                log.error(f"Fallback to literature failed: {exc}")
+
+        import random
+        max_chunks = config.get("retrieval.max_chunks_per_subclaim", 150)
+        if len(all_downloaded_chunks) > max_chunks:
+            log.warning(f"Extracted {len(all_downloaded_chunks)} chunks, exceeding the limit of {max_chunks}. Programmatically sampling {max_chunks} chunks.")
+            all_downloaded_chunks = random.sample(all_downloaded_chunks, max_chunks)
+
         combined_reasoning = " | ".join(reasonings) or "fallback to input query"
 
         return {
