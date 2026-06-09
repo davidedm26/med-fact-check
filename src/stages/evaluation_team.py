@@ -25,6 +25,36 @@ from utils.config import config
 log = get_logger("EvaluationTeam")
 
 
+import re
+
+def clean_chunk_references(text: str) -> str:
+    if not text:
+        return ""
+    
+    def repl_numbered(match):
+        orig = match.group(0)
+        if orig and orig[0].isupper():
+            return "The clinical evidence"
+        return "the clinical evidence"
+
+    pattern_numbered = re.compile(
+        r'\b[Cc]hunks?\b\s*\[?\d+\]?(?:\s*(?:and|or|,)\s*\[?\d+\]?)*'
+    )
+    text = pattern_numbered.sub(repl_numbered, text)
+    
+    pattern_passages = re.compile(
+        r'\b(?:[Pp]assages?|[Rr]eferences?)\b\s*\[?\d+\]?(?:\s*(?:and|or|,)\s*\[?\d+\]?)*'
+    )
+    text = pattern_passages.sub(repl_numbered, text)
+    
+    text = re.sub(r'\bevidence\s+(?:chunks?|passages?)\b', 'evidence sources', text, flags=re.IGNORECASE)
+    text = re.sub(r'\b[Cc]hunks?\b', 'studies', text, flags=re.IGNORECASE)
+    text = re.sub(r'\b[Pp]assages?\b', 'studies', text, flags=re.IGNORECASE)
+    
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+
 def build_evaluation_graph(reasoning_agent, veracity_agent):
     """
     Build the evaluation subgraph.
@@ -125,13 +155,16 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
         subclaim_id = state.get("subclaim_id") or ""
         # Build Mega-Premise using Reasoning Agent outputs
         justification_text = ""
+        distilled_evidence_text = ""
         for msg in state.get("messages", []):
             if getattr(msg, "name", "") == "reasoning_agent":
                 try:
                     content_dict = eval(msg.content)
                     justification_text = content_dict.get("reasoning", "")
+                    distilled_evidence_text = content_dict.get("distilled_evidence", "")
                 except Exception:
                     justification_text = msg.content
+                    distilled_evidence_text = msg.content
                     
         supporting_quotes = state.get("supporting_quotes", [])
         refuting_quotes = state.get("refuting_quotes", [])
@@ -142,20 +175,38 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
             return text[:max_chars] + "..." if len(text) > max_chars else text
             
         just_str = safe_truncate(justification_text, 600)
+        distilled_str = safe_truncate(distilled_evidence_text or distilled_evidence, 600)
         supp_str = safe_truncate(" ".join(supporting_quotes), 600)
         ref_str = safe_truncate(" ".join(refuting_quotes), 600)
         
-        # Build the structured premise context
-        premise = f"Justification: {just_str}\n"
-        if supp_str:
-            premise += f"Supporting Evidence: {supp_str}\n"
-        if ref_str:
-            premise += f"Refuting Evidence: {ref_str}\n"
+        # Extract hint from reasoning node output for predicted label
+        hint = ""
+        for msg in state.get("messages", []):
+            if getattr(msg, "name", "") == "reasoning_agent":
+                try:
+                    content_dict = eval(msg.content)
+                    hint = content_dict.get("evidence_verdict_hint", "")
+                except Exception:
+                    pass
+
+        # Prepare variables for zero-shot classification
+        # Combine supporting and refuting quotes if evidence_text is not directly in state
+        sentences = safe_truncate(state.get("evidence_text", " ".join(supporting_quotes + refuting_quotes)), 1000)
+        justifications = distilled_str
+        
+        # Premise is the evidence/justification context
+        premise = f"Justification: {justifications}\nEvidence: {sentences}"
+        premise = safe_truncate(premise, 1000)
+
+        # Hypothesis template evaluates the subclaim
+        claim_escaped = subclaim.replace("{", "[").replace("}", "]")
+        hypothesis_template = f"The claim that '{claim_escaped}' is '{{}}'."
+        
         # HF Transformers pipeline using Hugging Face Hub InferenceClient
         label = "nei"
         confidence = 0.0
-        logical_analysis = premise
-        justification = justification_text
+        logical_analysis = clean_chunk_references(premise)
+        justification = clean_chunk_references(distilled_evidence_text or distilled_evidence)
 
         try:
             model_name = config.get("evaluation", {}).get("veracity_model_name", "MoritzLaurer/deberta-v3-large-zeroshot-v1.1-all-33")
@@ -164,25 +215,25 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
             # Initialize client
             client = InferenceClient(model=model_name, token=hf_token)
             
-            candidate_labels = ["supported", "refuted", "unverifiable"]
+            candidate_labels = ["True", "False", "NEI"]
             
-            log.info(f"Running zero-shot classification via InferenceClient on {len(premise)} chars premise...")
+            log.info(f"Running zero-shot classification via InferenceClient...")
             
-            # Use candidate_labels and text
             result = client.zero_shot_classification(
                 text=premise,
                 candidate_labels=candidate_labels,
-                hypothesis_template=f"The claim '{subclaim}' is {{}}."
+                hypothesis_template=hypothesis_template,
+                multi_label=False
             )
             
-            # The result is a list of dicts: [{'label': 'supported', 'score': 0.9}, ...]
+            # The result is a list of dicts: [{'label': 'True', 'score': 0.9}, ...]
             if isinstance(result, list) and len(result) > 0:
-                best_label = result[0].get("label", "").lower()
+                best_label = result[0].get("label", "")
                 confidence = float(result[0].get("score", 0.0))
                 
-                if best_label == "supported":
+                if best_label == "True":
                     label = "supported"
-                elif best_label == "refuted":
+                elif best_label == "False":
                     label = "refuted"
                 else:
                     label = "nei"

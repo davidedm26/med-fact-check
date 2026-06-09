@@ -249,5 +249,36 @@ def log_node(stage: str) -> Callable:
             return result
 
         return wrapper
-
     return decorator
+
+
+def log_pipeline_run(run_id: str, claim: str, final_result: dict, duration_seconds: float):
+    """Log the entire pipeline run summary to the `run_logs` collection."""
+    if not _is_logging_enabled():
+        return
+
+    try:
+        db = _get_mongo_db()
+        if db is None:
+            return
+
+        # Extract info
+        label = final_result.get("label", "nei")
+        confidence = final_result.get("confidence", 0.0)
+        total_subclaims = final_result.get("total_subclaims", 0)
+
+        document = {
+            "run_id": run_id,
+            "claim": claim,
+            "verdict": label,
+            "confidence": confidence,
+            "total_subclaims": total_subclaims,
+            "duration_seconds": round(duration_seconds, 2),
+            "timestamp": datetime.now(timezone.utc),
+            "final_result": _serialize_for_mongo(final_result),
+        }
+
+        db["run_logs"].insert_one(document)
+        log.info(f"Successfully logged pipeline run '{run_id}' to 'run_logs'")
+    except Exception as exc:
+        log.warning(f"Failed to log pipeline run to MongoDB: {exc}")
