@@ -31,6 +31,7 @@ from utils.config import config
 
 from state import State, _message_text
 from utils.logger import get_logger
+from utils.mongo_logger import log_pipeline_run
 
 log = get_logger("MainAgent")
 
@@ -188,6 +189,12 @@ class FactAgent:
     def _build_main_graph(self):
         """Build the main workflow graph."""
         # The main graph consider the subgraphs as black boxes and just defines the routing logic between them.
+        from stages.retrieval_team import get_retrieval_nodes
+
+        ret_nodes = get_retrieval_nodes(self.source_selector_agent, self.base_llm)
+        source_selector_node = ret_nodes["source_selector"]
+        downloader_agent_node = ret_nodes["downloader_agent"]
+        hybrid_retriever_node = ret_nodes["hybrid_retriever"]
 
         def decompose_node(state: State): 
             response = self.decompose_graph.invoke({
@@ -202,7 +209,7 @@ class FactAgent:
                 ],
             }
 
-        # This function routes to the retrieval node for each subclaim if there are any verifiable subclaims, otherwise it ends the workflow.
+        # This function routes to the source_selector node for each subclaim if there are any verifiable subclaims, otherwise it ends the workflow.
         def route_subclaims(state: State): 
             subclaims = state.get("verifiable_subclaims") or []
             if not subclaims:
@@ -215,7 +222,7 @@ class FactAgent:
                     ).strip()
                 return _message_text(subclaim)
             
-            # It returns a list of Send commands that will send each subclaim to the verify_subgraph one at a time
+            # It returns a list of Send commands that will send each subclaim to the verify_subclaim node one at a time
             return [
                 Send(
                     "verify_subclaim", # this is the node we want to send the subclaim to
@@ -226,121 +233,89 @@ class FactAgent:
                         "messages": [HumanMessage(content=_subclaim_query(subclaim), name="subclaim")],
                     },
                 )
-                for index, subclaim in enumerate(subclaims) # Each subclaim will be sent to the verify subgraph
+                for index, subclaim in enumerate(subclaims)
             ]
 
-        def retrieval_node(state: State):
-            subclaim = state.get("subclaim") or _message_text(state["messages"][-1])
-            subclaim_id = state.get("subclaim_id") 
-            response = self.retrieval_graph.invoke({
-                "messages": [("user", subclaim)],
+        # ── Evaluation node ───────────────────────────────────────
+        def evaluate_subclaim_node(state: State):
+            subclaim_id = state.get("subclaim_id") or ""
+            subclaim = state.get("subclaim") or ""
+            log.info(f"evaluating {subclaim_id}: {subclaim[:60]}...")
+
+            # Format evidence chunks for the Reasoning Agent prompt
+            chunks = state.get("retrieved_chunks") or []
+            evidence_lines = []
+            for idx, chunk in enumerate(chunks, 1):
+                if isinstance(chunk, dict):
+                    text = chunk.get("text") or chunk.get("content") or json.dumps(chunk)
+                    source = chunk.get("source") or chunk.get("id") or "unknown"
+                    score = chunk.get("score", "")
+                    evidence_lines.append(f"[Chunk {idx} | source={source} | score={score}]\n{text}")
+                else:
+                    evidence_lines.append(f"[Chunk {idx}]\n{str(chunk)}")
+            evidence_text = "\n\n".join(evidence_lines) if evidence_lines else "(No evidence chunks available.)"
+
+            # Invoke the evaluation subgraph for this subclaim
+            eval_response = self.evaluation_graph.invoke({
                 "subclaim_id": subclaim_id,
                 "subclaim": subclaim,
+                "evidence_text": evidence_text,
+                "messages": [HumanMessage(content=subclaim, name="evaluation_input")],
                 "run_id": state.get("run_id"),
             })
+
+            # Collect the evaluation results from the subgraph response
+            eval_results = eval_response.get("evaluation_results") or []
+            # Enrich each result with the retrieval metadata
+            for er in eval_results:
+                er["source"] = state.get("retrieval_source")
+                er["query"] = subclaim
+                er["chunks_count"] = len(chunks)
+                er["retrieved_chunks"] = chunks
+
             retrieval_summary = {
                 "subclaim_id": subclaim_id,
                 "subclaim": subclaim,
-                "source": response.get("retrieval_source"),
-                "queries_by_source": response.get("queries_by_source", {}),
-                "retrieved_chunks": response.get("retrieved_chunks", []),
+                "source": state.get("retrieval_source"),
+                "queries_by_source": state.get("queries_by_source", {}),
+                "retrieved_chunks": chunks,
             }
+
             return {
                 "subclaim_results": [retrieval_summary],
-                "messages": [
-                    HumanMessage(content=str(retrieval_summary), name="retrieve")
-                ],
-            }
-
-        # ── Evaluation node ───────────────────────────────────────
-        # This node runs as the second step inside the verify_subgraph.
-        # Because it's isolated per-subclaim, state["subclaim_results"]
-        # will contain only the single result from the preceding retrieval_node.
-        def evaluation_node(state: State):
-            subclaim_results = state.get("subclaim_results") or []
-            if not subclaim_results:
-                log.info("no subclaim_results to evaluate")
-                return {"evaluation_results": [], "messages": []}
-
-            all_evaluation_results = []
-            for result in subclaim_results:
-                subclaim_id = result.get("subclaim_id", "")
-                subclaim = result.get("subclaim", "")
-                log.info(f"evaluating {subclaim_id}: {subclaim[:60]}...")
-
-                # Format evidence chunks for the Reasoning Agent prompt
-                chunks = result.get("retrieved_chunks") or []
-                evidence_lines = []
-                for idx, chunk in enumerate(chunks, 1):
-                    if isinstance(chunk, dict):
-                        text = chunk.get("text") or chunk.get("content") or json.dumps(chunk)
-                        source = chunk.get("source") or chunk.get("id") or "unknown"
-                        score = chunk.get("score", "")
-                        evidence_lines.append(f"[Chunk {idx} | source={source} | score={score}]\n{text}")
-                    else:
-                        evidence_lines.append(f"[Chunk {idx}]\n{str(chunk)}")
-                evidence_text = "\n\n".join(evidence_lines) if evidence_lines else "(No evidence chunks available.)"
-
-                # Invoke the evaluation subgraph for this subclaim
-                eval_response = self.evaluation_graph.invoke({
-                    "subclaim_id": subclaim_id,
-                    "subclaim": subclaim,
-                    "evidence_text": evidence_text,
-                    "messages": [HumanMessage(content=subclaim, name="evaluation_input")],
-                    "run_id": state.get("run_id"),
-                })
-
-                # Collect the evaluation results from the subgraph response
-                eval_results = eval_response.get("evaluation_results") or []
-                # Enrich each result with the retrieval metadata
-                for er in eval_results:
-                    er["source"] = result.get("source")
-                    er["query"] = result.get("query")
-                    er["chunks_count"] = len(chunks)
-                    er["retrieved_chunks"] = chunks
-                all_evaluation_results.extend(eval_results)
-
-            return {
-                "evaluation_results": all_evaluation_results,
+                "evaluation_results": eval_results,
                 "messages": [
                     HumanMessage(
                         content=str([
                             {"subclaim_id": r.get("subclaim_id"), "label": r.get("label"), "confidence": r.get("confidence")}
-                            for r in all_evaluation_results
+                            for r in eval_results
                         ]),
                         name="evaluate",
                     )
                 ],
             }
 
-        # ── Verify Subgraph ──
-        # Encapsulates retrieve and evaluate for a single subclaim.
         verify_builder = StateGraph(State)
-        verify_builder.add_node("retrieve", retrieval_node)
-        verify_builder.add_node("evaluate", evaluation_node)
-        verify_builder.add_edge(START, "retrieve")
-        verify_builder.add_edge("retrieve", "evaluate")
-        verify_builder.add_edge("evaluate", END)
-        verify_subgraph = verify_builder.compile()
+        verify_builder.add_node("source_selector", source_selector_node)
+        verify_builder.add_node("downloader_agent", downloader_agent_node)
+        verify_builder.add_node("hybrid_retriever", hybrid_retriever_node)
+        verify_builder.add_node("evaluate_subclaim", evaluate_subclaim_node)
 
-        def verify_wrapper_node(state: State):
-            # Invokes the subgraph in isolation
-            res = verify_subgraph.invoke(state)
-            # Only return the fields that have reducers (Annotated[..., operator.add])
-            # to avoid InvalidUpdateError on concurrent LastValue fields (like subclaim_id)
-            return {
-                "subclaim_results": res.get("subclaim_results", []),
-                "evaluation_results": res.get("evaluation_results", []),
-                "messages": res.get("messages", [])
-            }
+        verify_builder.add_edge(START, "source_selector")
+        verify_builder.add_edge("source_selector", "downloader_agent")
+        verify_builder.add_edge("downloader_agent", "hybrid_retriever")
+        verify_builder.add_edge("hybrid_retriever", "evaluate_subclaim")
+        verify_builder.add_edge("evaluate_subclaim", END)
+        
+        verify_subgraph = verify_builder.compile()
 
         main_builder = StateGraph(State) 
         main_builder.add_node("decompose", decompose_node)
-        main_builder.add_node("verify_subclaim", verify_wrapper_node)
+        main_builder.add_node("verify_subclaim", verify_subgraph)
         main_builder.add_node("aggregate", self.aggregate_node)
         
         main_builder.add_edge(START, "decompose")
-        main_builder.add_conditional_edges("decompose", route_subclaims) # Fan-out to verify_subgraph
+        main_builder.add_conditional_edges("decompose", route_subclaims) # Fan-out to verify_subclaim
         main_builder.add_edge("verify_subclaim", "aggregate")  # Fan-in
         main_builder.add_edge("aggregate", END)
 
@@ -353,6 +328,18 @@ class FactAgent:
             return {k: self._clean_step(v) for k, v in data.items() if k != "messages"}
         elif isinstance(data, list):
             return [self._clean_step(item) for item in data]
+        elif hasattr(data, "model_dump") and callable(getattr(data, "model_dump")):
+            return self._clean_step(data.model_dump())
+        elif hasattr(data, "dict") and callable(getattr(data, "dict")):
+            return self._clean_step(data.dict())
+            
+        if type(data) not in (int, float, str, bool, type(None)):
+            import json
+            try:
+                json.dumps(data)
+                return data
+            except (TypeError, OverflowError):
+                return str(data)
         return data
 
     def process_claim(self, claim: str, recursion_limit: int = 150, verbose: bool = False):
@@ -394,9 +381,14 @@ class FactAgent:
         log.info("starting graph stream")
         for step in self.super_graph.stream( # stream method allows us to get intermediate results at each step of the graph execution
             {"messages": messages, "run_id": run_id}, # initial state with the claim as the first user message
-            {"recursion_limit": recursion_limit} # recursion limit to prevent infinite loops in case of errors
+            {"recursion_limit": recursion_limit}, # recursion limit to prevent infinite loops in case of errors
+            subgraphs=True
         ):
-            clean_s = self._clean_step(step)
+            if isinstance(step, tuple) and len(step) == 2:
+                _, payload = step
+            else:
+                payload = step
+            clean_s = self._clean_step(payload)
             if verbose:
                 log.info(f"Step output: {clean_s}")
                 print("---")
@@ -404,6 +396,9 @@ class FactAgent:
         
         elapsed = time.perf_counter() - t0
         log.info(f"graph stream finished in {elapsed:.2f}s")
+        
+        final_verdict = results[-1].get("aggregate", {}).get("final_verdict", {}) if results else {}
+        log_pipeline_run(run_id, claim, final_verdict, elapsed)
         
         return results
 
@@ -421,11 +416,26 @@ class FactAgent:
             yield {"error": "Claim cannot be empty or whitespace.", "claim": ""}
             return
 
+        import time
+        t0 = time.perf_counter()
+        final_verdict = {}
+
         for step in self.super_graph.stream(
             {"messages": messages, "run_id": run_id},
-            {"recursion_limit": recursion_limit}
+            {"recursion_limit": recursion_limit},
+            subgraphs=True
         ):
-            yield self._clean_step(step)
+            if isinstance(step, tuple) and len(step) == 2:
+                _, payload = step
+            else:
+                payload = step
+            clean_s = self._clean_step(payload)
+            if "aggregate" in clean_s:
+                final_verdict = clean_s["aggregate"].get("final_verdict", {})
+            yield clean_s
+            
+        elapsed = time.perf_counter() - t0
+        log_pipeline_run(run_id, claim, final_verdict, elapsed)
 
     
 
@@ -437,16 +447,27 @@ if __name__ == "__main__":
     claim_list = [
         "Birth-weight is negatively associated with breast cancer",
         "Autophagy deficiency in the liver increases vulnerability to insulin resistance",
-        "Metformin reduces the risk of cardiovascular events in Type 2 Diabetes patients, but it significantly increases the risk of lactic acidosis."
+        "Metformin reduces the risk of cardiovascular events in Type 2 Diabetes patients, but it significantly increases the risk of lactic acidosis.", 
+        "Vitamin D deficiency is common in older adults and has been linked to an increased risk of falls and fractures.",
+        "Regular physical activity improves cardiovascular health and can reduce the risk of chronic diseases like diabetes and obesity."
     ]
     
-    idx = 2  # Cambia questo indice  per testare un claim diverso
+    idx = 3  # Cambia questo indice  per testare un claim diverso
     claim = claim_list[idx]
     
     log.info(f"Testing claim [{idx}/{len(claim_list)-1}]: {claim}")
     
     result = agent.process_claim(claim, verbose=False, recursion_limit=10)  # Set a reasonable recursion limit for testing
-    print("\nFinal Result:")
+    
+    # Extract and print only the final aggregated verdict
+    final_verdict = {}
+    if result:
+        for step in reversed(result):
+            if "aggregate" in step:
+                final_verdict = step["aggregate"].get("final_verdict", {})
+                break
+                
+    print("\nFinal Verdict:")
     import json
-    print(json.dumps(result, indent=2, ensure_ascii=False).encode('cp1252', errors='replace').decode('cp1252'))
+    print(json.dumps(final_verdict, indent=2, ensure_ascii=False).encode('cp1252', errors='replace').decode('cp1252'))
     
