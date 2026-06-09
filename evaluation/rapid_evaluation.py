@@ -107,6 +107,16 @@ def run_rapid_evaluation():
     print("\n" + "="*50)
     print("RAPID PIPELINE EVALUATION COMPLETED.")
 
+def standardize_label(label: str) -> str:
+    lbl = str(label).lower().strip()
+    if lbl in ["nei", "not_enough_information", "not enough information"]:
+        return "nei"
+    if lbl in ["supported", "support", "true", "yes"]:
+        return "supported"
+    if lbl in ["refuted", "contradict", "false", "no"]:
+        return "refuted"
+    return lbl
+
 def calculate_metrics():
     print("\n" + "="*50)
     print("CALCULATING METRICS...")
@@ -128,7 +138,7 @@ def calculate_metrics():
             continue
             
         # Determine if dataset is natively 3-class (contains NEI true labels)
-        has_nei_true = any(str(item.get("true_label", "")).upper() == "NEI" for item in results)
+        has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
         
         if has_nei_true:
             filtered_results = results
@@ -141,7 +151,7 @@ def calculate_metrics():
         else:
             filtered_results = [
                 item for item in results 
-                if str(item.get("predicted_label", "")).upper() not in ["NEI", "NOT_ENOUGH_INFORMATION"]
+                if standardize_label(item.get("predicted_label", "")) != "nei"
             ]
             evaluated_claims = len(filtered_results)
             excluded_claims = total_claims - evaluated_claims
@@ -154,8 +164,8 @@ def calculate_metrics():
         if evaluated_claims == 0:
             continue
             
-        y_true = [str(item["true_label"]).lower() for item in filtered_results]
-        y_pred = [str(item["predicted_label"]).lower() for item in filtered_results]
+        y_true = [standardize_label(item["true_label"]) for item in filtered_results]
+        y_pred = [standardize_label(item["predicted_label"]) for item in filtered_results]
         
         acc = accuracy_score(y_true, y_pred)
         prec = precision_score(y_true, y_pred, average='macro', zero_division=0)
@@ -175,7 +185,7 @@ def calculate_metrics():
 
 if __name__ == "__main__":
     # Uncomment the line below if you want to rerun predictions from scratch
-    run_rapid_evaluation()
+    # run_rapid_evaluation()
     
     # Only calculates metrics using already saved JSONs
     calculate_metrics()
