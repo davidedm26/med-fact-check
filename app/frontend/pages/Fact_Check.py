@@ -301,25 +301,8 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
                 <div style="color:#f8fafc; font-size:1.05rem; line-height:1.6; flex:1; overflow-y:auto; max-height: 200px; padding-right: 10px;">{just}</div>
             </div>
           </div>
-          <label for="slide-5" style="display: block; margin-top: 40px; padding: 20px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; cursor: pointer; text-align: center; transition: 0.3s; width: 100%; max-width: 900px;">
-              <span style="font-size: 1.2rem; color: #38bdf8; font-weight: bold;">👉 Choose your next move: Proceed to ACTIONS</span>
-          </label>
           <div style="height: 150px; width: 100%; flex-shrink: 0;"></div>
         """
-        
-    slide5_content = f"""
-      <div class="slide-header">Post-Analysis Actions</div>
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height: 100%; padding-top: 50px;">
-          <div style="font-size: 4rem; margin-bottom: 20px;">🚀</div>
-          <div style="color: #f8fafc; font-size: 1.8rem; font-weight: 700; margin-bottom: 15px;">
-              Analysis Complete!
-          </div>
-          <div style="color: #94a3b8; font-size: 1.1rem; text-align: center; max-width: 600px; line-height: 1.6; margin-bottom: 40px;">
-              You can now download the detailed medical report in PDF format, or start a completely new verification process using the buttons below.
-          </div>
-          <div style="height: 200px; width: 100%; flex-shrink: 0;"></div>
-      </div>
-    """
 
     if not final_verdict:
         slide4_content = f"""
@@ -356,25 +339,64 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
       {slide1_tree}
     '''
     
-    progress_percent = (step - 1) * 25
-    slide1_checked = 'checked' if step == 1 else ''
-    slide2_checked = 'checked' if step == 2 else ''
-    slide3_checked = 'checked' if step == 3 else ''
-    slide4_checked = 'checked' if step == 4 else ''
-    slide5_checked = ''
+    # Sync with active slide state
+    active_slide_str = st.session_state.get("active_slide_key", "")
+    active_slide = int(active_slide_str) if (active_slide_str and active_slide_str.isdigit()) else None
     
+    if final_verdict is not None or st.session_state.get("keep_overlay_open", False):
+        if active_slide is not None:
+            target_slide = active_slide
+        else:
+            target_slide = 4
+    else:
+        target_slide = step if step <= 4 else 4
+
+    slide1_checked = 'checked' if target_slide == 1 else ''
+    slide2_checked = 'checked' if target_slide == 2 else ''
+    slide3_checked = 'checked' if target_slide == 3 else ''
+    slide4_checked = 'checked' if target_slide == 4 else ''
+    
+    progress_percent = int((target_slide - 1) * 33.33)
+    
+    is_done = final_verdict is not None
+    
+    if is_done:
+        overlay_position = "relative !important"
+        overlay_width = "100% !important"
+        overlay_height = "auto !important"
+        overlay_overflow = "visible !important"
+        overlay_z_index = "999 !important"
+        viewport_height = "auto !important"
+        viewport_overflow = "visible !important"
+        slide_height = "auto !important"
+        slide_overflow = "visible !important"
+        slide_content_padding = "0 0 40px 0 !important"
+    else:
+        overlay_position = "fixed"
+        overlay_width = "100vw"
+        overlay_height = "100vh"
+        overlay_overflow = "hidden"
+        overlay_z_index = "9999999 !important"
+        viewport_height = "calc(100vh - 350px)"
+        viewport_overflow = "hidden"
+        slide_height = "100%"
+        slide_overflow = "hidden"
+        slide_content_padding = "0 0 50px 0"
+
     css_content = f"""
     <style>
-    .cyber-overlay {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: 9999999 !important; overflow: hidden; pointer-events: auto !important; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; }}
-    .carousel-viewport {{ width: 100vw; height: calc(100vh - 350px); position: relative; overflow: hidden; margin-top: 30px; }}
-    .slider-container {{ display: flex; width: 500vw; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }}
+    .cyber-overlay {{ position: {overlay_position}; top: 0; left: 0; width: {overlay_width}; height: {overlay_height}; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: {overlay_z_index}; overflow: {overlay_overflow}; pointer-events: auto !important; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; }}
+    div[data-testid="stHorizontalBlock"]:has(.panel-title) {{
+        display: none !important;
+    }}
+    .carousel-viewport {{ width: 100vw; height: {viewport_height}; position: relative; overflow: {viewport_overflow}; margin-top: 30px; }}
+    .slider-container {{ display: flex; width: 400vw; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }}
     #slide-1:checked ~ .carousel-viewport .slider-container {{ transform: translateX(0); }}
     #slide-2:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-100vw); }}
     #slide-3:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-200vw); }}
     #slide-4:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-300vw); }}
-    #slide-5:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-400vw); }}
-    .slide {{ width: 100vw; height: 100%; position: relative; padding: 0 80px; box-sizing: border-box; }}
-    .slide-content {{ width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; text-align: center; }}
+    .slide {{ width: 100vw; height: {slide_height}; position: relative; padding: 0 80px; box-sizing: border-box; }}
+    .slide-content {{ width: 100%; height: 100%; overflow-y: {slide_overflow}; display: flex; flex-direction: column; align-items: center; padding: {slide_content_padding}; text-align: center; }}
     .global-arrow {{ position: absolute; top: 50%; transform: translateY(-50%); background: rgba(56,189,248,0.1); color: #38bdf8; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; border: 1px solid rgba(56,189,248,0.3); z-index: 10000; }}
     .global-arrow:hover {{ background: rgba(56,189,248,0.4); color: #fff; transform: translateY(-50%) scale(1.1); }}
     .left-arrow {{ left: 30px; }}
@@ -383,7 +405,6 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     #slide-2:checked ~ .carousel-viewport .show-2 {{ display: flex; }}
     #slide-3:checked ~ .carousel-viewport .show-3 {{ display: flex; }}
     #slide-4:checked ~ .carousel-viewport .show-4 {{ display: flex; }}
-    #slide-5:checked ~ .carousel-viewport .show-5 {{ display: flex; }}
     .slide-header {{ color: rgba(248,250,252,0.6); font-size: 1.2rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; width: 100%; max-width: 900px; text-align: center; }}
     .pulse-container {{ position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }}
     .pulse-ring {{ position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid {anim_color}; animation: pulsate 2s infinite ease-out; }}
@@ -397,9 +418,8 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     .stepper-container {{ width: 100%; max-width: 500px; margin: 20px auto 0 auto; position: relative; padding-top: 10px; }}
     .stepper-line {{ position: absolute; top: 25px; left: 10%; width: 80%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; z-index: 1; }}
     .stepper-progress {{ height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8, #a78bfa, #10b981); border-radius: 2px; transition: width 0.5s ease-in-out; }}
-    #slide-5:checked ~ .stepper-container .stepper-line .stepper-progress {{ width: 100% !important; }}
     .stepper-steps {{ display: flex; justify-content: space-between; position: relative; z-index: 2; }}
-    .step {{ display: flex; flex-direction: column; align-items: center; width: 20%; position: relative; }}
+    .step {{ display: flex; flex-direction: column; align-items: center; width: 25%; position: relative; }}
     .step-dot {{ width: 30px; height: 30px; border-radius: 50%; background: #0f172a; border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: #64748b; transition: all 0.4s; margin-bottom: 8px; z-index: 2; pointer-events: none; }}
     .step.active .step-dot {{ border-color: {anim_color}; color: #f8fafc; background: #0f172a; }}
     .step-label {{ font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; text-align: center; transition: color 0.3s; margin-top: 5px; pointer-events: none; }}
@@ -410,26 +430,6 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     #slide-2:checked ~ .stepper-container .step-ui-2 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
     #slide-3:checked ~ .stepper-container .step-ui-3 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
     #slide-4:checked ~ .stepper-container .step-ui-4 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
-    #slide-5:checked ~ .stepper-container .step-ui-5 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
-    #slide-5:checked ~ .stepper-container .step-ui-5 .step-label {{ color: #e2e8f0; }}
-    
-    .action-buttons-cover {{
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100vw;
-        height: 120px;
-        background: rgba(15, 23, 42, 0.98);
-        z-index: 100000000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-top: 1px solid rgba(255,255,255,0.05);
-        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }}
-    #slide-5:checked ~ .action-buttons-cover {{
-        transform: translateY(100%);
-    }}
     </style>
     """
     
@@ -440,7 +440,6 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     <input type="radio" name="slider" id="slide-2" {slide2_checked} style="display:none;">
     <input type="radio" name="slider" id="slide-3" {slide3_checked} style="display:none;">
     <input type="radio" name="slider" id="slide-4" {slide4_checked} style="display:none;">
-    <input type="radio" name="slider" id="slide-5" {slide5_checked} style="display:none;">
     <div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
     <div class="stage-title">{central_title}</div>
     <div class="stage-subtitle">{central_subtitle}</div>
@@ -451,7 +450,6 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
             <label for="slide-2" class="step step-ui-2 {'active' if step >= 2 else ''}"><div class="step-dot">2</div><div class="step-label">RAG</div></label>
             <label for="slide-3" class="step step-ui-3 {'active' if step >= 3 else ''}"><div class="step-dot">3</div><div class="step-label">Eval</div></label>
             <label for="slide-4" class="step step-ui-4 {'active' if step >= 4 else ''}"><div class="step-dot">4</div><div class="step-label">Done</div></label>
-            <label for="slide-5" class="step step-ui-5"><div class="step-dot">5</div><div class="step-label">Actions</div></label>
         </div>
     </div>
     <div class="carousel-viewport">
@@ -460,13 +458,6 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
             <div class="slide"><div class="slide-content"><div class="slide-header">Document Retrieval Extracts (RAG)</div>{sc_html_p2}</div></div>
             <div class="slide"><div class="slide-content"><div class="slide-header">Clinical Reasoning Agent Results</div>{sc_html_p3}</div></div>
             <div class="slide"><div class="slide-content">{slide4_content}</div></div>
-            <div class="slide"><div class="slide-content">{slide5_content}</div></div>
-        </div>
-    </div>
-    {all_modals_html}
-    <div class="action-buttons-cover">
-        <div style="font-size: 1.1rem; color: #64748b; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
-            🔒 Actions locked. Proceed to the ACTIONS tab.
         </div>
     </div>
 </div>
@@ -487,6 +478,10 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
     
+    div[data-testid="stTextInput"]:has(input[aria-label="active_slide_input"]) {
+        display: none !important;
+    }
+    
     [data-testid="stSidebar"] { display: none !important; }
     [data-testid="collapsedControl"] { display: none !important; }
     [data-testid="stHeader"], header { display: none !important; height: 0px !important; padding: 0 !important; }
@@ -501,6 +496,9 @@ st.markdown("""
         padding-bottom: 0rem !important; margin: 0rem !important; max-width: 100% !important;
         width: 100% !important; min-height: 100vh !important; position: relative !important;
         box-sizing: border-box !important;
+    }
+    div[data-testid="stMainBlockContainer"]:has(.cyber-overlay) div[data-testid="stHorizontalBlock"]:has(.panel-title) {
+        display: none !important;
     }
 
     html, body { font-family: 'Inter', sans-serif; background-color: #0f172a !important; color: #f8fafc; margin: 0 !important; padding: 0 !important; }
@@ -571,6 +569,9 @@ st.markdown("""
 st.markdown('<div style="margin-top: 8rem;"></div>', unsafe_allow_html=True)
 
 # 3. WRAPPER PRINCIPALE
+st.text_input("active_slide_input", value=str(st.session_state.get("active_slide_key", "")), label_visibility="collapsed", key="active_slide_key")
+overlay_placeholder = st.empty()
+
 _, col_main, _ = st.columns([1, 14, 1])
 
 # Gestione cambio metodo input
@@ -578,7 +579,6 @@ if 'last_input_method' not in st.session_state:
     st.session_state.last_input_method = None
 
 with col_main:
-    overlay_placeholder = st.empty()
     if st.button("← Back to Home", type="secondary"):
         st.switch_page("app.py")
 
@@ -806,6 +806,7 @@ with col_main:
                                             "final": current_final,
                                             "claim": claim
                                         }
+                                        st.session_state.pdf_filename = f"FactCheck_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
                                         # Do not empty overlay, keep it and update to step 4
                                         st.session_state.selected_phase = "Done"
                                         st.session_state.results_just_arrived = False
@@ -835,6 +836,7 @@ with col_main:
                             "final": current_final,
                             "claim": claim
                         }
+                        st.session_state.pdf_filename = f"FactCheck_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
                         st.session_state.selected_phase = "Done"
                         st.session_state.results_just_arrived = False
                         st.session_state.keep_overlay_open = True
@@ -847,88 +849,147 @@ with col_main:
                 error_placeholder.error(f"❌ Failed to connect to the backend API: {str(e)}")
 
 # ==========================================
-    # 5. FINAL BUTTONS E OVERLAY MANTENUTO
-    # ==========================================
-    if st.session_state.get("keep_overlay_open", False) and st.session_state.real_results:
-        res = st.session_state.real_results
-        update_interactive_loading(
-            claim=res["claim"], 
-            step=4, 
-            subclaims=res["subclaims"], 
-            evaluations=res["evaluations"], 
-            verified_count=len(res["evaluations"]), 
-            total_to_verify=len(res["subclaims"]),
-            final_verdict=res["final"]
-        )
+# 5. FINAL BUTTONS E OVERLAY MANTENUTO
+# ==========================================
+if st.session_state.get("keep_overlay_open", False) and st.session_state.real_results:
+    res = st.session_state.real_results
+    update_interactive_loading(
+        claim=res["claim"], 
+        step=4, 
+        subclaims=res["subclaims"], 
+        evaluations=res["evaluations"], 
+        verified_count=len(res["evaluations"]), 
+        total_to_verify=len(res["subclaims"]),
+        final_verdict=res["final"]
+    )
+    
+    # CSS ottimizzato per posizionare i pulsanti in modo statico e pulito sotto i risultati
+    st.markdown("""
+        <style>
+        .slide-content {
+            padding-bottom: 20px !important; 
+        }
         
-        # FIX: CSS ottimizzato. Rimosso :has() pesante, abbassato il bottom, e rimosso il backdrop-filter ridondante
-        st.markdown("""
-            <style>
-            /* Spingiamo il contenuto dell'ultima slide in alto per non coprire i bottoni */
-            .slide-content {
-                padding-bottom: 120px !important; 
+        div[data-testid="stHorizontalBlock"]:has([class*="st-key-new_analysis_btn"]) {
+            position: static !important;
+            transform: none !important;
+            margin: 40px auto 60px auto !important;
+            max-width: 900px !important;
+            z-index: 1000 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+            gap: 20px !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Contenitore vero e proprio
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("← Back to Home", use_container_width=True, key="back_to_home_done"):
+            st.switch_page("app.py")
+
+    with col2:
+        try:
+            from utils.pdf_generator import generate_fact_check_pdf
+            from datetime import datetime
+            pdf_bytes = generate_fact_check_pdf(
+                claim=res['claim'], 
+                final_verdict=res['final'], 
+                subclaims=res['evaluations']
+            )
+            pdf_filename = st.session_state.get("pdf_filename", "FactCheck_Report.pdf")
+            st.download_button(
+                label="📄 Download PDF Report",
+                data=pdf_bytes,
+                file_name=pdf_filename,
+                mime="application/pdf",
+                use_container_width=True,
+                key="pdf_download_done"
+            )
+        except Exception as e:
+            pdf_content = "Med Fact Check Report\n" + "="*40 + "\n\n"
+            pdf_content += "Claim:\n" + res["claim"] + "\n\n"
+            pdf_content += "Verdict: " + res["final"].get("label", "NEI").upper() + "\n"
+            st.download_button("📥 Download Report", data=pdf_content, file_name="fact_check_report.txt", use_container_width=True)
+
+    with col3:
+        if st.button("🔄 New Analysis", use_container_width=True, type="primary", key="new_analysis_btn"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+
+    # JS Sync component to keep Streamlit in sync with CSS slider changes
+    components.html("""
+    <script>
+        function setupSync() {
+            const parentDoc = window.parent.document;
+            if (!parentDoc) return;
+            
+            let targetInput = parentDoc.querySelector('input[aria-label="active_slide_input"]');
+            if (!targetInput) {
+                const labels = parentDoc.querySelectorAll('label');
+                labels.forEach(label => {
+                    if (label.textContent && label.textContent.includes('active_slide_input')) {
+                        const container = label.closest('div[data-testid="stTextInput"]');
+                        if (container) {
+                            targetInput = container.querySelector('input');
+                        }
+                    }
+                });
             }
             
-            /* Target diretto all'ultimo blocco orizzontale di Streamlit che contiene i nostri bottoni */
-            div[data-testid="stHorizontalBlock"]:last-of-type {
-                position: fixed !important;
-                bottom: 20px !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                z-index: 99999999 !important;
-                background: rgba(15, 23, 42, 0.95) !important;
-                padding: 15px 30px !important;
-                border-radius: 50px !important;
-                border: 1px solid rgba(56, 189, 248, 0.5) !important;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(56, 189, 248, 0.15) !important;
-                width: auto !important;
-                min-width: 500px !important;
-                display: flex !important;
-                gap: 20px !important;
-                animation: slideUpFade 0.3s ease-out forwards;
+            if (!targetInput) {
+                setTimeout(setupSync, 50);
+                return;
             }
             
-            @keyframes slideUpFade {
-                from { opacity: 0; transform: translate(-50%, 20px); }
-                to { opacity: 1; transform: translate(-50%, 0); }
+            const radios = parentDoc.querySelectorAll('input[name="slider"]');
+            if (radios.length === 0) {
+                setTimeout(setupSync, 50);
+                return;
             }
-            </style>
-        """, unsafe_allow_html=True)
 
-        
-        # Creiamo uno spazio vuoto per spingere i bottoni in basso se il fixed fallisce
-        st.write("<br><br><br>", unsafe_allow_html=True)
-        
-        # Contenitore vero e proprio
-        col1, col2 = st.columns(2)
-        with col1:
-            try:
-                from utils.pdf_generator import generate_fact_check_pdf
-                from datetime import datetime
-                pdf_bytes = generate_fact_check_pdf(
-                    claim=res['claim'], 
-                    final_verdict=res['final'], 
-                    subclaims=res['evaluations']
-                )
-                st.download_button(
-                    label="📄 Download PDF Report",
-                    data=pdf_bytes,
-                    file_name=f"FactCheck_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True,
-                    key="pdf_download_done"
-                )
-            except Exception as e:
-                pdf_content = "Med Fact Check Report\n" + "="*40 + "\n\n"
-                pdf_content += "Claim:\n" + res["claim"] + "\n\n"
-                pdf_content += "Verdict: " + res["final"].get("label", "NEI").upper() + "\n"
-                st.download_button("📥 Download Report", data=pdf_content, file_name="fact_check_report.txt", use_container_width=True)
+            // Sync immediately on load if client checked state differs from targetInput value
+            const checkedRadio = parentDoc.querySelector('input[name="slider"]:checked');
+            if (checkedRadio) {
+                const activeIndex = checkedRadio.id.split('-')[1];
+                if (targetInput.value !== activeIndex) {
+                    targetInput.value = activeIndex;
+                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
 
-        with col2:
-            if st.button("🔄 New Analysis", use_container_width=True, type="primary", key="new_analysis_btn"):
-                for key in list(st.session_state.keys()):
-                    del st.session_state[key]
-                st.rerun()
+            radios.forEach(radio => {
+                radio.removeEventListener('change', radio._syncHandler);
+                
+                const handler = (e) => {
+                    if (e.target.checked) {
+                        const slideIndex = e.target.id.split('-')[1];
+                        if (targetInput.value !== slideIndex) {
+                            targetInput.value = slideIndex;
+                            targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                };
+                radio._syncHandler = handler;
+                radio.addEventListener('change', handler);
+            });
+        }
+        
+        setupSync();
+        for (let t of [100, 200, 500, 1000]) {
+            setTimeout(setupSync, t);
+        }
+    </script>
+    """, height=0, width=0)
 
 st.markdown("""
 <div class="footer">
