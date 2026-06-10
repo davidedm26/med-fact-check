@@ -23,18 +23,41 @@ graph TD
 - **Prompt Logic**: Instructs the LLM to extract BOTH factual assertions and subjective opinions, splitting compound sentences into atomic predicates. It forces coreference resolution (replacing pronouns with actual nouns) and conditional propagation (attaching "if X" to all related subclaims).
 - **Output**: An array of `predicates`, where each predicate contains a `relation`, `subject`, `object`, and a natural language `search_query`.
 
+  **Decomposition Example:**
+  *"Metformin reduces the risk of cardiovascular events, but it significantly increases the risk of lactic acidosis."*
+  
+  ```mermaid
+  graph LR
+      Original["Original Claim"] --> P1["Predicate 1"]
+      Original --> P2["Predicate 2"]
+      
+      P1 --> S1["Subject: Metformin"]
+      P1 --> R1["Relation: reduces risk of"]
+      P1 --> O1["Object: cardiovascular events"]
+      P1 -.-> Q1[/"Query: Metformin reduces risk of cardiovascular events"/]
+      
+      P2 --> S2["Subject: Metformin"]
+      P2 --> R2["Relation: significantly increases risk of"]
+      P2 --> O2["Object: lactic acidosis"]
+      P2 -.-> Q2[/"Query: Metformin significantly increases risk of lactic acidosis"/]
+      
+      style Original fill:#f9f,stroke:#333,stroke-width:2px
+      style Q1 fill:#e1f5fe,stroke:#0288d1,stroke-dasharray: 5 5
+      style Q2 fill:#e1f5fe,stroke:#0288d1,stroke-dasharray: 5 5
+  ```
+
 ### B. `claim_classification`
 - **Agent**: `classification_agent` (LLM with `claim_classification` schema)
-- **Prompt Logic**: Acts as a strict gatekeeper. It evaluates the `search_query` of each predicate and assigns one of three labels:
+- **Prompt Logic**: Acts as a strict gatekeeper. It first extracts only the natural language `search_query` from each predicate and removes duplicates to optimize the LLM call (skipping the LLM entirely if no valid queries are found). It evaluates each unique query and assigns one of three labels:
   - `verifiable`: Objective assertions related to medicine/biology.
   - `non-verifiable`: Subjective opinions, vague anecdotes, or normative statements.
   - `out-of-domain`: Verifiable facts that are not related to healthcare (e.g., tech, finance, pop culture).
-- **Output**: A mapped `predicate_type_dict`.
+- **Output**: A mapped `predicate_type_dict` containing the queries and their assigned types.
 
 ### C. `claim_filter`
 - **Agent**: Pure Python logic (No LLM).
-- **Action**: Iterates through the classification dictionary. It discards anything marked `non-verifiable` or `out-of-domain`.
-- **Output**: The final array of `verifiable_subclaims` that will be sent back to the Main Graph to trigger the Map-Reduce verification process.
+- **Action**: Iterates through the classification dictionary. It discards anything marked `non-verifiable` or `out-of-domain`, extracting only the string text of the verified queries.
+- **Output**: The final array of `verifiable_subclaims` (as raw strings) that will be sent back to the Main Graph to trigger the Map-Reduce verification process.
 
 ---
 
@@ -42,9 +65,9 @@ graph TD
 
 As you plan your refactoring, here are the architectural weak points and opportunities for optimization in this team:
 
-> [!WARNING]
-> **Lack of Fallback / Error Handling**
-> Currently, if `decomposition_agent` fails to produce valid JSON (e.g., returns `None` for predicates), the code has a placeholder `pass # TO DO` (line 31) and proceeds anyway, which will crash the downstream `claim_classification` node. Implementing a retry loop with LangGraph conditional edges (e.g., `if failed -> loop back to decompose`) is highly recommended.
+> [!NOTE]
+> **Soft Fallback Implemented**
+> To prevent pipeline crashes if the `decomposition_agent` fails to produce valid JSON, a minimal "soft fallback" is now in place. Instead of looping or crashing, the node gracefully falls back to using the user's original raw claim as a single `search_query` predicate. This guarantees that the ingestion layer never blocks the execution, delegating the entire claim verification directly to the downstream nodes.
 
 > [!TIP]
 > **Agent Consolidation (Cost & Latency Reduction)**
