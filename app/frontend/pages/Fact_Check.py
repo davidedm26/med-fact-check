@@ -18,33 +18,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-def autoscroll_to_results():
-    """Esegue l'autoscroll alla sezione dei risultati in modo affidabile"""
-    components.html("""
-    <script>
-        function scrollToResults() {
-            const anchor = window.parent.document.getElementById('results-anchor');
-            
-            if (anchor) {
-                anchor.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start',
-                    inline: 'nearest'
-                });
-            } else {
-                const totalHeight = document.body.scrollHeight;
-                window.parent.scrollTo({
-                    top: totalHeight * 0.5,
-                    behavior: 'smooth'
-                });
-            }
-        }
-        
-        // Esegui dopo che la pagina è caricata
-        setTimeout(scrollToResults, 500);
-        setTimeout(scrollToResults, 1500);
-    </script>
-    """, height=0, width=0)
+
 
 # Funzione per dividere il testo in frasi
 def split_into_sentences(text):
@@ -69,27 +43,30 @@ def render_claim_checklist(sentences, context=""):
     if not sentences:
         return []
     
-    st.markdown("### 📋 Seleziona i Claim da Verificare")
+    st.markdown("### 📋 Select Claims to Verify")
     
     if context:
-        st.info(f"📄 **Contesto:** {context}")
+        st.info(f"📄 **Context:** {context}")
+    
+    # Inizializza la sessione per i claim selezionati
+    if 'selected_claims' not in st.session_state:
+        st.session_state.selected_claims = {}
     
     # Pulsanti per selezione rapida
-    col_select_all, col_deselect_all = st.columns([1, 1])
-    
+    col_select_all, col_deselect_all, col_info = st.columns([1, 1, 2])
     with col_select_all:
-        if st.button("✅ Seleziona Tutti", use_container_width=True):
-            # Imposta TUTTE le checkbox come selezionate
+        if st.button("✅ Select All", use_container_width=True):
             for i in range(len(sentences)):
-                st.session_state[f"claim_cb_{i}"] = True
-            st.rerun()
+                st.session_state.selected_claims[i] = True
     
     with col_deselect_all:
-        if st.button("❌ Deseleziona Tutti", use_container_width=True):
-            # Imposta TUTTE le checkbox come NON selezionate
+        if st.button("❌ Deselect All", use_container_width=True):
             for i in range(len(sentences)):
-                st.session_state[f"claim_cb_{i}"] = False
-            st.rerun()
+                st.session_state.selected_claims[i] = False
+    
+    with col_info:
+        selected_count = sum(1 for v in st.session_state.selected_claims.values() if v)
+        st.markdown(f"**{selected_count}/{len(sentences)} claims selected**")
     
     st.markdown("---")
     
@@ -97,20 +74,18 @@ def render_claim_checklist(sentences, context=""):
     selected_claims = []
     
     for i, sentence in enumerate(sentences):
-        # Inizializza la chiave della checkbox se non esiste
-        cb_key = f"claim_cb_{i}"
-        if cb_key not in st.session_state:
-            st.session_state[cb_key] = False
+        is_selected = st.session_state.selected_claims.get(i, False)
         
         col_check, col_text = st.columns([0.1, 0.9])
         
         with col_check:
-            # La checkbox usa direttamente la sua key nel session_state
             checked = st.checkbox(
-                " ",
-                key=cb_key,
+                f"##{i}",
+                value=is_selected,
+                key=f"claim_{i}",
                 label_visibility="collapsed"
             )
+            st.session_state.selected_claims[i] = checked
         
         with col_text:
             preview = sentence[:200] + "..." if len(sentence) > 200 else sentence
@@ -141,6 +116,7 @@ def render_claim_checklist(sentences, context=""):
                 """, unsafe_allow_html=True)
     
     return selected_claims
+
 
 # Funzione per evidenziare le citazioni
 def highlight_quotes(text, supp, ref):
@@ -206,7 +182,7 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
                 for srcs in source_selections.values():
                     all_selected.update(srcs)
                 sources_str = ", ".join(sorted(all_selected))
-                central_subtitle = f"Fonti selezionate: {sources_str}"
+                central_subtitle = f"Selected Sources: {sources_str}"
             else:
                 central_subtitle = "Selecting sources and preparing queries..."
             anim_color = "#818cf8"
@@ -260,7 +236,7 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
                 has_modal = bool(ev_data)
                 
             if has_modal:
-                card_html = f"<label for='modal-p{target_phase}-{i}' style='display:block; cursor:pointer; position:relative; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left; transition: transform 0.2s, border-color 0.2s;'><div style='position:absolute; right:10px; bottom:10px; font-size:4rem; opacity:0.04; pointer-events:none; z-index:0;'>🔍</div><div style='position:relative; z-index:2; font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='position:relative; z-index:2; font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='position:relative; z-index:2; font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div>"
+                card_html = f"<label for='modal-p{target_phase}-{i}' style='display:block; cursor:pointer; position:relative; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left; transition: transform 0.2s, border-color 0.2s;'><span style='position:absolute; right:10px; bottom:10px; font-size:4rem; opacity:0.04; pointer-events:none; z-index:0;'>🔍</span><span style='display:block; position:relative; z-index:2; font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px; pointer-events:none;'>SUBCLAIM {i+1}</span><span style='display:block; position:relative; z-index:2; font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4; pointer-events:none;'>\"{sc}\"</span><span style='display:block; position:relative; z-index:2; font-size:0.8rem; font-weight:600; color:#38bdf8; pointer-events:none;'>{status}</span>"
             else:
                 card_html = f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div>"
             if has_modal:
@@ -325,8 +301,27 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
                 <div style="color:#f8fafc; font-size:1.05rem; line-height:1.6; flex:1; overflow-y:auto; max-height: 200px; padding-right: 10px;">{just}</div>
             </div>
           </div>
+          <label for="slide-5" style="display: block; margin-top: 40px; padding: 20px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; cursor: pointer; text-align: center; transition: 0.3s; width: 100%; max-width: 900px;">
+              <span style="font-size: 1.2rem; color: #38bdf8; font-weight: bold;">👉 Choose your next move: Proceed to ACTIONS</span>
+          </label>
+          <div style="height: 150px; width: 100%; flex-shrink: 0;"></div>
         """
-    else:
+        
+    slide5_content = f"""
+      <div class="slide-header">Post-Analysis Actions</div>
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height: 100%; padding-top: 50px;">
+          <div style="font-size: 4rem; margin-bottom: 20px;">🚀</div>
+          <div style="color: #f8fafc; font-size: 1.8rem; font-weight: 700; margin-bottom: 15px;">
+              Analysis Complete!
+          </div>
+          <div style="color: #94a3b8; font-size: 1.1rem; text-align: center; max-width: 600px; line-height: 1.6; margin-bottom: 40px;">
+              You can now download the detailed medical report in PDF format, or start a completely new verification process using the buttons below.
+          </div>
+          <div style="height: 200px; width: 100%; flex-shrink: 0;"></div>
+      </div>
+    """
+
+    if not final_verdict:
         slide4_content = f"""
           <div class="slide-header">Final Consensus & Aggregation</div>
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
@@ -361,19 +356,23 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
       {slide1_tree}
     '''
     
-    progress_percent = (step - 1) * 33.33
+    progress_percent = (step - 1) * 25
     slide1_checked = 'checked' if step == 1 else ''
     slide2_checked = 'checked' if step == 2 else ''
     slide3_checked = 'checked' if step == 3 else ''
+    slide4_checked = 'checked' if step == 4 else ''
+    slide5_checked = ''
     
     css_content = f"""
     <style>
     .cyber-overlay {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: 9999999 !important; overflow: hidden; pointer-events: auto !important; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; }}
     .carousel-viewport {{ width: 100vw; height: calc(100vh - 350px); position: relative; overflow: hidden; margin-top: 30px; }}
-    .slider-container {{ display: flex; width: 300vw; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }}
+    .slider-container {{ display: flex; width: 500vw; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }}
     #slide-1:checked ~ .carousel-viewport .slider-container {{ transform: translateX(0); }}
     #slide-2:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-100vw); }}
     #slide-3:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-200vw); }}
+    #slide-4:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-300vw); }}
+    #slide-5:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-400vw); }}
     .slide {{ width: 100vw; height: 100%; position: relative; padding: 0 80px; box-sizing: border-box; }}
     .slide-content {{ width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; text-align: center; }}
     .global-arrow {{ position: absolute; top: 50%; transform: translateY(-50%); background: rgba(56,189,248,0.1); color: #38bdf8; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; border: 1px solid rgba(56,189,248,0.3); z-index: 10000; }}
@@ -383,6 +382,8 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     #slide-1:checked ~ .carousel-viewport .show-1 {{ display: flex; }}
     #slide-2:checked ~ .carousel-viewport .show-2 {{ display: flex; }}
     #slide-3:checked ~ .carousel-viewport .show-3 {{ display: flex; }}
+    #slide-4:checked ~ .carousel-viewport .show-4 {{ display: flex; }}
+    #slide-5:checked ~ .carousel-viewport .show-5 {{ display: flex; }}
     .slide-header {{ color: rgba(248,250,252,0.6); font-size: 1.2rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; width: 100%; max-width: 900px; text-align: center; }}
     .pulse-container {{ position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }}
     .pulse-ring {{ position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid {anim_color}; animation: pulsate 2s infinite ease-out; }}
@@ -394,58 +395,91 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     .stage-title {{ font-size: 2rem; font-weight: 800; color: #f8fafc; letter-spacing: 1px; margin: 0 0 5px 0; text-align: center; }}
     .stage-subtitle {{ font-size: 1rem; color: #94a3b8; font-weight: 400; text-align: center; max-width: 600px; line-height:1.5; }}
     .stepper-container {{ width: 100%; max-width: 500px; margin: 20px auto 0 auto; position: relative; padding-top: 10px; }}
-    .stepper-line {{ position: absolute; top: 25px; left: 12.5%; width: 75%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; z-index: 1; }}
+    .stepper-line {{ position: absolute; top: 25px; left: 10%; width: 80%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; z-index: 1; }}
     .stepper-progress {{ height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8, #a78bfa, #10b981); border-radius: 2px; transition: width 0.5s ease-in-out; }}
+    #slide-5:checked ~ .stepper-container .stepper-line .stepper-progress {{ width: 100% !important; }}
     .stepper-steps {{ display: flex; justify-content: space-between; position: relative; z-index: 2; }}
-    .step {{ display: flex; flex-direction: column; align-items: center; width: 25%; position: relative; }}
-    .step-dot {{ width: 30px; height: 30px; border-radius: 50%; background: #0f172a; border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: #64748b; transition: all 0.4s; margin-bottom: 8px; z-index: 2; }}
+    .step {{ display: flex; flex-direction: column; align-items: center; width: 20%; position: relative; }}
+    .step-dot {{ width: 30px; height: 30px; border-radius: 50%; background: #0f172a; border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: #64748b; transition: all 0.4s; margin-bottom: 8px; z-index: 2; pointer-events: none; }}
     .step.active .step-dot {{ border-color: {anim_color}; color: #f8fafc; background: #0f172a; }}
-    .step-label {{ font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; text-align: center; transition: color 0.3s; margin-top: 5px; }}
+    .step-label {{ font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; text-align: center; transition: color 0.3s; margin-top: 5px; pointer-events: none; }}
     .step.active .step-label {{ color: #e2e8f0; }}
     .step {{ cursor: pointer; }}
     .step:hover {{ opacity: 0.8; }}
     #slide-1:checked ~ .stepper-container .step-ui-1 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
     #slide-2:checked ~ .stepper-container .step-ui-2 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
     #slide-3:checked ~ .stepper-container .step-ui-3 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
+    #slide-4:checked ~ .stepper-container .step-ui-4 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
+    #slide-5:checked ~ .stepper-container .step-ui-5 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
+    #slide-5:checked ~ .stepper-container .step-ui-5 .step-label {{ color: #e2e8f0; }}
+    
+    .action-buttons-cover {{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 120px;
+        background: rgba(15, 23, 42, 0.98);
+        z-index: 100000000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }}
+    #slide-5:checked ~ .action-buttons-cover {{
+        transform: translateY(100%);
+    }}
     </style>
     """
     
-    html_structure = f"""
-    {modal_css}
-    {css_content}
-    <div class="cyber-overlay">
-        <input type="radio" name="slider" id="slide-1" {slide1_checked} style="display:none;">
-        <input type="radio" name="slider" id="slide-2" {slide2_checked} style="display:none;">
-        <input type="radio" name="slider" id="slide-3" {slide3_checked} style="display:none;">
-        <div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
-        <div class="stage-title">{central_title}</div>
-        <div class="stage-subtitle">{central_subtitle}</div>
-        <div class="stepper-container">
-            <div class="stepper-line"><div class="stepper-progress" style="width: {progress_percent}%;"></div></div>
-            <div class="stepper-steps">
-                <label for="slide-1" class="step step-ui-1 {'active' if step >= 1 else ''}"><div class="step-dot">1</div><div class="step-label">Input</div></label>
-                <label for="slide-2" class="step step-ui-2 {'active' if step >= 2 else ''}"><div class="step-dot">2</div><div class="step-label">RAG</div></label>
-                <label for="slide-3" class="step step-ui-3 {'active' if step >= 3 else ''}"><div class="step-dot">3</div><div class="step-label">Eval</div></label>
-                <label for="slide-1" class="step step-ui-4 {'active' if step >= 4 else ''}"><div class="step-dot">4</div><div class="step-label">Done</div></label>
-            </div>
+    html_structure = f"""{modal_css}
+{css_content}
+<div class="cyber-overlay" id="main-cyber-overlay">
+    <input type="radio" name="slider" id="slide-1" {slide1_checked} style="display:none;">
+    <input type="radio" name="slider" id="slide-2" {slide2_checked} style="display:none;">
+    <input type="radio" name="slider" id="slide-3" {slide3_checked} style="display:none;">
+    <input type="radio" name="slider" id="slide-4" {slide4_checked} style="display:none;">
+    <input type="radio" name="slider" id="slide-5" {slide5_checked} style="display:none;">
+    <div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
+    <div class="stage-title">{central_title}</div>
+    <div class="stage-subtitle">{central_subtitle}</div>
+    <div class="stepper-container">
+        <div class="stepper-line"><div class="stepper-progress" style="width: {progress_percent}%;"></div></div>
+        <div class="stepper-steps">
+            <label for="slide-1" class="step step-ui-1 {'active' if step >= 1 else ''}"><div class="step-dot">1</div><div class="step-label">Input</div></label>
+            <label for="slide-2" class="step step-ui-2 {'active' if step >= 2 else ''}"><div class="step-dot">2</div><div class="step-label">RAG</div></label>
+            <label for="slide-3" class="step step-ui-3 {'active' if step >= 3 else ''}"><div class="step-dot">3</div><div class="step-label">Eval</div></label>
+            <label for="slide-4" class="step step-ui-4 {'active' if step >= 4 else ''}"><div class="step-dot">4</div><div class="step-label">Done</div></label>
+            <label for="slide-5" class="step step-ui-5"><div class="step-dot">5</div><div class="step-label">Actions</div></label>
         </div>
-        <div class="carousel-viewport">
-            <div class="slider-container">
-                <div class="slide"><div class="slide-content">{slide1_content}</div></div>
-                <div class="slide"><div class="slide-content"><div class="slide-header">Document Retrieval Extracts (RAG)</div>{sc_html_p2}</div></div>
-                <div class="slide"><div class="slide-content"><div class="slide-header">Clinical Reasoning Agent Results</div>{sc_html_p3}</div></div>
-            </div>
-        </div>
-        {all_modals_html}
     </div>
-    """
+    <div class="carousel-viewport">
+        <div class="slider-container">
+            <div class="slide"><div class="slide-content">{slide1_content}</div></div>
+            <div class="slide"><div class="slide-content"><div class="slide-header">Document Retrieval Extracts (RAG)</div>{sc_html_p2}</div></div>
+            <div class="slide"><div class="slide-content"><div class="slide-header">Clinical Reasoning Agent Results</div>{sc_html_p3}</div></div>
+            <div class="slide"><div class="slide-content">{slide4_content}</div></div>
+            <div class="slide"><div class="slide-content">{slide5_content}</div></div>
+        </div>
+    </div>
+    {all_modals_html}
+    <div class="action-buttons-cover">
+        <div style="font-size: 1.1rem; color: #64748b; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
+            🔒 Actions locked. Proceed to the ACTIONS tab.
+        </div>
+    </div>
+</div>
+"""
     
-    html_content = html_structure
+    # Remove all blank lines and indentation to force Streamlit to parse it as a single contiguous HTML block.
+    # This prevents both the Markdown code block bug and the max-line-length crash in markdown-it-py.
+    html_content = "\n".join([line.strip() for line in html_structure.split('\n') if line.strip()])
+    
     try:
         overlay_placeholder.markdown(html_content, unsafe_allow_html=True)
     except Exception as e:
-        st.error(f"Rendering error: {str(e)}")
-        components.html(html_content, height=1200)
+        error_placeholder.error(f"Rendering error: {str(e)}")
 
 
 # 2. CSS Avanzato Originale
@@ -518,6 +552,10 @@ st.markdown("""
     div.stButton > button[kind="secondary"] p { color: #cbd5e1 !important; font-weight: 600 !important; }
     div.stButton > button[kind="secondary"]:hover { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.1) !important; color: #38bdf8 !important; }
     
+    /* Change color of radio buttons labels to match subtitle */
+    div[data-testid="stRadio"] label[data-testid="stWidgetLabel"] p { color: #94a3b8 !important; }
+    div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #94a3b8 !important; }
+    
     .footer { width: 100%; text-align: center; padding: 2rem 0; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); background-color: #0b1120; margin-top: 150px; display: block; }
     .streamlit-expanderHeader { font-size: 1.1rem !important; font-weight: 600 !important; color: #f8fafc !important; }
     </style>
@@ -566,7 +604,7 @@ with col_main:
                 file_content = uploaded_file.getvalue().decode("utf-8")
                 
                 # Mostra preview del file
-                with st.expander("📄 Contenuto del File", expanded=True):
+                with st.expander("📄 File Content", expanded=True):
                     st.text_area(
                         "File Content:", 
                         value=file_content[:1000] + ("..." if len(file_content) > 1000 else ""), 
@@ -578,7 +616,7 @@ with col_main:
                 sentences = split_into_sentences(file_content)
                 
                 if sentences:
-                    st.markdown(f"**📊 Trovate {len(sentences)} frasi nel documento**")
+                    st.markdown(f"**📊 Found {len(sentences)} sentences in the document**")
                     
                     # Usa la checklist per selezionare i claim
                     selected_claims = render_claim_checklist(
@@ -589,10 +627,10 @@ with col_main:
                     # Combina i claim selezionati
                     if selected_claims:
                         claim = " ".join(selected_claims)
-                        st.success(f"✅ {len(selected_claims)} claim selezionati per la verifica")
+                        st.success(f"✅ {len(selected_claims)} claims selected for verification")
                         
                         # Mostra i claim selezionati
-                        with st.expander("📋 Claim Selezionati", expanded=False):
+                        with st.expander("📋 Selected Claims", expanded=False):
                             for i, sc in enumerate(selected_claims):
                                 st.markdown(f"""
                                 <div style="background: rgba(16, 185, 129, 0.1); 
@@ -605,9 +643,9 @@ with col_main:
                                 </div>
                                 """, unsafe_allow_html=True)
                     else:
-                        st.warning("⚠️ Seleziona almeno un claim da verificare")
+                        st.warning("⚠️ Please select at least one claim to verify")
                 else:
-                    st.warning("⚠️ Nessuna frase valida trovata nel documento")
+                    st.warning("⚠️ No valid sentences found in the document")
                     
         elif input_method == "🔗 Provide URL":
             url_input = st.text_input("Enter Article URL:", placeholder="https://example.com/article")
@@ -623,10 +661,10 @@ with col_main:
                                 for script in soup(["script", "style"]):
                                     script.extract()
                                 page_content = soup.get_text(separator=' ', strip=True)
-                                st.success("✅ Contenuto caricato con successo!")
+                                st.success("✅ Content fetched successfully!")
                                 
                                 # Mostra preview del contenuto
-                                with st.expander("🌐 Contenuto della Pagina", expanded=True):
+                                with st.expander("🌐 Page Content", expanded=True):
                                     preview = page_content[:1000] + ("..." if len(page_content) > 1000 else "")
                                     st.text_area(
                                         "Page Content:", 
@@ -639,7 +677,7 @@ with col_main:
                                 sentences = split_into_sentences(page_content)
                                 
                                 if sentences:
-                                    st.markdown(f"**📊 Trovate {len(sentences)} frasi nella pagina**")
+                                    st.markdown(f"**📊 Found {len(sentences)} sentences on the page**")
                                     
                                     # Usa la checklist per selezionare i claim
                                     selected_claims = render_claim_checklist(
@@ -650,10 +688,10 @@ with col_main:
                                     # Combina i claim selezionati
                                     if selected_claims:
                                         claim = " ".join(selected_claims)
-                                        st.success(f"✅ {len(selected_claims)} claim selezionati per la verifica")
+                                        st.success(f"✅ {len(selected_claims)} claims selected for verification")
                                         
                                         # Mostra i claim selezionati
-                                        with st.expander("📋 Claim Selezionati", expanded=False):
+                                        with st.expander("📋 Selected Claims", expanded=False):
                                             for i, sc in enumerate(selected_claims):
                                                 st.markdown(f"""
                                                 <div style="background: rgba(16, 185, 129, 0.1); 
@@ -666,9 +704,9 @@ with col_main:
                                                 </div>
                                                 """, unsafe_allow_html=True)
                                     else:
-                                        st.warning("⚠️ Seleziona almeno un claim da verificare")
+                                        st.warning("⚠️ Please select at least one claim to verify")
                                 else:
-                                    st.warning("⚠️ Nessuna frase valida trovata nella pagina")
+                                    st.warning("⚠️ No valid sentences found on the page")
                             else:
                                 st.error(f"Failed to fetch URL. Status code: {res.status_code}")
                     except Exception as e:
@@ -711,6 +749,7 @@ with col_main:
                 response = requests.post("http://127.0.0.1:8000/api/v1/fact-check-stream", json={"claim": claim}, stream=True, timeout=900)
                 
                 if response.status_code == 200:
+                    error_occurred = False
                     for line in response.iter_lines():
                         if line:
                             decoded_line = line.decode('utf-8')
@@ -721,6 +760,7 @@ with col_main:
                                     if "error" in step_data:
                                         overlay_placeholder.empty()
                                         error_placeholder.error(f"❌ Pipeline Error: {step_data['error']}")
+                                        error_occurred = True
                                         break
                                     
                                     if "decompose" in step_data:
@@ -733,19 +773,19 @@ with col_main:
                                     elif "source_selector" in step_data:
                                         info = step_data["source_selector"]
                                         sub_id = info.get("subclaim_id")
-                                        if sub_id: st.session_state.source_selections[sub_id] = [k for k, v in (info.get("retrieval_source") or {}).items() if v > 1]
+                                        if sub_id: st.session_state.source_selections[sub_id] = [k for k, v in (info.get("retrieval_source") or {}).items() if v > 0]
                                         update_interactive_loading(claim=claim, step=2, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
                                         
                                     elif "downloader_agent" in step_data:
                                         info = step_data["downloader_agent"]
                                         sub_id = info.get("subclaim_id")
-                                        if sub_id: st.session_state.downloader_status[sub_id] = info.get("downloaded_chunks_count", 0)
+                                        if sub_id: st.session_state.downloader_status[sub_id] = len(info.get("downloaded_chunks", []))
                                         update_interactive_loading(claim=claim, step=2, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
                                         
                                     elif "hybrid_retriever" in step_data:
                                         info = step_data["hybrid_retriever"]
                                         sub_id = info.get("subclaim_id")
-                                        if sub_id: st.session_state.retriever_status[sub_id] = info.get("retrieved_chunks_count", 0)
+                                        if sub_id: st.session_state.retriever_status[sub_id] = len(info.get("retrieved_chunks", []))
                                         st.session_state.max_step = max(st.session_state.get("max_step", 1), 2)
                                         update_interactive_loading(claim=claim, step=st.session_state.max_step, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=len(st.session_state.current_evaluations), total_to_verify=len(st.session_state.current_subclaims))
                                         
@@ -766,15 +806,39 @@ with col_main:
                                             "final": current_final,
                                             "claim": claim
                                         }
-                                        overlay_placeholder.empty()
-                                        # Forza la fase DONE
+                                        # Do not empty overlay, keep it and update to step 4
                                         st.session_state.selected_phase = "Done"
                                         st.session_state.results_just_arrived = False
-                                        autoscroll_to_results()
-
+                                        update_interactive_loading(
+                                            claim=claim, 
+                                            step=4, 
+                                            subclaims=st.session_state.current_subclaims, 
+                                            evaluations=st.session_state.current_evaluations, 
+                                            verified_count=len(st.session_state.current_evaluations), 
+                                            total_to_verify=len(st.session_state.current_subclaims),
+                                            final_verdict=current_final
+                                        )
+                                        st.session_state.keep_overlay_open = True
                                         st.rerun()
                                 except json.JSONDecodeError:
                                     pass
+                    
+                    if not error_occurred and not st.session_state.get("keep_overlay_open", False):
+                        current_final = {
+                            "label": "not_enough_information",
+                            "confidence": 1.0,
+                            "reasoning": "The input text did not contain any verifiable medical claims."
+                        }
+                        st.session_state.real_results = {
+                            "subclaims": st.session_state.current_subclaims,
+                            "evaluations": st.session_state.current_evaluations,
+                            "final": current_final,
+                            "claim": claim
+                        }
+                        st.session_state.selected_phase = "Done"
+                        st.session_state.results_just_arrived = False
+                        st.session_state.keep_overlay_open = True
+                        st.rerun()
                 else:
                     overlay_placeholder.empty()
                     error_placeholder.error(f"❌ Backend Connection Error (Status Code: {response.status_code})")
@@ -782,279 +846,89 @@ with col_main:
                 overlay_placeholder.empty()
                 error_placeholder.error(f"❌ Failed to connect to the backend API: {str(e)}")
 
+# ==========================================
+    # 5. FINAL BUTTONS E OVERLAY MANTENUTO
     # ==========================================
-    # 5. DASHBOARD RISULTATI
-    # ==========================================
-    if st.session_state.real_results:
+    if st.session_state.get("keep_overlay_open", False) and st.session_state.real_results:
         res = st.session_state.real_results
+        update_interactive_loading(
+            claim=res["claim"], 
+            step=4, 
+            subclaims=res["subclaims"], 
+            evaluations=res["evaluations"], 
+            verified_count=len(res["evaluations"]), 
+            total_to_verify=len(res["subclaims"]),
+            final_verdict=res["final"]
+        )
         
-        # Forza la fase DONE quando i risultati sono appena arrivati
-        if 'results_just_arrived' not in st.session_state:
-            st.session_state.results_just_arrived = False
-        
-        if not st.session_state.results_just_arrived:
-            st.session_state.selected_phase = "Done"
-            st.session_state.results_just_arrived = True
-        autoscroll_to_results()
-        # Fix della confidence
-        raw_conf = res['final'].get("confidence", res['final'].get("confidence_score", 0.0))
-        try:
-            raw_conf = float(raw_conf)
-        except:
-            raw_conf = 0.0
-        
-        if raw_conf < 0.01 and res['evaluations']:
-            confs = []
-            for e in res['evaluations']:
-                try:
-                    confs.append(float(e.get("confidence", e.get("confidence_score", 0.0))))
-                except:
-                    pass
-            if confs:
-                raw_conf = sum(confs) / len(confs)
-            
-        res['final']['confidence'] = raw_conf
-        avg_conf_percent = (raw_conf * 100) if raw_conf <= 1.0 else raw_conf
-        
-        st.markdown("<div id='results-anchor'></div>", unsafe_allow_html=True)
-        st.markdown("<hr style='border-color:rgba(255,255,255,0.05); margin: 2rem 0;'>", unsafe_allow_html=True)
-        
-        # CSS per la dashboard
+        # FIX: CSS ottimizzato. Rimosso :has() pesante, abbassato il bottom, e rimosso il backdrop-filter ridondante
         st.markdown("""
             <style>
-            div[role="radiogroup"][aria-orientation="vertical"] { gap: 0; position: relative; padding-left: 20px; margin-top: 20px; }
-            div[role="radiogroup"][aria-orientation="vertical"]::before { content: ''; position: absolute; left: 34px; top: 30px; bottom: 30px; width: 2px; background: rgba(255,255,255,0.15); z-index: 0; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label { padding: 25px 0 25px 50px; cursor: pointer; display: flex; align-items: center; background: transparent !important; border: none !important; margin: 0; position: relative; z-index: 1; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label > div:first-child { display: none !important; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label::before { content: ''; position: absolute; left: 19px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: #0f172a; border: 2px solid rgba(255, 255, 255, 0.2); z-index: 2; transition: 0.3s; display:flex; align-items:center; justify-content:center; color:#64748b; font-weight:bold; font-size:13px; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label:nth-child(1)::before { content: '1'; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label:nth-child(2)::before { content: '2'; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label:nth-child(3)::before { content: '3'; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label:nth-child(4)::before { content: '4'; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label[data-checked="true"]:nth-child(1)::before { border-color: #38bdf8; background: #0f172a; box-shadow: 0 0 15px #38bdf8; color: #38bdf8; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label[data-checked="true"]:nth-child(2)::before { border-color: #818cf8; background: #0f172a; box-shadow: 0 0 15px #818cf8; color: #818cf8; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label[data-checked="true"]:nth-child(3)::before { border-color: #a78bfa; background: #0f172a; box-shadow: 0 0 15px #a78bfa; color: #a78bfa; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label[data-checked="true"]:nth-child(4)::before { border-color: #10b981; background: #0f172a; box-shadow: 0 0 15px #10b981; color: #10b981; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label p { color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin: 0; transition: 0.3s; }
-            div[role="radiogroup"][aria-orientation="vertical"] > label[data-checked="true"] p { color: #f8fafc; font-weight: 800; }
+            /* Spingiamo il contenuto dell'ultima slide in alto per non coprire i bottoni */
+            .slide-content {
+                padding-bottom: 120px !important; 
+            }
             
-            .modal-wrapper { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:10000000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
-            .modal-toggle:checked + .modal-wrapper { display:flex !important; }
-            .modal-card { background:#0f172a; border:1px solid #38bdf8; border-radius:16px; padding:2.5rem; max-width:850px; width:90%; max-height:85vh; overflow-y:auto; box-shadow:0 0 40px rgba(56,189,248,0.4); position:relative; animation:zoomIn 0.3s forwards; text-align:left; }
-            @keyframes zoomIn { 0% { transform:scale(0.8); opacity:0; } 100% { transform:scale(1); opacity:1; } }
-            .close-btn { position:absolute; top:20px; right:20px; cursor:pointer; color:#f8fafc; background:#ef4444; width:35px; height:35px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; z-index:9999; }
-            .card-btn { display:block; cursor:pointer; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:15px 20px; border-radius:12px; transition: 0.2s; position:relative; text-align:left; margin-bottom: 15px;}
-            .card-btn:hover { background:rgba(255,255,255,0.06); transform:translateY(-3px); box-shadow:0 5px 15px rgba(0,0,0,0.3); border-color:#38bdf8; }
+            /* Target diretto all'ultimo blocco orizzontale di Streamlit che contiene i nostri bottoni */
+            div[data-testid="stHorizontalBlock"]:last-of-type {
+                position: fixed !important;
+                bottom: 20px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                z-index: 99999999 !important;
+                background: rgba(15, 23, 42, 0.95) !important;
+                padding: 15px 30px !important;
+                border-radius: 50px !important;
+                border: 1px solid rgba(56, 189, 248, 0.5) !important;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(56, 189, 248, 0.15) !important;
+                width: auto !important;
+                min-width: 500px !important;
+                display: flex !important;
+                gap: 20px !important;
+                animation: slideUpFade 0.3s ease-out forwards;
+            }
+            
+            @keyframes slideUpFade {
+                from { opacity: 0; transform: translate(-50%, 20px); }
+                to { opacity: 1; transform: translate(-50%, 0); }
+            }
             </style>
         """, unsafe_allow_html=True)
+
         
-        # Layout: Menu a Sinistra e Contenuto a Destra
-        col_menu, col_dettagli = st.columns([1, 2.5], gap="large")
+        # Creiamo uno spazio vuoto per spingere i bottoni in basso se il fixed fallisce
+        st.write("<br><br><br>", unsafe_allow_html=True)
         
-        with col_menu:
-            st.markdown("<h3 style='color:#38bdf8; margin-top:0; margin-bottom: 10px; font-weight:800; font-size:1.1rem; text-transform: uppercase; letter-spacing: 1px;'>Pipeline Nav</h3>", unsafe_allow_html=True)
-            
-            if 'selected_phase' not in st.session_state:
-                st.session_state.selected_phase = "Done"
-            
-            st.markdown("""
-            <style>
-            .v-pipe-container { display: flex; flex-direction: column; gap: 0; position: relative; padding-left: 40px; margin: 20px 0; }
-            .v-pipe-container::before { content: ''; position: absolute; left: 25px; top: 40px; bottom: 40px; width: 2px; background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05)); z-index: 0; }
-            </style>
-            """, unsafe_allow_html=True)
-            
-            phases = ["Input", "RAG", "Eval", "Done"]
-            phase_idx = phases.index(st.session_state.selected_phase)
-            
-            with st.container():
-                st.markdown("<div class='v-pipe-container'>", unsafe_allow_html=True)
-                for i, phase in enumerate(phases):
-                    if i < phase_idx:
-                        status = "completed"
-                    elif i == phase_idx:
-                        status = "active"
-                    else:
-                        status = "pending"
-                    
-                    if status == "active":
-                        color, glow = "#38bdf8", "0 0 15px #38bdf8"
-                    elif status == "completed":
-                        color, glow = "#10b981", "0 0 10px #10b981"
-                    else:
-                        color, glow = "rgba(255,255,255,0.2)", "none"
-                    
-                    col_dot, col_label = st.columns([0.3, 0.7])
-                    with col_dot:
-                        st.markdown(f"<div style='position:relative; left:-20px; top:8px;'><div style='width:28px; height:28px; border-radius:50%; background:#0f172a; border:2px solid {color}; display:flex; align-items:center; justify-content:center; font-weight:bold; color:{color}; box-shadow:{glow}; font-size:11px;'>{i+1}</div></div>", unsafe_allow_html=True)
-                    with col_label:
-                        btn_text = f"{'✓ ' if status == 'completed' else '→ ' if status == 'active' else '  '}{phase}"
-                        if st.button(btn_text, key=f"phase_{phase}", use_container_width=True):
-                            st.session_state.selected_phase = phase
-                            st.rerun()
-                
-                st.markdown("</div>", unsafe_allow_html=True)
-            
-            fase_selezionata = st.session_state.selected_phase
-            
-        with col_dettagli:
-            
-            # --- FASE 1: INPUT ---
-            if fase_selezionata == "Input":
-                st.markdown("<h2 style='color:#f8fafc; margin-top:0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;'>1. Input & Decomposizione</h2>", unsafe_allow_html=True)
-                st.info(f"**Claim Analizzato:**\n{res['claim']}")
-                st.markdown("<br><h4 style='color:#94a3b8; font-weight:600;'>Componenti Estratte (Subclaims):</h4>", unsafe_allow_html=True)
-                
-                st.markdown("<div style='display:flex; flex-direction:column; align-items:center; width:100%;'>", unsafe_allow_html=True)
-                for i, sc in enumerate(res['subclaims']):
-                    st.markdown(f"""
-                    <div style='background:rgba(255,255,255,0.03); padding:15px 25px; border-radius:12px; margin-bottom:15px; border-left: 4px solid #38bdf8; box-shadow: 0 4px 10px rgba(0,0,0,0.15); width:100%; max-width:800px; text-align:left;'>
-                        <div style='color:#38bdf8; font-size:0.75rem; font-weight:800; text-transform:uppercase; margin-bottom:8px; letter-spacing:1px;'>Subclaim {i+1}</div>
-                        <div style='color:#f8fafc; font-size:1.1rem; line-height:1.5;'>{sc}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
-                    
-            # --- FASE 2: RAG ---
-            elif fase_selezionata == "RAG":
-                st.markdown("<h2 style='color:#f8fafc; margin-top:0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;'>2. Documenti Recuperati (RAG)</h2>", unsafe_allow_html=True)
-                st.markdown("<p style='color:#94a3b8; margin-bottom:25px;'>Documentazione scientifica estrapolata per ciascun subclaim. Clicca sulle schede per esplorare le fonti.</p>", unsafe_allow_html=True)
-                
-                html_rag = "<div style='display:flex; flex-direction:column; align-items:center; width:100%; gap:15px;'>"
-                for i, ev in enumerate(res['evaluations']):
-                    sc = ev.get("subclaim", "")
-                    chunks = ev.get("retrieved_chunks", [])[:5]
-                    
-                    chunks_html = ""
-                    for c in chunks:
-                        c_text = c.get("text", "") if isinstance(c, dict) else str(c)
-                        c_meta = c.get("metadata", {}) if isinstance(c, dict) else {}
-                        c_source = c_meta.get("title") or c_meta.get("id") or "Reference Document"
-                        hl_text = highlight_quotes(c_text, ev.get("supporting_quotes", []), ev.get("refuting_quotes", []))
-                        chunks_html += f"<div style='background:#1e293b; padding:15px; margin:10px 0; border-left:4px solid #818cf8; border-radius:8px; font-size:0.9rem;'><strong style='color:#818cf8; display:block; margin-bottom:8px;'>{c_source}</strong><span style='color:#cbd5e1; line-height:1.6;'>{hl_text}</span></div>"
-                        
-                    modal_html = f"<input type='checkbox' id='modal-rag-{i}' class='modal-toggle' style='display:none;'><div class='modal-wrapper'><div class='modal-card'><label for='modal-rag-{i}' class='close-btn'>✖</label><h3 style='color:#818cf8; margin-top:0;'>Fonti Subclaim {i+1}</h3><p style='color:#e2e8f0; font-style:italic;'>\"{sc}\"</p><hr style='border:none; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;'><strong style='color:#a78bfa; margin-top:20px; display:block;'>📄 Documenti estratti:</strong>{chunks_html if chunks else '<p>Nessun documento trovato.</p>'}</div></div>"
-                    html_rag += f"<label for='modal-rag-{i}' class='card-btn' style='width:100%; max-width:800px; border-left: 4px solid #818cf8;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>Fonti Subclaim {i+1}</div><div style='font-size:1.05rem; color:#f8fafc;'>\"{sc}\"</div><div style='position:absolute; right:20px; top:50%; transform:translateY(-50%); font-size:1.5rem;'>📚</div></label>{modal_html}"
-                html_rag += "</div>"
-                st.markdown(html_rag, unsafe_allow_html=True)
-
-            # --- FASE 3: EVAL ---
-            elif fase_selezionata == "Eval":
-                st.markdown("<h2 style='color:#f8fafc; margin-top:0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;'>3. Analisi e Ragionamento Clinico</h2>", unsafe_allow_html=True)
-                st.markdown("<p style='color:#94a3b8; margin-bottom:25px;'>Spiegazione logica del modello per ogni singola componente. Clicca sulle schede per leggere l'analisi.</p>", unsafe_allow_html=True)
-                
-                html_eval = "<div style='display:flex; flex-direction:column; align-items:center; width:100%; gap:15px;'>"
-                for i, ev in enumerate(res['evaluations']):
-                    sc = ev.get("subclaim", "")
-                    lbl = ev.get("label", "NEI").upper()
-                    reasoning = ev.get("justification", ev.get("selection_reasoning", "No reasoning provided."))
-                    c_col, c_icon = ("#10b981", "✅") if lbl == "SUPPORTED" else ("#ef4444", "❌") if lbl == "REFUTED" else ("#f59e0b", "⚠️")
-                    
-                    chunks_html = ""
-                    for c in ev.get("retrieved_chunks", [])[:5]:
-                        c_text = c.get("text", "") if isinstance(c, dict) else str(c)
-                        c_meta = c.get("metadata", {}) if isinstance(c, dict) else {}
-                        c_source = c_meta.get("title") or c_meta.get("id") or "Reference Document"
-                        hl_text = highlight_quotes(c_text, ev.get("supporting_quotes", []), ev.get("refuting_quotes", []))
-                        chunks_html += f"<div style='background:#1e293b; padding:10px; margin:8px 0; border-left:4px solid {c_col}; border-radius:6px; font-size:0.85rem; text-align:left;'><strong style='color:{c_col};'>{c_source}</strong><br><span style='color:#cbd5e1; line-height:1.6;'>{hl_text}</span></div>"
-                        
-                    modal_html = f"<input type='checkbox' id='modal-eval-{i}' class='modal-toggle' style='display:none;'><div class='modal-wrapper'><div class='modal-card'><label for='modal-eval-{i}' class='close-btn'>✖</label><h3 style='color:#38bdf8; margin-top:0;'>Analisi Subclaim {i+1}</h3><p style='color:#e2e8f0; font-style:italic;'>\"{sc}\"</p><hr style='border:none; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;'><strong style='color:#a78bfa; font-size:1.1rem;'>🧠 Ragionamento:</strong><p style='color:#f8fafc; font-size:0.95rem; line-height:1.6;'>{reasoning}</p><strong style='color:#a78bfa; font-size:1.1rem; margin-top:20px; display:block;'>📄 Top 5 Evidenze:</strong>{chunks_html}</div></div>"
-                    html_eval += f"<label for='modal-eval-{i}' class='card-btn' style='width:100%; max-width:800px; border-left:4px solid {c_col};'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:10px;'>\"{sc}\"</div><div style='font-size:0.85rem; font-weight:700; color:{c_col};'> {c_icon} Evaluated: {lbl}</div></label>{modal_html}"
-                html_eval += "</div>"
-                st.markdown(html_eval, unsafe_allow_html=True)
-                
-                st.markdown("""
-                <style>
-                .eval-highlight-support { background: linear-gradient(120deg, rgba(16, 185, 129, 0.3) 0%, rgba(16, 185, 129, 0.1) 100%); color: #34d399 !important; font-weight: bold; padding: 2px 6px; border-radius: 4px; border-left: 3px solid #10b981; }
-                .eval-highlight-refute { background: linear-gradient(120deg, rgba(239, 68, 68, 0.3) 0%, rgba(239, 68, 68, 0.1) 100%); color: #f87171 !important; font-weight: bold; padding: 2px 6px; border-radius: 4px; border-left: 3px solid #ef4444; }
-                </style>
-                """, unsafe_allow_html=True)
-
-            # --- FASE 4: DONE (Verdetto Finale) ---
-            elif fase_selezionata == "Done":
-                st.markdown("<h2 style='color:#f8fafc; margin-top:0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;'>4. Aggregazione e Verdetto Finale</h2>", unsafe_allow_html=True)
-                
-                verdict = str(res['final'].get("label", res['final'].get("final_verdict", "NEI"))).strip().upper()
-                just = res['final'].get("justification", res['final'].get("reasoning", "Nessuna giustificazione medica fornita."))
-                c_col, c_icon = ("#10b981", "✅") if verdict == "SUPPORTED" else ("#ef4444", "❌") if verdict == "REFUTED" else ("#f59e0b", "⚠️")
-
-                html_flex_row = (
-                    f"<div style='background:rgba(30,41,59,0.4); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:35px; display:flex; flex-direction:row; align-items:center; gap:40px; box-shadow:0 10px 30px -10px rgba(0,0,0,0.3); margin-top:10px; margin-bottom: 30px;'>"
-                    f"<div style='flex-shrink:0; position:relative; width:160px; height:160px; border-radius:50%; background:conic-gradient({c_col} {int(avg_conf_percent)}%, #1e293b 0); display:flex; align-items:center; justify-content:center; box-shadow:0 0 25px {c_col}30;'>"
-                    f"<div style='position:absolute; width:135px; height:135px; background:#0f172a; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;'>"
-                    f"<span style='font-size:2.8rem; font-weight:800; color:#f8fafc;'>{int(avg_conf_percent)}%</span>"
-                    f"<span style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; letter-spacing:1px;'>Confidence</span>"
-                    f"</div></div>"
-                    f"<div style='flex-grow:1; display:flex; flex-direction:column; justify-content:center;'>"
-                    f"<div style='display:flex; align-items:center; gap:15px; margin-bottom:20px;'>"
-                    f"<span style='font-size:2.8rem;'>{c_icon}</span>"
-                    f"<span style='color:{c_col}; font-size:2.4rem; font-weight:900; letter-spacing:1px; text-transform:uppercase;'>{verdict}</span>"
-                    f"</div>"
-                    f"<div style='background:rgba(0,0,0,0.2); padding:20px; border-radius:12px; border-left:4px solid {c_col};'>"
-                    f"<h3 style='color:#a78bfa; margin-top:0; margin-bottom:10px; font-size:1.05rem; text-transform:uppercase; letter-spacing:1px;'>Medical Justification</h3>"
-                    f"<div style='color:#cbd5e1; font-size:1.05rem; line-height:1.6;'>{just}</div>"
-                    f"</div></div></div>"
+        # Contenitore vero e proprio
+        col1, col2 = st.columns(2)
+        with col1:
+            try:
+                from utils.pdf_generator import generate_fact_check_pdf
+                from datetime import datetime
+                pdf_bytes = generate_fact_check_pdf(
+                    claim=res['claim'], 
+                    final_verdict=res['final'], 
+                    subclaims=res['evaluations']
                 )
-                st.markdown(html_flex_row, unsafe_allow_html=True)
-                
-                # BOTTONI PDF E NEW ANALYSIS
-                st.markdown("<br>", unsafe_allow_html=True)
-                col_btn1, col_btn2 = st.columns([1, 1])
-                
-                with col_btn1:
-                    try:
-                        # Import corretto del modulo PDF
-                        from utils.pdf_generator import generate_fact_check_pdf
-                        
-                        pdf_bytes = generate_fact_check_pdf(
-                            claim=res['claim'], 
-                            final_verdict=res['final'], 
-                            subclaims=res['evaluations']
-                        )
-                        
-                        st.download_button(
-                            label="📄 Download PDF Report",
-                            data=pdf_bytes,
-                            file_name=f"FactCheck_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                            mime="application/pdf",
-                            use_container_width=True,
-                            key="pdf_download_done"
-                        )
-                    except ImportError as e:
-                        st.error(f"❌ Module not found: {str(e)}")
-                        st.info("Make sure 'utils/pdf_generator.py' exists with __init__.py in utils folder.")
-                    except Exception as e:
-                        st.error(f"❌ PDF generation failed: {str(e)}")
-                
-                with col_btn2:
-                
-                    if st.button("🔄 New Analysis", use_container_width=True, key="new_analysis_done"):
-                        # Mostra un messaggio di reset
-                        st.success("🧹 Resetting everything...")
-                        
-                        # Cancella TUTTO il session_state
-                        for key in list(st.session_state.keys()):
-                            del st.session_state[key]
-                        
-                        # Piccolo delay per mostrare il messaggio
-                        import time
-                        time.sleep(0.5)
-                        
-                        # JavaScript per forzare il reload completo
-                        components.html("""
-                        <script>
-                            // Pulisce tutto lo storage
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            
-                            // Ricarica la pagina forzando il bypass della cache
-                            window.parent.location.reload(true);
-                        </script>
-                        """, height=0)
-                        
-                        st.rerun()
+                st.download_button(
+                    label="📄 Download PDF Report",
+                    data=pdf_bytes,
+                    file_name=f"FactCheck_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                    key="pdf_download_done"
+                )
+            except Exception as e:
+                pdf_content = "Med Fact Check Report\n" + "="*40 + "\n\n"
+                pdf_content += "Claim:\n" + res["claim"] + "\n\n"
+                pdf_content += "Verdict: " + res["final"].get("label", "NEI").upper() + "\n"
+                st.download_button("📥 Download Report", data=pdf_content, file_name="fact_check_report.txt", use_container_width=True)
 
-                        components.html("<script>setTimeout(function(){const el = window.parent.document.getElementById('results-anchor'); if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'});}, 500);</script>", height=0, width=0)
+        with col2:
+            if st.button("🔄 New Analysis", use_container_width=True, type="primary", key="new_analysis_btn"):
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.rerun()
 
 st.markdown("""
 <div class="footer">

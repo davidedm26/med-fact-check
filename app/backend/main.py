@@ -10,6 +10,8 @@ import json
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
+
+# pyrefly: ignore [missing-import]
 from main_agent import FactAgent
 
 app = FastAPI(
@@ -39,15 +41,15 @@ async def fact_check_stream(request: ClaimRequest):
 
     async def generate():
         try:
-            # Creiamo un generatore che esegue lo stream in modo sincrono
-            # ma lo avvolgiamo per un'esecuzione sicura
-            def get_stream():
-                return agent.stream_claim(request.claim)
-
-            # Esecuzione nel thread pool
-            stream = await run_in_threadpool(get_stream)
+            # Inizializziamo il generatore
+            stream = agent.stream_claim(request.claim)
             
-            for step in stream:
+            while True:
+                # Eseguiamo l'iterazione vera e propria nel thread pool per non bloccare l'event loop
+                step = await run_in_threadpool(next, stream, None)
+                if step is None:
+                    break
+                
                 # Assicurati che lo step sia serializzabile in JSON
                 yield f"data: {json.dumps(step)}\n\n"
                 
