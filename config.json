@@ -36,9 +36,9 @@
         },
         "dynamic_coins": 5,
         "base_coins_per_source": 0,
-        "max_results_per_query": 10,
-        "max_chunks_per_subclaim": 100,
-        "min_chunks_per_subclaim": 30,
+        "max_results_per_query": 5,
+        "max_chunks_per_subclaim": 50,
+        "min_chunks_per_subclaim": 15,
         "hybrid": {
             "dense_top_k": 20,
             "sparse_top_k": 20,
