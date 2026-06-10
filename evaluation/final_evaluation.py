@@ -16,6 +16,10 @@ OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "results", "pipeline_p
 # Modify this list to evaluate more or fewer datasets
 DATASETS = ["scifact", "bioasq", "healthfc"]
 
+# Custom run folder name (e.g. "final_run_1", "run_2") to avoid overwriting previous results.
+# If empty, saves directly under results/pipeline_predictions/
+RUN_NAME = ""
+
 def load_progress(output_json_path):
     if os.path.exists(output_json_path):
         with open(output_json_path, 'r', encoding='utf-8') as f:
@@ -32,16 +36,19 @@ def save_progress(predictions, output_json_path):
     os.replace(temp_path, output_json_path)
 
 def run_final_evaluation():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    run_output_dir = os.path.join(OUTPUT_DIR, RUN_NAME) if RUN_NAME else OUTPUT_DIR
+    os.makedirs(run_output_dir, exist_ok=True)
     
     print(f"STARTING FINAL EVALUATION (MULTI-SESSION)\n" + "="*50)
     print("Progress will be saved automatically to allow resuming execution later.")
-    
+    if RUN_NAME:
+        print(f"Run name (folder): {RUN_NAME}")
+        
     agent = FactAgent()
     
     for ds_name in DATASETS:
         csv_path = os.path.join(DATASETS_DIR, f"{ds_name}_clean.csv")
-        output_json_path = os.path.join(OUTPUT_DIR, f"final_pred_{ds_name}.json")
+        output_json_path = os.path.join(run_output_dir, f"final_pred_{ds_name}.json")
         
         if not os.path.exists(csv_path):
             print(f"WARNING: Dataset {csv_path} not found. Skipping.")
@@ -116,26 +123,44 @@ def standardize_label(label: str) -> str:
         return "refuted"
     return lbl
 
+def find_prediction_file(output_dir, filename):
+    direct_path = os.path.join(output_dir, filename)
+    if os.path.exists(direct_path):
+        return direct_path
+    for root, dirs, files in os.walk(output_dir):
+        if filename in files:
+            return os.path.join(root, filename)
+    return None
+
 def calculate_final_metrics():
     print("\n" + "="*50)
     print("CALCULATING FINAL METRICS...")
     
     all_metrics = []
     
-    for ds_name in DATASETS:
-        pred_file = os.path.join(OUTPUT_DIR, f"final_pred_{ds_name}.json")
+    run_output_dir = os.path.join(OUTPUT_DIR, RUN_NAME) if RUN_NAME else OUTPUT_DIR
+    if RUN_NAME:
+        print(f"Filtering metrics for run: {RUN_NAME}")
         
-        if not os.path.exists(pred_file):
+    for ds_name in DATASETS:
+        filename = f"final_pred_{ds_name}.json"
+        pred_file = find_prediction_file(run_output_dir, filename)
+        
+        if not pred_file:
+            print(f"WARNING: Prediction file '{filename}' not found in {run_output_dir} or its subdirectories. Skipping.")
             continue
             
+        print(f"Loading predictions from: {pred_file}")
         with open(pred_file, 'r', encoding='utf-8') as f:
             try:
                 results = json.load(f)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                print(f"ERROR: Failed to parse JSON file {pred_file}: {e}")
                 continue
             
         total_claims = len(results)
         if total_claims == 0:
+            print(f"WARNING: Prediction file '{pred_file}' is empty. Skipping.")
             continue
             
         # Determine if dataset is natively 3-class (contains NEI true labels)
