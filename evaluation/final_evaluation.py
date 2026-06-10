@@ -57,15 +57,30 @@ def run_final_evaluation():
         print(f"\nProcessing dataset: {ds_name.upper()}")
         df = pd.read_csv(csv_path)
         
-        # Do NOT exclude claims with true_label == "NEI" before running the pipeline
-        # df = df[df['true_label'].str.upper() != "NEI"].copy()
+        # Perform stratified sampling to select exactly 100 samples
+        total_samples = min(len(df), 100)
+        counts = (df['true_label'].value_counts(normalize=True) * total_samples).round().astype(int)
+        for label in df['true_label'].unique():
+            if counts.get(label, 0) == 0 and len(df[df['true_label'] == label]) > 0:
+                counts[label] = 1
+        difference = total_samples - counts.sum()
+        if difference != 0:
+            largest_class = counts.idxmax()
+            counts[largest_class] = max(1, counts[largest_class] + difference)
+            
+        sampled_dfs = []
+        for label, group in df.groupby('true_label'):
+            n_samples = min(len(group), counts.get(label, 0))
+            if n_samples > 0:
+                sampled_dfs.append(group.sample(n=n_samples, random_state=42))
+        df_sampled = pd.concat(sampled_dfs).reset_index(drop=True)
         
         # Load previous progress
         predictions = load_progress(output_json_path)
         processed_claim_ids = {p["claim_id"] for p in predictions}
         
         # Filter claims to process (remove those already evaluated)
-        df_to_process = df[~df['claim_id'].isin(processed_claim_ids)].copy()
+        df_to_process = df_sampled[~df_sampled['claim_id'].isin(processed_claim_ids)].copy()
         
         print(f"Dataset {ds_name}: {len(processed_claim_ids)} claims already processed in previous sessions.")
         print(f"Dataset {ds_name}: {len(df_to_process)} claims remaining to evaluate.")
@@ -221,5 +236,5 @@ def calculate_final_metrics():
         print(f"\nSave complete! Final summary table exported to:\n->  {output_csv}")
 
 if __name__ == "__main__":
-    # run_final_evaluation()
+    run_final_evaluation()
     calculate_final_metrics()
