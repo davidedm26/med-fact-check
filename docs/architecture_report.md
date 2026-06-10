@@ -47,13 +47,17 @@ The architecture uses a **Fan-out / Fan-in** pattern:
   
   ```mermaid
   graph LR
-      Start((START)) --> Retrieve[retrieve]
-      Retrieve --> Evaluate[evaluate]
+      Start((START)) --> SourceSelector[source_selector]
+      SourceSelector --> Downloader[downloader_agent]
+      Downloader --> HybridRetriever[hybrid_retriever]
+      HybridRetriever --> Evaluate[evaluate_subclaim]
       Evaluate --> End((END))
   ```
   
-  - **`retrieve`**: Invokes the `retrieval_graph` (Retrieval Team) to source evidence for the specific subclaim.
-  - **`evaluate`**: Formats the retrieved chunks into a numbered text string, then invokes the `evaluation_graph` (Evaluation Team) to generate a reasoning justification and an NLI-based veracity label (`supported`, `refuted`, `nei`).
+  - **`source_selector`**: Invokes the `source_selector_agent` to allocate search "coins" to knowledge sources (e.g., literature, knowledge bases).
+  - **`downloader_agent`**: Generates specific search queries and concurrently downloads document chunks from the selected sources.
+  - **`hybrid_retriever`**: Combines dense and sparse (BM25) retrieval, applying cross-encoder reranking and diversity constraints to fetch the best evidence chunks.
+  - **`evaluate_subclaim`**: Formats the retrieved chunks into a numbered text string, then invokes the `evaluation_graph` (Evaluation Team) to generate a reasoning justification and an NLI-based veracity label (`supported`, `refuted`, `nei`).
 
 ### D. `aggregate`
 - **Role**: Final synthesizer.
@@ -70,12 +74,12 @@ The system modularizes specialized logic into distinct LangGraph subgraphs. From
    - Cleans the complex input claim and splits it into discrete, verifiable factual statements.
 
 2. **Retrieval Team** (`stages/retrieval_team.py`):
-   - Uses `source_selector_agent`.
-   - Determines the best knowledge bases (e.g., PubMed, Clinical Trials) and executes sparse/dense retrieval algorithms to fetch evidence chunks.
+   - Flattened into the `verify_subclaim` graph via `get_retrieval_nodes`.
+   - Uses `source_selector_node`, `downloader_agent_node`, and `hybrid_retriever_node` to determine the best knowledge bases, concurrently download documents, and execute hybrid sparse/dense retrieval algorithms with cross-encoder reranking.
 
 3. **Evaluation Team** (`stages/evaluation_team.py`):
-   - Uses `reasoning_agent` (LLM) and `veracity_node` (NLI Model).
-   - Generates a clinical summary of the evidence, bypassing standard LLM hallucinations, and uses a deterministic text-classifier to output the final label and confidence score.
+   - Uses `reasoning_node` (LLM) and `veracity_node` (NLI Model via API).
+   - Generates a clinical summary of the evidence (distilling facts and quotes) to prevent LLM hallucinations, and uses a zero-shot text-classifier (via Hugging Face Inference API) to output the final label and confidence score.
 
 ---
 
@@ -84,8 +88,8 @@ The system modularizes specialized logic into distinct LangGraph subgraphs. From
 As you begin your top-down optimization, consider these architectural points:
 
 > [!TIP]
-> **Parallel Execution Bottlenecks**
-> The Fan-out design inherently supports parallel execution for each subclaim. However, if the `retrieval_graph` or `evaluation_graph` rely heavily on local dense embeddings or local NLI models (which we observed previously), parallelizing these nodes without a dedicated GPU will instantly throttle the CPU. Moving these to async API calls (e.g., Hugging Face Inference API) is the best way to unlock true concurrency.
+> **Parallel Execution & API Offloading**
+> The Fan-out design inherently supports parallel execution for each subclaim. To prevent CPU throttling from concurrent execution, heavy local models (like the NLI text-classifier) have been moved to async API calls (e.g., Hugging Face Inference API). This unlocks true concurrency and ensures smooth scaling across multiple subclaims.
 
 > [!NOTE]
 > **State Management (`state.py`)**

@@ -16,6 +16,31 @@ BASE_URL_EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 # "systematic review"[pt] OR "meta-analysis"[pt] → explicit publication-type filter
 SR_MA_FILTER = 'systematic[sb] AND ("systematic review"[pt] OR "meta-analysis"[pt])'
 
+import time
+
+def _robust_get(url: str, params: dict = None, timeout: float = 30.0, max_retries: int = 3, backoff_factor: float = 1.0) -> requests.Response:
+    last_exc = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            response = requests.get(url, params=params, timeout=timeout)
+            if response.status_code == 429:
+                log.warning(f"PubMed rate limit (429) hit. Retrying in {backoff_factor * (2 ** (attempt - 1))}s...")
+                time.sleep(backoff_factor * (2 ** (attempt - 1)))
+                continue
+            if 500 <= response.status_code < 600:
+                log.warning(f"PubMed server error ({response.status_code}). Retrying in {backoff_factor * (2 ** (attempt - 1))}s...")
+                time.sleep(backoff_factor * (2 ** (attempt - 1)))
+                continue
+            response.raise_for_status()
+            return response
+        except requests.exceptions.RequestException as e:
+            last_exc = e
+            log.warning(f"PubMed network error on attempt {attempt}: {e}. Retrying...")
+            time.sleep(backoff_factor * (2 ** (attempt - 1)))
+    
+    if last_exc:
+        raise last_exc
+    raise requests.exceptions.RequestException("PubMed request failed after maximum retries.")
 
 def _get_api_key() -> Optional[str]:
     """Return the NCBI API key from environment, or None if not set."""
@@ -49,8 +74,7 @@ def _esearch(query: str, limit: int, max_year: int = None) -> List[str]:
     log.info(f"ESearch query: '{full_query}' (limit={limit})")
 
     try:
-        response = requests.get(BASE_URL_ESEARCH, params=params, timeout=15)
-        response.raise_for_status()
+        response = _robust_get(BASE_URL_ESEARCH, params=params, timeout=15)
         data = response.json()
         pmids = data.get("esearchresult", {}).get("idlist", [])
         log.info(f"ESearch returned {len(pmids)} PMIDs")
@@ -78,8 +102,7 @@ def _efetch(pmids: List[str]) -> List[Dict]:
     log.info(f"EFetch downloading {len(pmids)} articles")
 
     try:
-        response = requests.get(BASE_URL_EFETCH, params=params, timeout=30)
-        response.raise_for_status()
+        response = _robust_get(BASE_URL_EFETCH, params=params, timeout=30)
         return _parse_efetch_xml(response.text)
     except requests.exceptions.RequestException as e:
         log.error(f"EFetch network error: {e}")
