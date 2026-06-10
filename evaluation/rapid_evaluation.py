@@ -183,29 +183,33 @@ def calculate_metrics():
             print(f"WARNING: Prediction file '{pred_file}' is empty. Skipping.")
             continue
             
-        # Determine if dataset is natively 3-class (contains NEI true labels)
-        has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        # Determine if dataset is natively 3-class (contains NEI true labels in the original CSV)
+        csv_path = os.path.join(DATASETS_DIR, f"{ds_name}_clean.csv")
+        has_nei_true = False
+        if os.path.exists(csv_path):
+            try:
+                df_full = pd.read_csv(csv_path)
+                has_nei_true = any(standardize_label(val) == "nei" for val in df_full["true_label"].dropna().unique())
+            except Exception as e:
+                print(f"WARNING: Could not check original CSV for 3-class status: {e}")
+                has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        else:
+            has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        
+        filtered_results = results
+        evaluated_claims = len(results)
+        excluded_claims = 0
         
         if has_nei_true:
-            filtered_results = results
-            excluded_claims = 0
-            evaluated_claims = len(results)
             print(f"\nAnalyzing: {ds_name.upper()} (3-class dataset)")
             print("-" * 40)
             print(f"Total claims:     {total_claims}")
             print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted/NEI)")
         else:
-            filtered_results = [
-                item for item in results 
-                if standardize_label(item.get("predicted_label", "")) != "nei"
-            ]
-            evaluated_claims = len(filtered_results)
-            excluded_claims = total_claims - evaluated_claims
-            print(f"\nAnalyzing: {ds_name.upper()} (Binary dataset)")
+            print(f"\nAnalyzing: {ds_name.upper()} (Binary dataset - Strict Evaluation)")
             print("-" * 40)
             print(f"Total claims:     {total_claims}")
-            print(f"Excluded 'NEI':   {excluded_claims} (Predicted NEI removed)")
-            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted)")
+            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted, NEI counted as error)")
         
         if evaluated_claims == 0:
             continue
