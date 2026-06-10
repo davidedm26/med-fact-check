@@ -30,7 +30,7 @@
     },
     "retrieval": {
         "knowledge_cutoff_year": {
-            "scifact": 2024,
+            "scifact": 2021,
             "bioasq": 2022,
             "healthfc": 2024
         },

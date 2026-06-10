@@ -18,7 +18,7 @@ OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "results", "pipeline_p
 # RAPID EVALUATION SETTINGS
 # ==========================================
 # Change the dataset name here: "scifact", "bioasq", "healthfc", or "all" to run all
-DATASET_TO_EVALUATE = "healthfc" 
+DATASET_TO_EVALUATE = "bioasq" 
 
 # Total maximum number of samples to evaluate across all classes.
 # The script will perform stratified sampling to maintain class proportions.
@@ -26,7 +26,7 @@ MAX_SAMPLES = 30
 
 # Custom run folder name (e.g. "test3", "run_2") to avoid overwriting previous results.
 # If empty, saves directly under results/pipeline_predictions/
-RUN_NAME = "test3"
+RUN_NAME = "test4"
 # ==========================================
 
 def run_rapid_evaluation():
