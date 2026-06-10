@@ -74,25 +74,22 @@ def render_claim_checklist(sentences, context=""):
     if context:
         st.info(f"📄 **Contesto:** {context}")
     
-    # Inizializza la sessione per i claim selezionati
-    if 'selected_claims' not in st.session_state:
-        st.session_state.selected_claims = {}
-    
     # Pulsanti per selezione rapida
-    col_select_all, col_deselect_all, col_info = st.columns([1, 1, 2])
+    col_select_all, col_deselect_all = st.columns([1, 1])
+    
     with col_select_all:
         if st.button("✅ Seleziona Tutti", use_container_width=True):
+            # Imposta TUTTE le checkbox come selezionate
             for i in range(len(sentences)):
-                st.session_state.selected_claims[i] = True
+                st.session_state[f"claim_cb_{i}"] = True
+            st.rerun()
     
     with col_deselect_all:
         if st.button("❌ Deseleziona Tutti", use_container_width=True):
+            # Imposta TUTTE le checkbox come NON selezionate
             for i in range(len(sentences)):
-                st.session_state.selected_claims[i] = False
-    
-    with col_info:
-        selected_count = sum(1 for v in st.session_state.selected_claims.values() if v)
-        st.markdown(f"**{selected_count}/{len(sentences)} claim selezionati**")
+                st.session_state[f"claim_cb_{i}"] = False
+            st.rerun()
     
     st.markdown("---")
     
@@ -100,18 +97,20 @@ def render_claim_checklist(sentences, context=""):
     selected_claims = []
     
     for i, sentence in enumerate(sentences):
-        is_selected = st.session_state.selected_claims.get(i, False)
+        # Inizializza la chiave della checkbox se non esiste
+        cb_key = f"claim_cb_{i}"
+        if cb_key not in st.session_state:
+            st.session_state[cb_key] = False
         
         col_check, col_text = st.columns([0.1, 0.9])
         
         with col_check:
+            # La checkbox usa direttamente la sua key nel session_state
             checked = st.checkbox(
-                f"##{i}",
-                value=is_selected,
-                key=f"claim_{i}",
+                " ",
+                key=cb_key,
                 label_visibility="collapsed"
             )
-            st.session_state.selected_claims[i] = checked
         
         with col_text:
             preview = sentence[:200] + "..." if len(sentence) > 200 else sentence
@@ -142,7 +141,6 @@ def render_claim_checklist(sentences, context=""):
                 """, unsafe_allow_html=True)
     
     return selected_claims
-
 
 # Funzione per evidenziare le citazioni
 def highlight_quotes(text, supp, ref):
