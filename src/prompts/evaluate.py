@@ -52,6 +52,7 @@ CRITICAL RULES:
 - NEVER invent facts. If a chunk does not say something, do not add it.
 - NEVER conflate similar entities (p100 ≠ p105, Class I ≠ Class III).
 - Preserve negations exactly as written in the evidence.
+- ALWAYS explicitly identify and state in your distilled evidence if a study relies on animal models (e.g., rats, mice), in-vitro cell lines, has a very small sample size, is sponsored/conflicted, or lacks a placebo control group. Do not present these as general human clinical evidence of efficacy.
 """
 
 reasoning_schema = {

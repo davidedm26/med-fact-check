@@ -194,6 +194,34 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
         sentences = safe_truncate(state.get("evidence_text", " ".join(supporting_quotes + refuting_quotes)), 1000)
         justifications = distilled_str
         
+        # Intercept empty evidence / no chunks
+        if not distilled_evidence.strip() or "No evidence chunks available" in sentences:
+            log.info("No evidence chunks available or distilled evidence is empty. Falling back directly to NEI.")
+            evaluation_entry = {
+                "subclaim_id": subclaim_id,
+                "subclaim": subclaim,
+                "justification": "No evidence was found in the retrieved literature to support or refute this claim.",
+                "supporting_quotes": [],
+                "refuting_quotes": [],
+                "label": "nei",
+                "confidence": 1.0,
+            }
+            return {
+                "evaluation_results": [evaluation_entry],
+                "messages": [
+                    HumanMessage(
+                        content=str({
+                            "subclaim_id": subclaim_id,
+                            "logical_analysis": "No evidence chunks available. Hard fallback to NEI.",
+                            "justification": "No evidence was found in the retrieved literature to support or refute this claim.",
+                            "label": "nei",
+                            "confidence": 1.0,
+                        }),
+                        name="veracity_agent",
+                    )
+                ],
+            }
+
         # Premise is the evidence/justification context
         premise = f"Justification: {justifications}\nEvidence: {sentences}"
         premise = safe_truncate(premise, 1000)
@@ -231,7 +259,9 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
                 best_label = result[0].get("label", "")
                 confidence = float(result[0].get("score", 0.0))
                 
-                if best_label == "supported":
+                if best_label in ["supported", "refuted"] and confidence < 0.5:
+                    label = "nei"
+                elif best_label == "supported":
                     label = "supported"
                 elif best_label == "refuted":
                     label = "refuted"
