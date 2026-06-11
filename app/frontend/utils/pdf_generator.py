@@ -8,11 +8,10 @@ class PDFReport(FPDF):
     def header(self):
         self.set_font('Helvetica', 'B', 15)
         self.set_text_color(59, 130, 246)  # Blue
-        self.cell(0, 10, 'Med Fact Check - Verification Report', 0, 0, 'C')
-        self.ln(5)
+        self.cell(0, 10, 'Med Fact Check - Verification Report', 0, 1, 'C')
         self.set_draw_color(59, 130, 246)
         self.line(10, self.get_y(), 200, self.get_y())
-        self.ln(10)
+        self.ln(5)
         self.set_text_color(0, 0, 0)
 
     def footer(self):
@@ -45,20 +44,21 @@ def safe_text(text):
     return text.encode('latin-1', 'replace').decode('latin-1')
 
 
-def generate_fact_check_pdf(claim, final_verdict, subclaims):
+def generate_fact_check_pdf(claim, final_verdict, subclaims, exec_time=0.0):
     """
     Generates a PDF report for a fact check.
     Returns the PDF as a bytes object ready for st.download_button.
     """
     pdf = PDFReport()
+    pdf.set_margins(15, 20, 15)
     pdf.set_auto_page_break(auto=True, margin=20)
     pdf.add_page()
 
-    # Date
+    # Date and Execution Time
     pdf.set_font('Helvetica', 'I', 10)
     pdf.set_text_color(128, 128, 128)
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    pdf.cell(0, 10, f'Generated on: {date_str}', 0, 1, 'R')
+    pdf.cell(0, 10, f'Generated on: {date_str}  |  Execution Time: {exec_time:.1f}s', 0, 1, 'R')
     pdf.ln(5)
 
     # === Original Claim ===
@@ -106,10 +106,21 @@ def generate_fact_check_pdf(claim, final_verdict, subclaims):
         pdf.ln(3)
         pdf.set_font('Helvetica', 'B', 11)
         pdf.set_text_color(30, 41, 59)
-        pdf.cell(0, 8, 'Justification:', 0, 1, 'L')
+        pdf.cell(0, 8, 'Medical Justification:', 0, 1, 'L')
         pdf.set_font('Helvetica', 'I', 10)
         pdf.set_text_color(71, 85, 105)
         pdf.multi_cell(0, 6, safe_text(justification))
+
+    # Aggregation Analysis
+    agg_analysis = final_verdict.get('aggregation_analysis', '')
+    if agg_analysis:
+        pdf.ln(3)
+        pdf.set_font('Helvetica', 'B', 11)
+        pdf.set_text_color(30, 41, 59)
+        pdf.cell(0, 8, 'Aggregation Analysis:', 0, 1, 'L')
+        pdf.set_font('Helvetica', 'I', 10)
+        pdf.set_text_color(71, 85, 105)
+        pdf.multi_cell(0, 6, safe_text(agg_analysis))
 
     pdf.ln(10)
 
@@ -124,6 +135,7 @@ def generate_fact_check_pdf(claim, final_verdict, subclaims):
     for i, sc in enumerate(subclaims, 1):
         sc_text = sc.get('subclaim', 'Unknown Subclaim')
         sc_label = sc.get('label', 'UNKNOWN').upper()
+        if sc_label == "NEI": sc_label = "NOT ENOUGH INFORMATION"
         sc_conf = sc.get('confidence', 0.0)
         if isinstance(sc_conf, str):
             try:
@@ -170,11 +182,24 @@ def generate_fact_check_pdf(claim, final_verdict, subclaims):
             pdf.cell(0, 6, 'Evidence Sources:', 0, 1, 'L')
 
             for chunk in evidence[:5]:
+                meta_str = ""
                 if isinstance(chunk, dict):
                     text = chunk.get("text", "")
                     meta = chunk.get("metadata", {})
                     source_title = (meta.get("title") or meta.get("id") or
                                     chunk.get("source") or "Document")
+                    
+                    # Gather metadata
+                    m_type = meta.get("type", "")
+                    m_date = meta.get("date", meta.get("year", ""))
+                    m_url = meta.get("url", "")
+                    
+                    meta_parts = []
+                    if m_type: meta_parts.append(str(m_type))
+                    if m_date: meta_parts.append(str(m_date))
+                    if m_url: meta_parts.append(f"URL: {m_url}")
+                    if meta_parts:
+                        meta_str = " | ".join(meta_parts)
                 else:
                     text = str(chunk)
                     source_title = "Document"
@@ -182,20 +207,31 @@ def generate_fact_check_pdf(claim, final_verdict, subclaims):
                 pdf.set_x(15)
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.set_text_color(30, 41, 59)
-                pdf.cell(0, 5, safe_text(source_title), 0, 1, 'L')
+                # multi_cell prevents long titles from overflowing margins
+                pdf.multi_cell(0, 5, safe_text(source_title))
+                
+                if meta_str:
+                    pdf.set_x(15)
+                    pdf.set_font('Helvetica', 'I', 8)
+                    pdf.set_text_color(100, 116, 139)
+                    pdf.multi_cell(0, 4, safe_text(meta_str))
+                    pdf.ln(1)
 
                 pdf.set_x(15)
-                pdf.set_font('Helvetica', 'I', 9)
-                pdf.set_text_color(100, 116, 139)
+                pdf.set_font('Helvetica', '', 9)
+                pdf.set_text_color(71, 85, 105)
                 # Truncate very long evidence texts to prevent page overflow
                 display_text = text[:500] + ('...' if len(text) > 500 else '')
-                pdf.multi_cell(0, 5, safe_text(display_text))
-                pdf.ln(2)
+                pdf.multi_cell(0, 5, safe_text(f'"{display_text}"'))
+                pdf.ln(3)
 
         # Separator between subclaims
         pdf.set_draw_color(226, 232, 240)
         pdf.line(15, pdf.get_y(), 195, pdf.get_y())
         pdf.ln(5)
 
-    # Return as bytes - pdf.output() in fpdf2 returns bytearray
-    return bytes(pdf.output())
+    # Return as bytes - pdf.output(dest='S') works for legacy fpdf
+    out = pdf.output(dest='S')
+    if isinstance(out, str):
+        return out.encode('latin-1')
+    return bytes(out)

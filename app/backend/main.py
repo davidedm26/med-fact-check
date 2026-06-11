@@ -41,13 +41,73 @@ async def generate_mock_stream(claim: str):
     import asyncio
     import json
     
+    # Attempt to fetch from MongoDB
+    try:
+        from utils.mongo_logger import _get_mongo_db
+        db = _get_mongo_db()
+        if db is not None:
+            import random
+            # Find the last 10 runs and pick one at random
+            recent_runs = list(db["run_logs"].find().sort([("timestamp", -1)]).limit(10))
+            if recent_runs:
+                run = random.choice(recent_runs)
+                nodes = list(db["node_logs"].find({"run_id": run["run_id"]}).sort("timestamp", 1))
+                if nodes:
+                    chunks_by_subclaim = {}
+                    evaluation_phase_started = False
+                    for n in nodes:
+                        name = n.get("node_name", "")
+                        out = n.get("output", {})
+                        
+                        if name == "claim_filter_node":
+                            yield f"data: {json.dumps({'decompose': {'verifiable_subclaims': out.get('verifiable_subclaims', [])}})}\n\n"
+                            await asyncio.sleep(3.6)
+                            
+                        elif name == "source_selector_node":
+                            yield f"data: {json.dumps({'source_selector': {'subclaim_id': n.get('subclaim_id'), 'retrieval_source': out.get('retrieval_source', {})}})}\n\n"
+                            await asyncio.sleep(2.7)
+                            
+                        elif name == "downloader_agent_node":
+                            yield f"data: {json.dumps({'downloader_agent': {'subclaim_id': n.get('subclaim_id'), 'downloaded_chunks': out.get('downloaded_chunks', []), 'queries_by_source': out.get('queries_by_source', {}), 'download_stats': out.get('download_stats', {})}})}\n\n"
+                            await asyncio.sleep(2.7)
+                            
+                        elif name == "hybrid_retriever_node":
+                            sub_id = n.get("subclaim_id")
+                            if sub_id:
+                                chunks_by_subclaim[sub_id] = out.get("retrieved_chunks", [])
+                            yield f"data: {json.dumps({'hybrid_retriever': {'subclaim_id': sub_id, 'retrieved_chunks': out.get('retrieved_chunks', [])}})}\n\n"
+                            await asyncio.sleep(2.7)
+                            
+                        elif name == "veracity_node":
+                            if not evaluation_phase_started:
+                                yield f"data: {json.dumps({'verify_subclaim': {'evaluation_results': []}})}\n\n"
+                                await asyncio.sleep(4.0)
+                                evaluation_phase_started = True
+                                
+                            evals = out.get('evaluation_results', [])
+                            for er in evals:
+                                sub_id = er.get("subclaim_id")
+                                if sub_id and sub_id in chunks_by_subclaim:
+                                    er["retrieved_chunks"] = chunks_by_subclaim[sub_id]
+                            yield f"data: {json.dumps({'verify_subclaim': {'evaluation_results': evals}})}\n\n"
+                            await asyncio.sleep(3.6)
+                            
+                        elif name == "aggregate_node":
+                            yield f"data: {json.dumps({'aggregate': {'final_verdict': out.get('final_verdict', {})}})}\n\n"
+                            await asyncio.sleep(4.5)
+                            
+                    return  # Exit after successfully replaying from DB
+    except Exception as e:
+        print(f"Mock stream MongoDB fallback triggered: {e}")
+        
+    # Fallback to simulated data
     # 1. Decomposition stage
     subclaims = [
         f"The claim '{claim[:50]}...' is supported by active clinical trials.",
         f"The claim '{claim[:50]}...' has no adverse reactions in human cohorts."
     ]
     yield f"data: {json.dumps({'decompose': {'verifiable_subclaims': subclaims}})}\n\n"
-    await asyncio.sleep(0.6)
+    await asyncio.sleep(3.6)
     
     # 2. Source selector, downloader, retriever per ogni subclaim
     for idx, sc_text in enumerate(subclaims, 1):
@@ -55,17 +115,25 @@ async def generate_mock_stream(claim: str):
         
         # Source Selection
         yield f"data: {json.dumps({'source_selector': {'subclaim_id': sub_id, 'retrieval_source': {'bioasq': 1, 'scifact': 1}}})}\n\n"
-        await asyncio.sleep(0.4)
+        await asyncio.sleep(2.7)
         
         # Downloader agent
-        yield f"data: {json.dumps({'downloader_agent': {'subclaim_id': sub_id, 'downloaded_chunks': [{'id': f'doc_{idx}_1', 'text': f'Simulated clinical evidence for {sc_text[:20]}', 'source': 'BioASQ'}]}})}\n\n"
-        await asyncio.sleep(0.4)
+        fake_queries = {"bioasq": [f"query bioasq {sc_text[:10]}"], "scifact": [f"query scifact {sc_text[:10]}"]}
+        fake_stats = {
+            "bioasq": {"documents_found": 5, "chunks_extracted": 12},
+            "scifact": {"documents_found": 3, "chunks_extracted": 8}
+        }
+        yield f"data: {json.dumps({'downloader_agent': {'subclaim_id': sub_id, 'downloaded_chunks': [{'id': f'doc_{idx}_1', 'text': f'Simulated clinical evidence for {sc_text[:20]}', 'source': 'BioASQ'}], 'queries_by_source': fake_queries, 'download_stats': fake_stats}})}\n\n"
+        await asyncio.sleep(2.7)
         
         # Hybrid retriever
         yield f"data: {json.dumps({'hybrid_retriever': {'subclaim_id': sub_id, 'retrieved_chunks': [{'id': f'doc_{idx}_1', 'text': f'Simulated clinical evidence for {sc_text[:20]}', 'source': 'BioASQ'}]}})}\n\n"
-        await asyncio.sleep(0.4)
+        await asyncio.sleep(2.7)
 
     # 3. Evaluation
+    yield f"data: {json.dumps({'verify_subclaim': {'evaluation_results': []}})}\n\n"
+    await asyncio.sleep(4.0)
+    
     eval_results = []
     for idx, sc_text in enumerate(subclaims, 1):
         sub_id = f"sub_{idx:02d}"
@@ -82,13 +150,15 @@ async def generate_mock_stream(claim: str):
         }
         eval_results.append(er)
         yield f"data: {json.dumps({'verify_subclaim': {'evaluation_results': [er]}})}\n\n"
-        await asyncio.sleep(0.6)
+        await asyncio.sleep(3.6)
 
     # 4. Aggregation / Final verdict
     final_verdict = {
         "label": "supported",
         "confidence": 0.92,
-        "justification": f"After verifying '{claim[:80]}...', all subclaims were successfully verified against bioasq and scifact databases. There is consistent clinical evidence backing the claim, with no reported counter-arguments in standard literature."
+        "aggregation_analysis": "The subclaims were consistently supported across multiple systematic reviews and clinical databases. No significant conflicting evidence was found.",
+        "justification": f"After verifying '{claim[:80]}...', all subclaims were successfully verified against bioasq and scifact databases. There is consistent clinical evidence backing the claim, with no reported counter-arguments in standard literature.",
+        "subclaim_breakdown": eval_results
     }
     yield f"data: {json.dumps({'aggregate': {'final_verdict': final_verdict}})}\n\n"
 

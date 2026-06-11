@@ -8,6 +8,7 @@ import importlib
 import re
 import sys
 import os
+import time
 from datetime import datetime
 
 # 1. Configurazione della Pagina
@@ -124,14 +125,16 @@ def highlight_quotes(text, supp, ref):
     if isinstance(ref, str): ref = [ref]
     for q in (supp or []):
         if q and len(q) > 5:
-            q_pattern = r'\s+'.join(re.escape(word) for word in q.split())
-            pattern = re.compile(q_pattern, re.IGNORECASE)
-            hl = pattern.sub(r"<span class='eval-highlight-support' style='background: linear-gradient(120deg, rgba(16, 185, 129, 0.4) 0%, rgba(16, 185, 129, 0.15) 100%); color: #34d399 !important; font-weight: 700; padding: 3px 8px; border-radius: 4px; border-left: 4px solid #10b981;'>\g<0></span>", hl)
+            words = [re.escape(re.sub(r'\W', '', w)) for w in q.split() if re.sub(r'\W', '', w)]
+            if words:
+                pattern = re.compile(r'\W+'.join(words), re.IGNORECASE)
+                hl = pattern.sub(r"<span class='eval-highlight-support'>\g<0></span>", hl)
     for q in (ref or []):
         if q and len(q) > 5:
-            q_pattern = r'\s+'.join(re.escape(word) for word in q.split())
-            pattern = re.compile(q_pattern, re.IGNORECASE)
-            hl = pattern.sub(r"<span class='eval-highlight-refute' style='background: linear-gradient(120deg, rgba(239, 68, 68, 0.4) 0%, rgba(239, 68, 68, 0.15) 100%); color: #f87171 !important; font-weight: 700; padding: 3px 8px; border-radius: 4px; border-left: 4px solid #ef4444;'>\g<0></span>", hl)
+            words = [re.escape(re.sub(r'\W', '', w)) for w in q.split() if re.sub(r'\W', '', w)]
+            if words:
+                pattern = re.compile(r'\W+'.join(words), re.IGNORECASE)
+                hl = pattern.sub(r"<span class='eval-highlight-refute'>\g<0></span>", hl)
     return hl
 
 
@@ -197,7 +200,7 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
             central_subtitle = "Aggregating verdicts and calculating confidence score..."
             anim_color = "#10b981"
     
-    modal_css = "<style>.modal-wrapper{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:10000000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}.modal-toggle:checked+.modal-wrapper{display:flex!important;}.modal-card{background:#0f172a;border:1px solid #38bdf8;border-radius:16px;padding:2rem;max-width:700px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 0 40px rgba(56,189,248,0.4);animation:zoomIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;}@keyframes zoomIn{0%{transform:scale(0.5);opacity:0;}100%{transform:scale(1);opacity:1;}}.close-btn{float:right;cursor:pointer;color:#f8fafc;background:#ef4444;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;transition:0.2s;font-size:14px;}.close-btn:hover{background:#dc2626;transform:scale(1.1);}</style>"
+    modal_css = "<style>.modal-wrapper{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:10000000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}.modal-toggle:checked+.modal-wrapper{display:flex!important;}.modal-card{background:#0f172a;border:1px solid #38bdf8;border-radius:16px;padding:2rem;max-width:700px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 0 40px rgba(56,189,248,0.4);animation:zoomIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;}@keyframes zoomIn{0%{transform:scale(0.5);opacity:0;}100%{transform:scale(1);opacity:1;}}.close-btn{float:right;cursor:pointer;color:#f8fafc;background:#ef4444;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;transition:0.2s;font-size:14px;}.close-btn:hover{background:#dc2626;transform:scale(1.1);}.eval-highlight-support{background-color:rgba(16,185,129,0.25);color:#10b981;padding:2px 4px;border-radius:4px;font-weight:bold;}.eval-highlight-refute{background-color:rgba(239,68,68,0.25);color:#ef4444;padding:2px 4px;border-radius:4px;font-weight:bold;}</style>"
     
     def get_cards_html(target_phase):
         nonlocal all_modals_html
@@ -205,10 +208,42 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
         html = "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
         for i, sc in enumerate(subclaims):
             ev_data = next((e for e in evaluations if e.get("subclaim") == sc), None)
+            sub_id = f"sub_{i+1:02d}"
+            queries = getattr(st.session_state, "queries_by_source", {}).get(sub_id, {})
+            stats = getattr(st.session_state, "download_stats", {}).get(sub_id, {})
+            stats_html = ""
+            if queries or stats:
+                stats_html = "<div style='margin-top: 15px; text-align: left; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);'><strong style='color:#a78bfa; font-size:0.9rem;'>📊 Retrieval Statistics:</strong>"
+                all_sources = set(list(queries.keys()) + list(stats.keys()))
+                for src in sorted(all_sources):
+                    src_queries = queries.get(src, [])
+                    src_stats = stats.get(src, {})
+                    docs_found = src_stats.get('documents_found', 0)
+                    chunks_ext = src_stats.get('chunks_extracted', 0)
+                    stats_html += f"<div style='background:rgba(255,255,255,0.02); padding:8px; margin-top:8px; border-radius:6px; border-left:3px solid #818cf8;'>"
+                    stats_html += f"<div style='color:#38bdf8; font-weight:bold; margin-bottom:3px; text-transform:capitalize; font-size:0.8rem;'>{src.replace('_', ' ')}</div>"
+                    if src_queries:
+                        q_formatted = ", ".join(src_queries)
+                        stats_html += f"<div style='color:#94a3b8; font-size:0.75rem; margin-bottom:3px;'>Queries: <em style='color:#e2e8f0;'>{q_formatted}</em></div>"
+                    stats_html += f"<div style='color:#94a3b8; font-size:0.75rem;'>Found Documents: <strong style='color:#f8fafc;'>{docs_found}</strong> | Extracted Passages: <strong style='color:#f8fafc;'>{chunks_ext}</strong></div>"
+                    stats_html += "</div>"
+                stats_html += "</div>"
+
+            def get_eval_status(ev):
+                if not ev: return "✅ Evaluated"
+                lbl_up = ev.get('label', 'NEI').upper()
+                display_lbl = "NOT ENOUGH INFORMATION" if lbl_up == "NEI" else lbl_up
+                c = "#10b981" if lbl_up == "SUPPORTED" else ("#ef4444" if lbl_up == "REFUTED" else "#f59e0b")
+                raw_conf = ev.get('confidence', 0.0)
+                if isinstance(raw_conf, (int, float)):
+                    conf = int(raw_conf * 100) if raw_conf <= 1.0 else int(raw_conf)
+                else:
+                    conf = 0
+                return f"<div style='margin-bottom:5px; color:#38bdf8;'>✅ Evaluation Completed</div><div style='display:inline-block; padding:4px 10px; border-radius:6px; background:rgba(255,255,255,0.05); border:1px solid {c}; color:{c}; font-weight:800; font-size:0.85rem; letter-spacing:1px;'>{display_lbl} &bull; {conf}%</div>"
+
             if target_phase == 2:
                 if step < 2: status = "⏳ Pending..."
                 elif step == 2:
-                    sub_id = f"sub_{i+1:02d}"
                     source_selections = getattr(st.session_state, "source_selections", {})
                     downloader_status = getattr(st.session_state, "downloader_status", {})
                     retriever_status = getattr(st.session_state, "retriever_status", {})
@@ -225,31 +260,42 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
                 has_modal = False
             elif target_phase == 3:
                 if step < 3: status = "⏳ Pending..."
-                elif step == 3 and ev_data: status = f"✅ Evaluated: {ev_data.get('label', 'NEI')}"
+                elif step == 3 and ev_data: status = get_eval_status(ev_data)
                 elif step == 3 and i == verified_count: status = "🔍 Evaluating..."
                 elif step == 3: status = "⏳ Waiting in queue..."
-                else: status = f"✅ Evaluated: {ev_data.get('label', 'NEI')}" if ev_data else "✅ Evaluated"
+                else: status = get_eval_status(ev_data) if ev_data else "✅ Evaluated"
                 has_modal = bool(ev_data)
             else:
-                status = f"✅ Evaluated: {ev_data.get('label', 'NEI')}" if ev_data else "✅ Completed"
+                status = get_eval_status(ev_data) if ev_data else "✅ Completed"
                 has_modal = bool(ev_data)
                 
             if has_modal:
                 card_html = f"<label for='modal-p{target_phase}-{i}' style='display:block; cursor:pointer; position:relative; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left; transition: transform 0.2s, border-color 0.2s;'><span style='position:absolute; right:10px; bottom:10px; font-size:4rem; opacity:0.04; pointer-events:none; z-index:0;'>🔍</span><span style='display:block; position:relative; z-index:2; font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px; pointer-events:none;'>SUBCLAIM {i+1}</span><span style='display:block; position:relative; z-index:2; font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4; pointer-events:none;'>\"{sc}\"</span><span style='display:block; position:relative; z-index:2; font-size:0.8rem; font-weight:600; color:#38bdf8; pointer-events:none;'>{status}</span>"
             else:
                 card_html = f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:12px 18px; border-radius:12px; width:calc(50% - 5px); min-width:300px; text-align:left;'><div style='font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:5px;'>SUBCLAIM {i+1}</div><div style='font-size:0.95rem; color:#f8fafc; margin-bottom:8px; line-height:1.4;'>\"{sc}\"</div><div style='font-size:0.8rem; font-weight:600; color:#38bdf8;'>{status}</div>"
+                if target_phase == 2 and step >= 2:
+                    card_html += stats_html
+
             if has_modal:
                 reasoning = ev_data.get("justification", ev_data.get("selection_reasoning", "No reasoning provided."))
                 chunks = ev_data.get("retrieved_chunks", [])[:5]
                 supp = ev_data.get("supporting_quotes", [])
                 ref = ev_data.get("refuting_quotes", [])
+
                 chunks_html = ""
                 for c in chunks:
                     c_text = c.get("text", "") if isinstance(c, dict) else str(c)
                     c_meta = c.get("metadata", {}) if isinstance(c, dict) else {}
                     c_source = c_meta.get("title") or c_meta.get("id") or (c.get("source") if isinstance(c, dict) else None) or "Reference Document"
+                    c_url = c_meta.get("url")
+                    if isinstance(c_url, str) and c_url.startswith("http"):
+                        c_source_html = f"<a href='{c_url}' target='_blank' style='color:#38bdf8; text-decoration:underline; pointer-events:auto;'>{c_source}</a>"
+                    elif isinstance(c_source, str) and c_source.startswith("http"):
+                        c_source_html = f"<a href='{c_source}' target='_blank' style='color:#38bdf8; text-decoration:underline; pointer-events:auto;'>{c_source}</a>"
+                    else:
+                        c_source_html = f"<strong style='color:#38bdf8;'>{c_source}</strong>"
                     hl_text = highlight_quotes(c_text, supp, ref)
-                    chunks_html += f"<div style='background:#1e293b; padding:10px; margin:8px 0; border-left:4px solid #38bdf8; border-radius:6px; font-size:0.85rem; text-align:left;'><strong style='color:#38bdf8;'>{c_source}</strong><br><em style='color:#cbd5e1;'>{hl_text}</em></div>"
+                    chunks_html += f"<div style='background:#1e293b; padding:10px; margin:8px 0; border-left:4px solid #38bdf8; border-radius:6px; font-size:0.85rem; text-align:left;'>{c_source_html}<br><em style='color:#cbd5e1;'>{hl_text}</em></div>"
                 modal_html = f"<input type='checkbox' id='modal-p{target_phase}-{i}' class='modal-toggle' style='display:none;'><div class='modal-wrapper'><div class='modal-card'><label for='modal-p{target_phase}-{i}' class='close-btn'>✖</label><h3 style='color:#38bdf8; margin-top:0; text-align:left;'>Subclaim Analysis {i+1}</h3><p style='color:#e2e8f0; font-size:1.05rem; font-style:italic; text-align:left;'>\"{sc}\"</p><hr style='border:none; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;'><div style='text-align:left;'><strong style='color:#a78bfa; font-size:1.1rem;'>🧠 Reasoning:</strong><p style='color:#f8fafc; font-size:0.95rem; line-height:1.6;'>{reasoning}</p></div><div style='text-align:left; margin-top:20px;'><strong style='color:#a78bfa; font-size:1.1rem;'>📄 Top 5 Evidences:</strong>{chunks_html}</div></div></div>"
                 all_modals_html += modal_html
                 card_html += "</label>"
@@ -269,7 +315,7 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
         elif raw_label == "refuted":
             verdict = "REFUTED"
         else:
-            verdict = "NEI"
+            verdict = "NOT ENOUGH INFORMATION"
         
         raw_conf = final_verdict.get("confidence", 0.0)
         if raw_conf <= 1.0:
@@ -282,24 +328,65 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
         elif verdict == "REFUTED": v_color, v_icon = "#ef4444", "❌"
         else: v_color, v_icon = "#f59e0b", "⚠️"
 
+        safe_claim = claim.replace('"', '&quot;')
+        exec_time = getattr(st.session_state, 'execution_time', 0)
+        agg_analysis = final_verdict.get("aggregation_analysis", "No detailed analysis provided.")
+        sub_breakdown = final_verdict.get("subclaim_breakdown", [])
+        
+        sc_html = ""
+        if sub_breakdown:
+            sc_html += "<h3 style='color:#38bdf8; margin-top:30px; font-size:1.2rem; text-align:left; max-width:1000px; margin-left:auto; margin-right:auto;'>Subclaim Breakdown</h3>"
+            sc_html += f"<div style='background:rgba(255,255,255,0.03); border:1px solid rgba(167,139,250,0.3); border-left:4px solid #a78bfa; border-radius:12px; padding:20px; margin:15px auto 25px auto; max-width:1000px; text-align:left;'><h4 style='color:#a78bfa; margin-top:0; font-size:1.05rem; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;'>⚙️ Aggregation Analysis</h4><div style='color:#f8fafc; font-size:0.95rem; line-height:1.5;'>{agg_analysis}</div></div>"
+            sc_html += "<div style='display:flex; flex-direction:column; gap:10px; width:100%; max-width:1000px; margin:0 auto; text-align:left;'>"
+            for sc_res in sub_breakdown:
+                sc_text = sc_res.get("subclaim", "")
+                sc_lbl = str(sc_res.get("label", "NEI")).upper()
+                if sc_lbl == "NEI": sc_lbl = "NOT ENOUGH INFORMATION"
+                sc_conf = sc_res.get("confidence", 0)
+                if sc_conf <= 1.0: sc_conf = int(sc_conf * 100)
+                else: sc_conf = int(sc_conf)
+                
+                if sc_lbl == "SUPPORTED":
+                    sc_c = "#10b981"
+                elif sc_lbl == "REFUTED":
+                    sc_c = "#ef4444"
+                else:
+                    sc_c = "#f59e0b"
+                    
+                sc_just = sc_res.get("justification", "No justification provided.")
+                sc_html += f"<div style='background:rgba(255,255,255,0.03); border-left:4px solid {sc_c}; border-radius:8px; padding:15px; margin-bottom:10px;'>"
+                sc_html += f"<div style='display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;'><div style='font-size:1rem; color:#f8fafc; font-weight:600;'>\"{sc_text}\"</div><div style='background:rgba(255,255,255,0.05); border:1px solid {sc_c}; color:{sc_c}; padding:3px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; white-space:nowrap; margin-left:15px;'>{sc_lbl} &bull; {sc_conf}%</div></div>"
+                sc_html += f"<div style='font-size:0.9rem; color:#cbd5e1; line-height:1.5;'>{sc_just}</div>"
+                sc_html += "</div>"
+            sc_html += "</div>"
+
         slide4_content = f"""
           <div class="slide-header">Final Fact-Checking Result</div>
-          <div style="display:flex; width:100%; max-width:900px; gap:30px; margin-top:20px;">
-            <div style="flex:1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:30px; display:flex; flex-direction:column; align-items:center; text-align:center; box-shadow: 0 0 30px rgba(0,0,0,0.3);">
+          <div style="text-align:center; color:#94a3b8; font-size:0.95rem; margin-bottom:15px;">
+             ⏱️ <strong>Execution Time:</strong> {exec_time:.1f} seconds
+          </div>
+          <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:12px; padding:20px 30px; color:#f8fafc; font-size:1.1rem; text-align:center; font-style:italic; max-width:800px; box-shadow: 0 0 20px rgba(56,189,248,0.2); margin:0 auto 20px auto;">
+              "{safe_claim}"
+          </div>
+          <div style="display:flex; width:100%; max-width:1000px; gap:20px; margin:20px auto;">
+            <div style="flex:1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:25px; display:flex; flex-direction:column; align-items:center; text-align:center; box-shadow: 0 0 30px rgba(0,0,0,0.3);">
                <div style="font-size:3rem; margin-bottom:10px;">{v_icon}</div>
-               <div style="color:{v_color}; font-size:2rem; font-weight:900; letter-spacing:2px; margin-bottom:20px;">{verdict}</div>
-               <div style="position:relative; width:150px; height:150px; border-radius:50%; background:conic-gradient({v_color} {conf}%, #1e293b 0); display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px {v_color}40;">
-                   <div style="position:absolute; width:130px; height:130px; background:#0f172a; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                       <span style="font-size:2.5rem; font-weight:800; color:#f8fafc;">{conf}%</span>
-                       <span style="font-size:0.8rem; color:#94a3b8; text-transform:uppercase;">Confidence</span>
+               <div style="color:{v_color}; font-size:1.8rem; font-weight:900; letter-spacing:2px; margin-bottom:20px;">{verdict}</div>
+               <div style="position:relative; width:120px; height:120px; border-radius:50%; background:conic-gradient({v_color} {conf}%, #1e293b 0); display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px {v_color}40;">
+                   <div style="position:absolute; width:100px; height:100px; background:#0f172a; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                       <span style="font-size:2rem; font-weight:800; color:#f8fafc;">{conf}%</span>
+                       <span style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase;">Confidence</span>
                    </div>
                </div>
             </div>
-            <div style="flex:1.5; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:30px; text-align:left; display:flex; flex-direction:column; box-shadow: 0 0 30px rgba(0,0,0,0.3);">
-                <h3 style="color:#a78bfa; margin-top:0; font-size:1.3rem;">Medical Justification</h3>
-                <div style="color:#f8fafc; font-size:1.05rem; line-height:1.6; flex:1; overflow-y:auto; max-height: 200px; padding-right: 10px;">{just}</div>
+            <div style="flex:2; display:flex; flex-direction:column; justify-content:center;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:20px; text-align:left; box-shadow: 0 0 30px rgba(0,0,0,0.3); height:100%;">
+                    <h3 style="color:#a78bfa; margin-top:0; font-size:1.2rem; margin-bottom:12px;">Medical Justification</h3>
+                    <div style="color:#f8fafc; font-size:1.05rem; line-height:1.6; overflow-y:auto; max-height:220px; padding-right:10px;">{just}</div>
+                </div>
             </div>
           </div>
+          {sc_html}
           <div style="height: 150px; width: 100%; flex-shrink: 0;"></div>
         """
 
@@ -400,6 +487,8 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     #slide-4:checked ~ .stepper-container .step-ui-4 .step-label {{
         color: {anim_color}; text-shadow: 0 0 10px rgba(255,255,255,0.1);
     }}
+    .eval-highlight-support {{ background-color: rgba(16, 185, 129, 0.25); color: #34d399 !important; font-weight: 700; padding: 3px 8px; border-radius: 4px; border-left: 4px solid #10b981; display: inline-block; }}
+    .eval-highlight-refute {{ background-color: rgba(239, 68, 68, 0.25); color: #f87171 !important; font-weight: 700; padding: 3px 8px; border-radius: 4px; border-left: 4px solid #ef4444; display: inline-block; }}
     </style>
     """
     
@@ -417,17 +506,17 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
   <div class="stepper-container">
       <div class="stepper-line"><div class="stepper-progress" style="width: {progress_percent}%;"></div></div>
       <div class="stepper-steps">
-          <label for="slide-1" class="step step-ui-1 {'active' if step >= 1 else ''}"><div class="step-dot">1</div><div class="step-label">Input</div></label>
-          <label for="slide-2" class="step step-ui-2 {'active' if step >= 2 else ''} {'disabled' if step < 2 else ''}"><div class="step-dot">2</div><div class="step-label">RAG</div></label>
-          <label for="slide-3" class="step step-ui-3 {'active' if step >= 3 else ''} {'disabled' if step < 3 else ''}"><div class="step-dot">3</div><div class="step-label">Eval</div></label>
-          <label for="slide-4" class="step step-ui-4 {'active' if step >= 4 else ''} {'disabled' if step < 4 else ''}"><div class="step-dot">4</div><div class="step-label">Done</div></label>
+          <label for="slide-1" class="step step-ui-1 {'active' if step >= 1 else ''}"><div class="step-dot">1</div><div class="step-label">Decomposition</div></label>
+          <label for="slide-2" class="step step-ui-2 {'active' if step >= 2 else ''} {'disabled' if step < 2 else ''}"><div class="step-dot">2</div><div class="step-label">Retrieval</div></label>
+          <label for="slide-3" class="step step-ui-3 {'active' if step >= 3 else ''} {'disabled' if step < 3 else ''}"><div class="step-dot">3</div><div class="step-label">Evaluation</div></label>
+          <label for="slide-4" class="step step-ui-4 {'active' if step >= 4 else ''} {'disabled' if step < 4 else ''}"><div class="step-dot">4</div><div class="step-label">Aggregation</div></label>
       </div>
   </div>
 
   <div class="carousel-viewport">
     <div class="slider-container">
       <div class="slide"><div class="slide-content">{slide1_content}</div></div>
-      <div class="slide"><div class="slide-content"><div class="slide-header">Document Retrieval Extracts (RAG)</div>{sc_html_p2}</div></div>
+      <div class="slide"><div class="slide-content"><div class="slide-header">Evidence Retrieval</div>{sc_html_p2}</div></div>
       <div class="slide"><div class="slide-content"><div class="slide-header">Clinical Reasoning Agent Results</div>{sc_html_p3}</div></div>
       <div class="slide"><div class="slide-content">{slide4_content}</div></div>
     </div>
@@ -707,9 +796,13 @@ with col_main:
             st.session_state.source_selections = {}
             st.session_state.downloader_status = {}
             st.session_state.retriever_status = {}
+            st.session_state.queries_by_source = {}
+            st.session_state.download_stats = {}
             if "current_final" in st.session_state:
                 del st.session_state["current_final"]
                 
+            st.session_state.start_time = time.time()
+            st.session_state.execution_time = 0.0
             error_placeholder.empty() 
             update_interactive_loading(claim=claim, step=1)
                 
@@ -736,19 +829,27 @@ with col_main:
                                         for sc in scs:
                                             sc_text = sc if isinstance(sc, str) else sc.get("claim", str(sc))
                                             st.session_state.current_subclaims.append(sc_text)
-                                        update_interactive_loading(claim=claim, step=2, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
+                                        st.session_state.max_step = max(st.session_state.get("max_step", 1), 2)
+                                        update_interactive_loading(claim=claim, step=st.session_state.max_step, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
                                         
                                     elif "source_selector" in step_data:
                                         info = step_data["source_selector"]
                                         sub_id = info.get("subclaim_id")
                                         if sub_id: st.session_state.source_selections[sub_id] = [k for k, v in (info.get("retrieval_source") or {}).items() if v > 0]
-                                        update_interactive_loading(claim=claim, step=2, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
+                                        st.session_state.max_step = max(st.session_state.get("max_step", 1), 2)
+                                        update_interactive_loading(claim=claim, step=st.session_state.max_step, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
                                         
                                     elif "downloader_agent" in step_data:
                                         info = step_data["downloader_agent"]
                                         sub_id = info.get("subclaim_id")
-                                        if sub_id: st.session_state.downloader_status[sub_id] = len(info.get("downloaded_chunks", []))
-                                        update_interactive_loading(claim=claim, step=2, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
+                                        if sub_id: 
+                                            st.session_state.downloader_status[sub_id] = len(info.get("downloaded_chunks", []))
+                                            if "queries_by_source" not in st.session_state: st.session_state.queries_by_source = {}
+                                            if "download_stats" not in st.session_state: st.session_state.download_stats = {}
+                                            st.session_state.queries_by_source[sub_id] = info.get("queries_by_source", {})
+                                            st.session_state.download_stats[sub_id] = info.get("download_stats", {})
+                                        st.session_state.max_step = max(st.session_state.get("max_step", 1), 2)
+                                        update_interactive_loading(claim=claim, step=st.session_state.max_step, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=0, total_to_verify=len(st.session_state.current_subclaims))
                                         
                                     elif "hybrid_retriever" in step_data:
                                         info = step_data["hybrid_retriever"]
@@ -763,10 +864,16 @@ with col_main:
                                         for er in eval_results:
                                             if er not in st.session_state.current_evaluations:
                                                 st.session_state.current_evaluations.append(er)
-                                        st.session_state.max_step = max(st.session_state.get("max_step", 1), 3)
+                                        if len(st.session_state.current_evaluations) == len(st.session_state.current_subclaims) and len(st.session_state.current_subclaims) > 0:
+                                            st.session_state.max_step = max(st.session_state.get("max_step", 1), 4)
+                                        else:
+                                            st.session_state.max_step = max(st.session_state.get("max_step", 1), 3)
+                                            
                                         update_interactive_loading(claim=claim, step=st.session_state.max_step, subclaims=st.session_state.current_subclaims, evaluations=st.session_state.current_evaluations, verified_count=len(st.session_state.current_evaluations), total_to_verify=len(st.session_state.current_subclaims))
                                         
                                     elif "aggregate" in step_data:
+                                        if "start_time" in st.session_state:
+                                            st.session_state.execution_time = time.time() - st.session_state.start_time
                                         current_final = step_data["aggregate"].get("final_verdict", {})
                                         st.session_state.current_final = current_final
                                         update_interactive_loading(
@@ -809,13 +916,19 @@ if getattr(st.session_state, "current_final", None):
     )
 
     try:
+        import utils.pdf_generator
+        import importlib
+        importlib.reload(utils.pdf_generator)
         from utils.pdf_generator import generate_fact_check_pdf
         pdf_bytes = generate_fact_check_pdf(
             claim=st.session_state.get("fact_check_claim", claim),
             final_verdict=st.session_state.current_final,
-            subclaims=st.session_state.get("current_evaluations", [])
+            subclaims=st.session_state.get("current_evaluations", []),
+            exec_time=getattr(st.session_state, "execution_time", 0.0)
         )
-    except Exception:
+    except Exception as e:
+        import traceback
+        st.error(f"PDF Generation Error: {e}\n\n{traceback.format_exc()}")
         pdf_bytes = b""
 
     st.markdown("""
