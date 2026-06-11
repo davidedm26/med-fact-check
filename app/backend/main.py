@@ -47,10 +47,16 @@ async def generate_mock_stream(claim: str):
         db = _get_mongo_db()
         if db is not None:
             import random
-            # Find the last 10 runs and pick one at random
-            recent_runs = list(db["run_logs"].find().sort([("timestamp", -1)]).limit(10))
-            if recent_runs:
-                run = random.choice(recent_runs)
+            # Find the last 20 runs and filter to keep only those with verifiable subclaims
+            recent_runs = list(db["run_logs"].find().sort([("timestamp", -1)]).limit(20))
+            valid_runs = []
+            for r in recent_runs:
+                filter_node = db["node_logs"].find_one({"run_id": r["run_id"], "node_name": "claim_filter_node"})
+                if filter_node and len(filter_node.get("output", {}).get("verifiable_subclaims", [])) > 0:
+                    valid_runs.append(r)
+                    
+            if valid_runs:
+                run = random.choice(valid_runs)
                 nodes = list(db["node_logs"].find({"run_id": run["run_id"]}).sort("timestamp", 1))
                 if nodes:
                     chunks_by_subclaim = {}
