@@ -220,8 +220,8 @@ def generate_fact_check_pdf(claim, final_verdict, subclaims, exec_time=0.0):
                 pdf.set_x(15)
                 pdf.set_font('Helvetica', '', 9)
                 pdf.set_text_color(71, 85, 105)
-                # Truncate very long evidence texts to prevent page overflow
-                display_text = text[:500] + ('...' if len(text) > 500 else '')
+                # Show full evidence text as requested
+                display_text = text
                 pdf.multi_cell(0, 5, safe_text(f'"{display_text}"'))
                 pdf.ln(3)
 
