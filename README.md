@@ -268,12 +268,4 @@ docker compose up --build
 
 
 
----
-
-## 👨‍💻 Authors
-
-* **Vittoria Alberto** (M63001750)
-* **Davide Di Matteo** (M63001757)
-* **Carmine Bellotti** (M63001742)
-
 *Big Data Engineering Course, University of Naples Federico II | Prof. Vincenzo Moscato*
