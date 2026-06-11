@@ -200,7 +200,7 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
 
         # Hypothesis template evaluates the subclaim
         claim_escaped = subclaim.replace("{", "[").replace("}", "]")
-        hypothesis_template = f"The claim that '{claim_escaped}' is {{}}."
+        hypothesis_template = f"The claim that '{claim_escaped}' is '{{}}'."
         
         # HF Transformers pipeline using Hugging Face Hub InferenceClient
         label = "nei"
@@ -215,7 +215,7 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
             # Initialize client
             client = InferenceClient(model=model_name, token=hf_token)
             
-            candidate_labels = ["supported", "refuted", "inconclusive"]
+            candidate_labels = ["True", "False", "NEI"]
             
             log.info(f"Running zero-shot classification via InferenceClient...")
             
@@ -226,14 +226,14 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
                 multi_label=False
             )
             
-            # The result is a list of dicts: [{'label': 'supported', 'score': 0.9}, ...]
+            # The result is a list of dicts: [{'label': 'True', 'score': 0.9}, ...]
             if isinstance(result, list) and len(result) > 0:
                 best_label = result[0].get("label", "")
                 confidence = float(result[0].get("score", 0.0))
                 
-                if best_label == "supported":
+                if best_label == "True":
                     label = "supported"
-                elif best_label == "refuted":
+                elif best_label == "False":
                     label = "refuted"
                 else:
                     label = "nei"

@@ -1,5 +1,4 @@
 import requests
-import time
 from typing import List, Dict, Optional
 
 from utils.logger import get_logger
@@ -8,41 +7,15 @@ log = get_logger("EuropePMC_API")
 BASE_URL_SEARCH = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
 BASE_URL_FULLTEXT = "https://www.ebi.ac.uk/europepmc/webservices/rest/{}/fullTextXML"
 
-def _robust_get(url: str, params: dict = None, timeout: float = 30.0, headers: dict = None, max_retries: int = 3, backoff_factor: float = 1.0) -> requests.Response:
-    last_exc = None
-    for attempt in range(1, max_retries + 1):
-        try:
-            response = requests.get(url, params=params, timeout=timeout, headers=headers)
-            if response.status_code == 429:
-                log.warning(f"Rate limit (429) hit. Retrying in {backoff_factor * (2 ** (attempt - 1))}s...")
-                time.sleep(backoff_factor * (2 ** (attempt - 1)))
-                continue
-            if 500 <= response.status_code < 600:
-                log.warning(f"Server error ({response.status_code}). Retrying in {backoff_factor * (2 ** (attempt - 1))}s...")
-                time.sleep(backoff_factor * (2 ** (attempt - 1)))
-                continue
-            response.raise_for_status()
-            return response
-        except requests.exceptions.RequestException as e:
-            last_exc = e
-            log.warning(f"Network error on attempt {attempt}: {e}. Retrying...")
-            time.sleep(backoff_factor * (2 ** (attempt - 1)))
-    
-    if last_exc:
-        raise last_exc
-    raise requests.exceptions.RequestException("Request failed after maximum retries.")
-
-def search_articles(query: str, limit: int = 10, max_year: int = None, open_access: bool = True) -> List[Dict]:
+def search_articles(query: str, limit: int = 10, max_year: int = None) -> List[Dict]: # Limit a 10
     """
     Search Europe PMC for articles using keywords.
-    Optionally enforces Open Access search and extracts the core metadata.
+    Enforces Open Access search and extracts the core metadata.
     """
-    log.info(f"Searching articles for query: '{query}' (limit={limit}, max_year={max_year}, open_access={open_access})")
+    log.info(f"Searching articles for query: '{query}' (limit={limit}, max_year={max_year})")
     
-    structured_query = f"({query})"
-    if open_access:
-        structured_query += " AND OPEN_ACCESS:y"
-        
+    # Keep the OPEN_ACCESS:y filter to ensure full-text access, but allow abstract fallback
+    structured_query = f"({query}) AND OPEN_ACCESS:y"
     if max_year:
         structured_query += f" AND (FIRST_PDATE:[* TO {max_year}-12-31])"
     
@@ -53,16 +26,19 @@ def search_articles(query: str, limit: int = 10, max_year: int = None, open_acce
         'resultType': 'core' 
     }
     header = {
-        "User-Agent": "MedFactCheck-UniversityProject/1.0 (tua_email_reale@studenti.unisa.it)"
+    "User-Agent": "MedFactCheck-UniversityProject/1.0 (tua_email_reale@studenti.unisa.it)"
     }
     
     try:
-        response = _robust_get(BASE_URL_SEARCH, params=params, timeout=30, headers=header)
+        response = requests.get(BASE_URL_SEARCH, params=params, timeout=30, headers=header)
+        response.raise_for_status()
+        
         data = response.json()
         results = data.get('resultList', {}).get('result', [])
         
         extracted_data = []
         for item in results:
+            # Extract the requested metadata with care
             extracted_data.append({
                 "pmcid": item.get("pmcid", ""),
                 "pmid": item.get("pmid", ""),          
@@ -89,17 +65,18 @@ def fetch_full_text_xml(pmcid: str) -> Optional[str]:
     url = BASE_URL_FULLTEXT.format(pmcid)
     
     try:
-        response = _robust_get(url, timeout=30)
-        return response.text
-    except requests.exceptions.HTTPError as e:
-        if e.response is not None and e.response.status_code == 404:
+        response = requests.get(url, timeout=30) 
+        if response.status_code == 404:
             log.debug(f"XML non disponibile per PMCID {pmcid} (404 Not Found).")
             return None
-        log.warning(f"HTTP error downloading PMCID {pmcid}: {e}")
-        return None
+        response.raise_for_status()
+        return response.text
+        
     except requests.exceptions.RequestException as e:
         log.warning(f"Error downloading PMCID {pmcid}: {e}")
         return None
+
+# Local test block
 
 if __name__ == "__main__":
     print("\n" + "="*50)
@@ -113,6 +90,7 @@ if __name__ == "__main__":
         print(f"\n[{i+1}] {article['title']}")
         print(f"    PMID:  {article['pmid']}")
         print(f"    DOI:   {article['doi']}")
+        print(f"    YEAR:  {article['year']}")
         
         if article['pmcid']:
             raw_xml = fetch_full_text_xml(article['pmcid'])

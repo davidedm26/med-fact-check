@@ -1,5 +1,4 @@
 import json
-import time
 
 import requests
 from typing import List, Dict
@@ -8,30 +7,6 @@ from utils.logger import get_logger
 log = get_logger("UniProtAPI")
 
 BASE_URL_UNIPROT = "https://rest.uniprot.org/uniprotkb/search"
-
-def _robust_get(url: str, params: dict = None, timeout: float = 30.0, max_retries: int = 3, backoff_factor: float = 1.0) -> requests.Response:
-    last_exc = None
-    for attempt in range(1, max_retries + 1):
-        try:
-            response = requests.get(url, params=params, timeout=timeout)
-            if response.status_code == 429:
-                log.warning(f"UniProt rate limit (429) hit. Retrying in {backoff_factor * (2 ** (attempt - 1))}s...")
-                time.sleep(backoff_factor * (2 ** (attempt - 1)))
-                continue
-            if 500 <= response.status_code < 600:
-                log.warning(f"UniProt server error ({response.status_code}). Retrying in {backoff_factor * (2 ** (attempt - 1))}s...")
-                time.sleep(backoff_factor * (2 ** (attempt - 1)))
-                continue
-            response.raise_for_status()
-            return response
-        except requests.exceptions.RequestException as e:
-            last_exc = e
-            log.warning(f"UniProt network error on attempt {attempt}: {e}. Retrying...")
-            time.sleep(backoff_factor * (2 ** (attempt - 1)))
-    
-    if last_exc:
-        raise last_exc
-    raise requests.exceptions.RequestException("UniProt request failed after maximum retries.")
 
 def search_protein(query: str, limit: int = 10) -> List[Dict]: # Limit to 10
     log.info(f"Searching protein/gene for query: '{query}'")
@@ -44,7 +19,8 @@ def search_protein(query: str, limit: int = 10) -> List[Dict]: # Limit to 10
     }
     
     try:
-        response = _robust_get(BASE_URL_UNIPROT, params=params, timeout=10)
+        response = requests.get(BASE_URL_UNIPROT, params=params, timeout=10)
+        response.raise_for_status()
         data = response.json()
         results = data.get('results', [])
         

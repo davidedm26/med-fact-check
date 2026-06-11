@@ -20,24 +20,17 @@ OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "results", "pipeline_p
 # Change the dataset name here: "scifact", "bioasq", "healthfc", or "all" to run all
 DATASET_TO_EVALUATE = "healthfc" 
 
-# Total maximum number of samples to evaluate across all classes.
-# The script will perform stratified sampling to maintain class proportions.
-MAX_SAMPLES = 30
-
-# Custom run folder name (e.g. "test3", "run_2") to avoid overwriting previous results.
-# If empty, saves directly under results/pipeline_predictions/
-RUN_NAME = "test3"
+# Maximum number of samples PER CLASS (e.g. 5 supported, 5 refuted). 
+# Useful for getting almost immediate feedback.
+MAX_SAMPLES_PER_CLASS = 10
 # ==========================================
 
 def run_rapid_evaluation():
-    run_output_dir = os.path.join(OUTPUT_DIR, RUN_NAME) if RUN_NAME else OUTPUT_DIR
-    os.makedirs(run_output_dir, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     
     print(f"STARTING RAPID EVALUATION\n" + "="*50)
     print(f"Selected dataset: {DATASET_TO_EVALUATE.upper()}")
-    print(f"Max samples: {MAX_SAMPLES}")
-    if RUN_NAME:
-        print(f"Run name (folder): {RUN_NAME}")
+    print(f"Max samples per class: {MAX_SAMPLES_PER_CLASS}")
     
     agent = FactAgent()
     
@@ -45,7 +38,7 @@ def run_rapid_evaluation():
     
     for ds_name in datasets_to_run:
         csv_path = os.path.join(DATASETS_DIR, f"{ds_name}_clean.csv")
-        output_json_path = os.path.join(run_output_dir, f"rapid_pred_{ds_name}.json")
+        output_json_path = os.path.join(OUTPUT_DIR, f"rapid_pred_{ds_name}.json")
         
         if not os.path.exists(csv_path):
             print(f"WARNING: Dataset {csv_path} not found. Skipping.")
@@ -57,28 +50,10 @@ def run_rapid_evaluation():
         # Do NOT exclude claims with true_label == "NEI" before running the pipeline
         # df = df[df['true_label'].str.upper() != "NEI"].copy()
         
-        total_samples = min(len(df), MAX_SAMPLES)
-        
-        # Stratified sampling
-        # Compute exact counts per class to match total_samples as closely as possible
-        counts = (df['true_label'].value_counts(normalize=True) * total_samples).round().astype(int)
-        
-        # Ensure each class gets at least 1 sample if there are samples available
-        for label in df['true_label'].unique():
-            if counts.get(label, 0) == 0 and len(df[df['true_label'] == label]) > 0:
-                counts[label] = 1
-                
-        # Adjust sum of counts to match total_samples exactly
-        difference = total_samples - counts.sum()
-        if difference != 0:
-            largest_class = counts.idxmax()
-            counts[largest_class] = max(1, counts[largest_class] + difference)
-            
         sampled_dfs = []
         for label, group in df.groupby('true_label'):
-            n_samples = min(len(group), counts.get(label, 0))
-            if n_samples > 0:
-                sampled_dfs.append(group.sample(n=n_samples, random_state=42))
+            n_samples = min(len(group), MAX_SAMPLES_PER_CLASS)
+            sampled_dfs.append(group.sample(n=n_samples, random_state=42))
         
         sampled_df = pd.concat(sampled_dfs).reset_index(drop=True)
             
@@ -132,25 +107,6 @@ def run_rapid_evaluation():
     print("\n" + "="*50)
     print("RAPID PIPELINE EVALUATION COMPLETED.")
 
-def standardize_label(label: str) -> str:
-    lbl = str(label).lower().strip()
-    if lbl in ["nei", "not_enough_information", "not enough information"]:
-        return "nei"
-    if lbl in ["supported", "support", "true", "yes"]:
-        return "supported"
-    if lbl in ["refuted", "contradict", "false", "no"]:
-        return "refuted"
-    return lbl
-
-def find_prediction_file(output_dir, filename):
-    direct_path = os.path.join(output_dir, filename)
-    if os.path.exists(direct_path):
-        return direct_path
-    for root, dirs, files in os.walk(output_dir):
-        if filename in files:
-            return os.path.join(root, filename)
-    return None
-
 def calculate_metrics():
     print("\n" + "="*50)
     print("CALCULATING METRICS...")
@@ -158,33 +114,21 @@ def calculate_metrics():
     datasets_to_run = ["scifact", "bioasq", "healthfc"] if DATASET_TO_EVALUATE.lower() == "all" else [DATASET_TO_EVALUATE]
     all_metrics = []
     
-    run_output_dir = os.path.join(OUTPUT_DIR, RUN_NAME) if RUN_NAME else OUTPUT_DIR
-    if RUN_NAME:
-        print(f"Filtering metrics for run: {RUN_NAME}")
-        
     for ds_name in datasets_to_run:
-        filename = f"rapid_pred_{ds_name}.json"
-        pred_file = find_prediction_file(run_output_dir, filename)
+        pred_file = os.path.join(OUTPUT_DIR, f"rapid_pred_{ds_name}.json")
         
-        if not pred_file:
-            print(f"WARNING: Prediction file '{filename}' not found in {run_output_dir} or its subdirectories. Skipping.")
+        if not os.path.exists(pred_file):
             continue
             
-        print(f"Loading predictions from: {pred_file}")
         with open(pred_file, 'r', encoding='utf-8') as f:
-            try:
-                results = json.load(f)
-            except json.JSONDecodeError as e:
-                print(f"ERROR: Failed to parse JSON file {pred_file}: {e}")
-                continue
+            results = json.load(f)
             
         total_claims = len(results)
         if total_claims == 0:
-            print(f"WARNING: Prediction file '{pred_file}' is empty. Skipping.")
             continue
             
         # Determine if dataset is natively 3-class (contains NEI true labels)
-        has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        has_nei_true = any(str(item.get("true_label", "")).upper() == "NEI" for item in results)
         
         if has_nei_true:
             filtered_results = results
@@ -197,7 +141,7 @@ def calculate_metrics():
         else:
             filtered_results = [
                 item for item in results 
-                if standardize_label(item.get("predicted_label", "")) != "nei"
+                if str(item.get("predicted_label", "")).upper() not in ["NEI", "NOT_ENOUGH_INFORMATION"]
             ]
             evaluated_claims = len(filtered_results)
             excluded_claims = total_claims - evaluated_claims
@@ -210,8 +154,8 @@ def calculate_metrics():
         if evaluated_claims == 0:
             continue
             
-        y_true = [standardize_label(item["true_label"]) for item in filtered_results]
-        y_pred = [standardize_label(item["predicted_label"]) for item in filtered_results]
+        y_true = [str(item["true_label"]).lower() for item in filtered_results]
+        y_pred = [str(item["predicted_label"]).lower() for item in filtered_results]
         
         acc = accuracy_score(y_true, y_pred)
         prec = precision_score(y_true, y_pred, average='macro', zero_division=0)

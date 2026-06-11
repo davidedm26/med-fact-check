@@ -98,10 +98,7 @@ class IngestionNode:
                     })
 
             elif target == "literature":
-                articles = search_articles(query=single_query, limit=api_limit, max_year=max_year, open_access=True)
-                if not articles:
-                    log.info(f"{query_tag} No Open Access articles found. Falling back to abstract-only search.")
-                    articles = search_articles(query=single_query, limit=api_limit, max_year=max_year, open_access=False)
+                articles = search_articles(query=single_query, limit=api_limit, max_year=max_year)
                 stats["documents_found"] += len(articles)
                 for article in tqdm(articles, desc=f"[{sub_id} | {target.upper()} | query_{query_index}] articles", unit="article", leave=False):
                     stats["articles_download_attempted"] += 1

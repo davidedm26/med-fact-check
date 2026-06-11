@@ -85,29 +85,27 @@ def build_aggregate_node(aggregator_agent):
                 aggregation_analysis = structured.get("aggregation_analysis", "")
                 label = structured.get("label", "nei")
                 justification = structured.get("justification", "")
+                try:
+                    confidence = float(structured.get("confidence", 0.0))
+                except (ValueError, TypeError):
+                    confidence = 0.0
             else:
                 logical_relationship = getattr(structured, "logical_relationship", "")
                 aggregation_analysis = getattr(structured, "aggregation_analysis", "")
                 label = getattr(structured, "label", "nei")
                 justification = getattr(structured, "justification", "")
-                
+                try:
+                    confidence = float(getattr(structured, "confidence", 0.0))
+                except (ValueError, TypeError):
+                    confidence = 0.0
+                    
         except Exception as exc:
             log.error(f"Aggregator Agent error: {exc}")
             logical_relationship = "error"
             aggregation_analysis = f"Error: {exc}"
             label = "not_enough_information"
+            confidence = 0.0
             justification = "An error occurred during final aggregation."
-
-        # Deterministic confidence calculation
-        if label == "supported":
-            supported_confs = [sc['confidence'] for sc in breakdown if sc['label'] == 'supported']
-            confidence = sum(supported_confs) / len(supported_confs) if supported_confs else 0.0
-        elif label == "refuted":
-            refuted_confs = [sc['confidence'] for sc in breakdown if sc['label'] == 'refuted']
-            confidence = max(refuted_confs) if refuted_confs else 0.0
-        else:
-            all_confs = [sc['confidence'] for sc in breakdown]
-            confidence = sum(all_confs) / len(all_confs) if all_confs else 0.0
 
         verdict = {
             "logical_relationship": logical_relationship,
