@@ -39,83 +39,40 @@ def split_into_sentences(text):
 
 
 def render_claim_checklist(sentences, context=""):
-    """Renderizza una checklist interattiva per selezionare i claim."""
+    """Renderizza un selettore interattivo per selezionare UN SOLO claim."""
     if not sentences:
         return []
     
-    st.markdown("### 📋 Select Claims to Verify")
+    st.markdown("### 📋 Select a Claim to Verify")
     
     if context:
         st.info(f"📄 **Context:** {context}")
-    
-    # Inizializza la sessione per i claim selezionati
-    if 'selected_claims' not in st.session_state:
-        st.session_state.selected_claims = {}
-    
-    # Pulsanti per selezione rapida
-    col_select_all, col_deselect_all, col_info = st.columns([1, 1, 2])
-    with col_select_all:
-        if st.button("✅ Select All", use_container_width=True):
-            for i in range(len(sentences)):
-                st.session_state.selected_claims[i] = True
-    
-    with col_deselect_all:
-        if st.button("❌ Deselect All", use_container_width=True):
-            for i in range(len(sentences)):
-                st.session_state.selected_claims[i] = False
-    
-    with col_info:
-        selected_count = sum(1 for v in st.session_state.selected_claims.values() if v)
-        st.markdown(f"**{selected_count}/{len(sentences)} claims selected**")
-    
+        
     st.markdown("---")
     
-    # Renderizza ogni frase come checkbox
-    selected_claims = []
+    options = [f"Claim #{i+1}: {s[:100]}..." if len(s) > 100 else f"Claim #{i+1}: {s}" for i, s in enumerate(sentences)]
     
-    for i, sentence in enumerate(sentences):
-        is_selected = st.session_state.selected_claims.get(i, False)
-        
-        col_check, col_text = st.columns([0.1, 0.9])
-        
-        with col_check:
-            checked = st.checkbox(
-                f"##{i}",
-                value=is_selected,
-                key=f"claim_{i}",
-                label_visibility="collapsed"
-            )
-            st.session_state.selected_claims[i] = checked
-        
-        with col_text:
-            preview = sentence[:200] + "..." if len(sentence) > 200 else sentence
-            
-            if checked:
-                st.markdown(f"""
-                <div style="background: rgba(16, 185, 129, 0.1); 
-                            border-left: 4px solid #10b981; 
-                            padding: 12px 15px; 
-                            border-radius: 8px;
-                            margin: 5px 0;">
-                    <span style="color: #34d399; font-weight: 600;">✓ Claim #{i+1}</span><br>
-                    <span style="color: #f8fafc; line-height: 1.5;">{preview}</span>
-                </div>
-                """, unsafe_allow_html=True)
-                selected_claims.append(sentence)
-            else:
-                st.markdown(f"""
-                <div style="background: rgba(255, 255, 255, 0.02); 
-                            border-left: 4px solid rgba(255, 255, 255, 0.1); 
-                            padding: 12px 15px; 
-                            border-radius: 8px;
-                            margin: 5px 0;
-                            opacity: 0.7;">
-                    <span style="color: #94a3b8;">Claim #{i+1}</span><br>
-                    <span style="color: #cbd5e1; line-height: 1.5;">{preview}</span>
-                </div>
-                """, unsafe_allow_html=True)
+    selected_idx = st.radio(
+        "Choose one sentence from the extracted text:",
+        options=range(len(sentences)),
+        format_func=lambda i: options[i],
+        key=f"claim_radio"
+    )
     
-    return selected_claims
+    if selected_idx is not None:
+        selected_sentence = sentences[selected_idx]
+        st.markdown(f"""
+        <div style="background: rgba(16, 185, 129, 0.1); 
+                    border-left: 4px solid #10b981; 
+                    padding: 15px; 
+                    border-radius: 8px;
+                    margin: 15px 0;">
+            <span style="color: #34d399; font-weight: 600;">✓ Selected Claim #{selected_idx+1}</span><br><br>
+            <span style="color: #f8fafc; font-size: 1.05rem; line-height: 1.5;">{selected_sentence}</span>
+        </div>
+        """, unsafe_allow_html=True)
+        return [selected_sentence]
+    return []
 
 
 # Funzione per evidenziare le citazioni
@@ -681,94 +638,78 @@ with col_main:
                         context=f"File: {uploaded_file.name}"
                     )
                     
-                    # Combina i claim selezionati
                     if selected_claims:
-                        claim = " ".join(selected_claims)
-                        st.success(f"✅ {len(selected_claims)} claims selected for verification")
-                        
-                        # Mostra i claim selezionati
-                        with st.expander("📋 Selected Claims", expanded=False):
-                            for i, sc in enumerate(selected_claims):
-                                st.markdown(f"""
-                                <div style="background: rgba(16, 185, 129, 0.1); 
-                                            border-left: 4px solid #10b981; 
-                                            padding: 10px 15px; 
-                                            border-radius: 8px;
-                                            margin: 8px 0;">
-                                    <strong style="color: #34d399;">Claim {i+1}:</strong> 
-                                    <span style="color: #f8fafc;">{sc[:200]}...</span>
-                                </div>
-                                """, unsafe_allow_html=True)
+                        claim = selected_claims[0]
                     else:
-                        st.warning("⚠️ Please select at least one claim to verify")
+                        st.warning("⚠️ Please select a claim to verify")
                 else:
                     st.warning("⚠️ No valid sentences found in the document")
                     
         elif input_method == "🔗 Provide URL":
             url_input = st.text_input("Enter Article URL:", placeholder="https://example.com/article")
-            if url_input:
+            fetch_clicked = st.button("🌐 Fetch URL Content", type="secondary")
+            
+            if "fetched_url_data" not in st.session_state:
+                st.session_state.fetched_url_data = {"url": None, "sentences": [], "page_content": ""}
+
+            if url_input and fetch_clicked:
                 if not url_input.startswith(("http://", "https://")):
                     st.warning("Please enter a valid URL starting with http:// or https://")
                 else:
                     try:
                         with st.spinner("Fetching content from URL..."):
-                            res = requests.get(url_input, timeout=10)
+                            headers = {
+                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                            }
+                            res = requests.get(url_input, headers=headers, timeout=10)
                             if res.status_code == 200:
                                 soup = BeautifulSoup(res.text, "html.parser")
                                 for script in soup(["script", "style"]):
                                     script.extract()
                                 page_content = soup.get_text(separator=' ', strip=True)
-                                st.success("✅ Content fetched successfully!")
-                                
-                                # Mostra preview del contenuto
-                                with st.expander("🌐 Page Content", expanded=True):
-                                    preview = page_content[:1000] + ("..." if len(page_content) > 1000 else "")
-                                    st.text_area(
-                                        "Page Content:", 
-                                        value=preview, 
-                                        height=150, 
-                                        disabled=True
-                                    )
-                                
-                                # Dividi in frasi e mostra checklist
                                 sentences = split_into_sentences(page_content)
-                                
-                                if sentences:
-                                    st.markdown(f"**📊 Found {len(sentences)} sentences on the page**")
-                                    
-                                    # Usa la checklist per selezionare i claim
-                                    selected_claims = render_claim_checklist(
-                                        sentences, 
-                                        context=f"URL: {url_input}"
-                                    )
-                                    
-                                    # Combina i claim selezionati
-                                    if selected_claims:
-                                        claim = " ".join(selected_claims)
-                                        st.success(f"✅ {len(selected_claims)} claims selected for verification")
-                                        
-                                        # Mostra i claim selezionati
-                                        with st.expander("📋 Selected Claims", expanded=False):
-                                            for i, sc in enumerate(selected_claims):
-                                                st.markdown(f"""
-                                                <div style="background: rgba(16, 185, 129, 0.1); 
-                                                            border-left: 4px solid #10b981; 
-                                                            padding: 10px 15px; 
-                                                            border-radius: 8px;
-                                                            margin: 8px 0;">
-                                                    <strong style="color: #34d399;">Claim {i+1}:</strong> 
-                                                    <span style="color: #f8fafc;">{sc[:200]}...</span>
-                                                </div>
-                                                """, unsafe_allow_html=True)
-                                    else:
-                                        st.warning("⚠️ Please select at least one claim to verify")
-                                else:
-                                    st.warning("⚠️ No valid sentences found on the page")
+                                st.session_state.fetched_url_data = {
+                                    "url": url_input,
+                                    "sentences": sentences,
+                                    "page_content": page_content
+                                }
                             else:
                                 st.error(f"Failed to fetch URL. Status code: {res.status_code}")
                     except Exception as e:
                         st.error(f"Error fetching URL: {str(e)}")
-
+            
+            if st.session_state.fetched_url_data.get("url") == url_input and url_input != "":
+                st.success("✅ Content fetched successfully!")
+                
+                # Mostra preview del contenuto
+                page_content = st.session_state.fetched_url_data.get("page_content", "")
+                with st.expander("🌐 Page Content", expanded=True):
+                    preview = page_content[:1000] + ("..." if len(page_content) > 1000 else "")
+                    st.text_area(
+                        "Page Content:", 
+                        value=preview, 
+                        height=150, 
+                        disabled=True
+                    )
+                
+                # Dividi in frasi e mostra checklist
+                sentences = st.session_state.fetched_url_data.get("sentences", [])
+                
+                if sentences:
+                    st.markdown(f"**📊 Found {len(sentences)} sentences on the page**")
+                    
+                    # Usa la checklist per selezionare i claim
+                    selected_claims = render_claim_checklist(
+                        sentences, 
+                        context=f"URL: {url_input}"
+                    )
+                    
+                    if selected_claims:
+                        claim = selected_claims[0]
+                    else:
+                        st.warning("⚠️ Please select a claim to verify")
+                else:
+                    st.warning("⚠️ No valid sentences found on the page")
     if "real_results" not in st.session_state:
         st.session_state.real_results = None
     if "current_subclaims" not in st.session_state:
