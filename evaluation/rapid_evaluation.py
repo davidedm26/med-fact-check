@@ -235,7 +235,7 @@ def calculate_metrics():
 
 if __name__ == "__main__":
     # Uncomment the line below if you want to rerun predictions from scratch
-    run_rapid_evaluation()
+    #run_rapid_evaluation()
     
     # Only calculates metrics using already saved JSONs
     calculate_metrics()

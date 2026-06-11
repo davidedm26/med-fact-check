@@ -18,7 +18,7 @@ DATASETS = ["scifact", "bioasq", "healthfc"]
 
 # Custom run folder name (e.g. "final_run_1", "run_2") to avoid overwriting previous results.
 # If empty, saves directly under results/pipeline_predictions/
-RUN_NAME = ""
+RUN_NAME = "final_test_1"
 
 def load_progress(output_json_path):
     if os.path.exists(output_json_path):
@@ -73,7 +73,7 @@ def run_final_evaluation():
             n_samples = min(len(group), counts.get(label, 0))
             if n_samples > 0:
                 sampled_dfs.append(group.sample(n=n_samples, random_state=42))
-        df_sampled = pd.concat(sampled_dfs).reset_index(drop=True)
+        df_sampled = pd.concat(sampled_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
         
         # Load previous progress
         predictions = load_progress(output_json_path)

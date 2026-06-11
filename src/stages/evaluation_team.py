@@ -118,19 +118,16 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
             supporting_quotes = structured.get("supporting_quotes", [])
             refuting_quotes = structured.get("refuting_quotes", [])
             distilled_evidence = structured.get("distilled_evidence", "")
-            evidence_verdict_hint = structured.get("evidence_verdict_hint", "")
         else:
             reasoning_chain = getattr(structured, "reasoning", "")
             supporting_quotes = getattr(structured, "supporting_quotes", [])
             refuting_quotes = getattr(structured, "refuting_quotes", [])
             distilled_evidence = getattr(structured, "distilled_evidence", "")
-            evidence_verdict_hint = getattr(structured, "evidence_verdict_hint", "")
 
         return {
             "distilled_evidence": distilled_evidence,
             "supporting_quotes": supporting_quotes,
             "refuting_quotes": refuting_quotes,
-            "evidence_verdict_hint": evidence_verdict_hint,
             "messages": [
                 HumanMessage(
                     content=str({
@@ -138,7 +135,6 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
                         "supporting_quotes": supporting_quotes,
                         "refuting_quotes": refuting_quotes,
                         "distilled_evidence": distilled_evidence,
-                        "evidence_verdict_hint": evidence_verdict_hint,
                     }),
                     name="reasoning_agent",
                 )
@@ -179,16 +175,6 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
         supp_str = safe_truncate(" ".join(supporting_quotes), 600)
         ref_str = safe_truncate(" ".join(refuting_quotes), 600)
         
-        # Extract hint from reasoning node output for predicted label
-        hint = ""
-        for msg in state.get("messages", []):
-            if getattr(msg, "name", "") == "reasoning_agent":
-                try:
-                    content_dict = eval(msg.content)
-                    hint = content_dict.get("evidence_verdict_hint", "")
-                except Exception:
-                    pass
-
         # Prepare variables for zero-shot classification
         # Combine supporting and refuting quotes if evidence_text is not directly in state
         sentences = safe_truncate(state.get("evidence_text", " ".join(supporting_quotes + refuting_quotes)), 1000)
