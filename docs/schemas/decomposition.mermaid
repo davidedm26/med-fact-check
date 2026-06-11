@@ -1,0 +1,31 @@
+%%{init: {"themeVariables": {"fontSize": "18px"}}}%%
+graph LR
+    %% Definizione dei nodi
+    Start[" "]
+    
+    subgraph DecompTeam ["Decomposition Team"]
+        Decompose["fa:fa-brain (LLM)<br>claim_decomposition"]
+        Classify["fa:fa-brain (LLM)<br>claim_classification"]
+        Filter["claim_filter"]
+    end
+    
+    End[" "]
+
+    %% Connessioni con i tipi di dato
+    Start -- "Claim (text)" --> Decompose
+    Decompose -- "List[SubClaim]" --> Classify
+    Classify -- "List[ClassifiedSubClaim]" --> Filter
+    Filter -- "List[VerifiableSubClaim]" --> End
+
+    %% Stili paper-like (Scala di grigi / B&N per articoli accademici)
+    classDef invisible fill:none,stroke:none,color:none;
+    classDef process fill:#f5f5f5,stroke:#000000,stroke-width:1px,color:#000000,font-size:18px;
+    classDef filter fill:#e0e0e0,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5,color:#000000,font-size:18px;
+    
+    %% Assegnazione degli stili
+    class Start,End invisible;
+    class Decompose,Classify process;
+    class Filter filter;
+
+    %% Stile del subgraph (bordo tratteggiato, sfondo trasparente)
+    style DecompTeam fill:none,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5,color:#000000,font-size:18px
