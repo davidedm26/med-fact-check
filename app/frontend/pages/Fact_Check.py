@@ -43,7 +43,7 @@ def render_claim_checklist(sentences, context=""):
     if not sentences:
         return []
     
-    st.markdown("### 📋 Select a Claim to Verify")
+    st.markdown("<h3 style='color: #94a3b8; margin-top: 0;'>📋 Select a Claim to Verify</h3>", unsafe_allow_html=True)
     
     if context:
         st.info(f"📄 **Context:** {context}")
@@ -75,24 +75,57 @@ def render_claim_checklist(sentences, context=""):
     return []
 
 
-# Funzione per evidenziare le citazioni
+import difflib
+
+# Funzione per evidenziare le citazioni in modo robusto
 def highlight_quotes(text, supp, ref):
-    hl = text
+    if not text: return text
     if isinstance(supp, str): supp = [supp]
     if isinstance(ref, str): ref = [ref]
-    for q in (supp or []):
-        if q and len(q) > 5:
-            words = [re.escape(re.sub(r'\W', '', w)) for w in q.split() if re.sub(r'\W', '', w)]
-            if words:
-                pattern = re.compile(r'\W+'.join(words), re.IGNORECASE)
-                hl = pattern.sub(r"<span class='eval-highlight-support'>\g<0></span>", hl)
-    for q in (ref or []):
-        if q and len(q) > 5:
-            words = [re.escape(re.sub(r'\W', '', w)) for w in q.split() if re.sub(r'\W', '', w)]
-            if words:
-                pattern = re.compile(r'\W+'.join(words), re.IGNORECASE)
-                hl = pattern.sub(r"<span class='eval-highlight-refute'>\g<0></span>", hl)
-    return hl
+    
+    clean_to_orig = []
+    for i, char in enumerate(text):
+        if char.isalnum():
+            clean_to_orig.append(i)
+    text_clean = re.sub(r'\W+', '', text).lower()
+    
+    intervals = []
+    def find_intervals(quotes, css_class):
+        for q in (quotes or []):
+            if not q: continue
+            q_clean = re.sub(r'\W+', '', q).lower()
+            if len(q_clean) < 5: continue
+            idx = 0
+            while True:
+                start_idx = text_clean.find(q_clean, idx)
+                if start_idx == -1: break
+                orig_start = clean_to_orig[start_idx]
+                orig_end = clean_to_orig[start_idx + len(q_clean) - 1]
+                intervals.append((orig_start, orig_end, css_class))
+                idx = start_idx + len(q_clean)
+                
+    find_intervals(supp, 'eval-highlight-support')
+    find_intervals(ref, 'eval-highlight-refute')
+    
+    if not intervals: return text
+    intervals.sort(key=lambda x: x[0])
+    merged = []
+    for current in intervals:
+        if not merged: merged.append(current)
+        else:
+            prev = merged[-1]
+            if current[0] <= prev[1] + 2: # +2 allows merging across spaces/punctuation
+                if prev[2] == current[2]: merged[-1] = (prev[0], max(prev[1], current[1]), prev[2])
+            else: merged.append(current)
+            
+    result = []
+    last_idx = 0
+    for start, end, css_class in merged:
+        result.append(text[last_idx:start])
+        result.append(f"<span class='{css_class}'>{text[start:end+1]}</span>")
+        last_idx = end + 1
+    result.append(text[last_idx:])
+    return ''.join(result)
 
 
 def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, verified_count=0, total_to_verify=1, final_verdict=None):
@@ -161,8 +194,20 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     
     def get_cards_html(target_phase):
         nonlocal all_modals_html
-        if not subclaims: return "<div style='color:#94a3b8; margin-top:20px; font-style:italic;'>⏳ Waiting for pipeline...</div>"
-        html = "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
+        if not subclaims: 
+            if final_verdict:
+                return "<div style='color:#ef4444; margin-top:20px; font-weight:bold; font-size: 1.1rem;'>⚠️ Pipeline Skipped: Unverifiable Claim</div>"
+            return "<div style='color:#94a3b8; margin-top:20px; font-style:italic;'>⏳ Waiting for pipeline...</div>"
+            
+        hint_html = ""
+        if target_phase == 3 and len(evaluations) == len(subclaims) and len(subclaims) > 0:
+            if len(subclaims) == 1:
+                tip_text = "Click on the evaluated subclaim card below to view the detailed clinical reasoning and supporting evidence."
+            else:
+                tip_text = "Click on any of the evaluated subclaim cards below to view the detailed clinical reasoning and supporting evidence."
+            hint_html = f"<div style='background:rgba(167, 139, 250, 0.15); border:1px solid rgba(167, 139, 250, 0.4); color:#e2e8f0; padding:10px 15px; border-radius:8px; margin-top:10px; font-size:0.95rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width:800px; margin-left:auto; margin-right:auto;'>💡 <strong>Tip:</strong> {tip_text}</div>"
+            
+        html = f"{hint_html}<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
         for i, sc in enumerate(subclaims):
             ev_data = next((e for e in evaluations if e.get("subclaim") == sc), None)
             sub_id = f"sub_{i+1:02d}"
@@ -368,9 +413,12 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     else:
         slide1_status = ""
         tree_cards = ""
-        for i, sc in enumerate(subclaims):
-            tree_cards += f'<div style="flex:1; min-width:250px; background:rgba(255,255,255,0.03); border:1px solid rgba(129,140,248,0.3); border-top:4px solid #818cf8; border-radius:12px; padding:15px; color:#e2e8f0; font-size:0.95rem; text-align:left; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"><div style="font-size:0.75rem; color:#818cf8; font-weight:bold; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Subclaim {i+1}</div>{sc}</div>'
-        slide1_tree = f'<div style="display:flex; flex-direction:column; align-items:center; margin: 15px 0;"><div style="width:2px; height:40px; background:linear-gradient(to bottom, #38bdf8, #818cf8);"></div><div style="width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:10px solid #818cf8;"></div></div><div style="display:flex; justify-content:center; flex-wrap:wrap; gap:20px; width:100%; max-width:1000px; position:relative;">{tree_cards}</div>'
+        if not subclaims and final_verdict:
+            slide1_tree = "<div style='color:#ef4444; margin-top:20px; font-weight:bold; font-size: 1.1rem;'>⚠️ The claim could not be decomposed into verifiable medical statements. Proceed to Phase 4.</div>"
+        else:
+            for i, sc in enumerate(subclaims):
+                tree_cards += f'<div style="flex:1; min-width:250px; background:rgba(255,255,255,0.03); border:1px solid rgba(129,140,248,0.3); border-top:4px solid #818cf8; border-radius:12px; padding:15px; color:#e2e8f0; font-size:0.95rem; text-align:left; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"><div style="font-size:0.75rem; color:#818cf8; font-weight:bold; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Subclaim {i+1}</div>{sc}</div>'
+            slide1_tree = f'<div style="display:flex; flex-direction:column; align-items:center; margin: 15px 0;"><div style="width:2px; height:40px; background:linear-gradient(to bottom, #38bdf8, #818cf8);"></div><div style="width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:10px solid #818cf8;"></div></div><div style="display:flex; justify-content:center; flex-wrap:wrap; gap:20px; width:100%; max-width:1000px; position:relative;">{tree_cards}</div>'
     
     safe_claim = claim.replace('"', '&quot;')
     slide1_content = f'''
@@ -564,8 +612,8 @@ st.markdown("""
     div.stButton > button[kind="secondary"] p { color: #cbd5e1 !important; font-weight: 600 !important; }
     div.stButton > button[kind="secondary"]:hover { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.1) !important; color: #38bdf8 !important; }
     
-    /* Change color of radio buttons labels to match subtitle */
-    div[data-testid="stRadio"] label[data-testid="stWidgetLabel"] p { color: #94a3b8 !important; }
+    /* Change color of input labels to match subtitle */
+    label[data-testid="stWidgetLabel"] p { color: #94a3b8 !important; }
     div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #94a3b8 !important; }
     
     .footer { width: 100%; text-align: center; padding: 2rem 0; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); background-color: #0b1120; margin-top: 150px; display: block; }
@@ -630,7 +678,7 @@ with col_main:
                 sentences = split_into_sentences(file_content)
                 
                 if sentences:
-                    st.markdown(f"**📊 Found {len(sentences)} sentences in the document**")
+                    st.markdown(f"<span style='color: #94a3b8; font-weight: bold;'>📊 Found {len(sentences)} sentences in the document</span>", unsafe_allow_html=True)
                     
                     # Usa la checklist per selezionare i claim
                     selected_claims = render_claim_checklist(
@@ -696,7 +744,7 @@ with col_main:
                 sentences = st.session_state.fetched_url_data.get("sentences", [])
                 
                 if sentences:
-                    st.markdown(f"**📊 Found {len(sentences)} sentences on the page**")
+                    st.markdown(f"<span style='color: #94a3b8; font-weight: bold;'>📊 Found {len(sentences)} sentences on the page</span>", unsafe_allow_html=True)
                     
                     # Usa la checklist per selezionare i claim
                     selected_claims = render_claim_checklist(
@@ -739,6 +787,7 @@ with col_main:
             st.session_state.retriever_status = {}
             st.session_state.queries_by_source = {}
             st.session_state.download_stats = {}
+            st.session_state.max_step = 1
             if "current_final" in st.session_state:
                 del st.session_state["current_final"]
                 
@@ -766,6 +815,26 @@ with col_main:
                                     
                                     if "decompose" in step_data:
                                         scs = step_data["decompose"].get("verifiable_subclaims", [])
+                                        if not scs:
+                                            if "start_time" in st.session_state:
+                                                st.session_state.execution_time = time.time() - st.session_state.start_time
+                                            st.session_state.current_final = {
+                                                "label": "not_enough_information",
+                                                "confidence": 0,
+                                                "aggregation_analysis": "No verifiable medical claims were found in the provided text.",
+                                                "justification": "The system could not extract any medically verifiable subclaims from your input. Please provide a statement containing clear medical, clinical, or scientific assertions."
+                                            }
+                                            update_interactive_loading(
+                                                claim=claim,
+                                                step=4,
+                                                subclaims=[],
+                                                evaluations=[],
+                                                verified_count=0,
+                                                total_to_verify=0,
+                                                final_verdict=st.session_state.current_final
+                                            )
+                                            break
+                                            
                                         for sc in scs:
                                             sc_text = sc if isinstance(sc, str) else sc.get("claim", str(sc))
                                             st.session_state.current_subclaims.append(sc_text)
@@ -971,4 +1040,5 @@ if getattr(st.session_state, "current_final", None):
         if "source_selections" in st.session_state: del st.session_state["source_selections"]
         if "downloader_status" in st.session_state: del st.session_state["downloader_status"]
         if "retriever_status" in st.session_state: del st.session_state["retriever_status"]
+        if "max_step" in st.session_state: del st.session_state["max_step"]
         st.rerun()
