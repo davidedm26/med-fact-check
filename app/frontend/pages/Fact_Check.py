@@ -149,7 +149,7 @@ with col_main:
             update_interactive_loading(placeholder=overlay_placeholder, claim=claim, step=1)
                 
             try:
-                response = requests.post("http://127.0.0.1:8000/api/v1/fact-check-stream", json={"claim": claim}, stream=True, timeout=900)
+                response = requests.post("http://backend:8000/api/v1/fact-check-stream", json={"claim": claim}, stream=True, timeout=900)
                 if response.status_code == 200:
                     for line in response.iter_lines():
                         if line:

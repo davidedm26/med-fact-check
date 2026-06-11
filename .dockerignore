@@ -1,0 +1,24 @@
+# Cache di Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Ambienti virtuali (FONDAMENTALE ignorarli!)
+env/
+venv/
+.venv/
+
+# File di ambiente locali (se hai password o chiavi API)
+.env
+
+# Git e configurazioni dell'editor
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# File di sistema
+.DS_Store
+Thumbs.db
