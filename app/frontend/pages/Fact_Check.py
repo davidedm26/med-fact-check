@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -339,66 +338,29 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
       {slide1_tree}
     '''
     
-    # Sync with active slide state
-    active_slide_str = st.session_state.get("active_slide_key", "")
-    active_slide = int(active_slide_str) if (active_slide_str and active_slide_str.isdigit()) else None
+    # Radio buttons are checked based solely on the current pipeline step.
+    # Client-side navigation (clicking stepper dots) is handled entirely by CSS :checked selectors.
+    slide1_checked = 'checked' if step == 1 else ''
+    slide2_checked = 'checked' if step == 2 else ''
+    slide3_checked = 'checked' if step == 3 else ''
+    slide4_checked = 'checked' if step == 4 else ''
     
-    if final_verdict is not None or st.session_state.get("keep_overlay_open", False):
-        if active_slide is not None:
-            target_slide = active_slide
-        else:
-            target_slide = 4
-    else:
-        target_slide = step if step <= 4 else 4
-
-    slide1_checked = 'checked' if target_slide == 1 else ''
-    slide2_checked = 'checked' if target_slide == 2 else ''
-    slide3_checked = 'checked' if target_slide == 3 else ''
-    slide4_checked = 'checked' if target_slide == 4 else ''
+    progress_percent = int((step - 1) * 33.33)
     
-    progress_percent = int((target_slide - 1) * 33.33)
-    
-    is_done = final_verdict is not None
-    
-    if is_done:
-        overlay_position = "relative !important"
-        overlay_width = "100% !important"
-        overlay_height = "auto !important"
-        overlay_overflow = "visible !important"
-        overlay_z_index = "999 !important"
-        viewport_height = "auto !important"
-        viewport_overflow = "visible !important"
-        slide_height = "auto !important"
-        slide_overflow = "visible !important"
-        slide_content_padding = "0 0 40px 0 !important"
-    else:
-        overlay_position = "fixed"
-        overlay_width = "100vw"
-        overlay_height = "100vh"
-        overlay_overflow = "hidden"
-        overlay_z_index = "9999999 !important"
-        viewport_height = "calc(100vh - 350px)"
-        viewport_overflow = "hidden"
-        slide_height = "100%"
-        slide_overflow = "hidden"
-        slide_content_padding = "0 0 50px 0"
-
     css_content = f"""
     <style>
-    .cyber-overlay {{ position: {overlay_position}; top: 0; left: 0; width: {overlay_width}; height: {overlay_height}; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: {overlay_z_index}; overflow: {overlay_overflow}; pointer-events: auto !important; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; }}
-    div[data-testid="stHorizontalBlock"]:has(.panel-title) {{
-        display: none !important;
-    }}
-    .carousel-viewport {{ width: 100vw; height: {viewport_height}; position: relative; overflow: {viewport_overflow}; margin-top: 30px; }}
+    .cyber-overlay {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(20px); z-index: 9999999; overflow: hidden; pointer-events: auto !important; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; }}
+    .carousel-viewport {{ width: 100vw; height: calc(100vh - 350px); position: relative; overflow: hidden; margin-top: 30px; }}
     .slider-container {{ display: flex; width: 400vw; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }}
     #slide-1:checked ~ .carousel-viewport .slider-container {{ transform: translateX(0); }}
     #slide-2:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-100vw); }}
     #slide-3:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-200vw); }}
     #slide-4:checked ~ .carousel-viewport .slider-container {{ transform: translateX(-300vw); }}
-    .slide {{ width: 100vw; height: {slide_height}; position: relative; padding: 0 80px; box-sizing: border-box; }}
-    .slide-content {{ width: 100%; height: 100%; overflow-y: {slide_overflow}; display: flex; flex-direction: column; align-items: center; padding: {slide_content_padding}; text-align: center; }}
+    .slide {{ width: 100vw; height: 100%; position: relative; padding: 0 80px; box-sizing: border-box; }}
+    .slide-content {{ width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 0 0 50px 0; text-align: center; }}
     .global-arrow {{ position: absolute; top: 50%; transform: translateY(-50%); background: rgba(56,189,248,0.1); color: #38bdf8; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; border: 1px solid rgba(56,189,248,0.3); z-index: 10000; }}
     .global-arrow:hover {{ background: rgba(56,189,248,0.4); color: #fff; transform: translateY(-50%) scale(1.1); }}
+    .global-arrow.disabled {{ opacity: 0.2 !important; cursor: not-allowed !important; pointer-events: none !important; background: transparent !important; border-color: rgba(255,255,255,0.1) !important; color: #64748b !important; }}
     .left-arrow {{ left: 30px; }}
     .right-arrow {{ right: 30px; }}
     #slide-1:checked ~ .carousel-viewport .show-1 {{ display: flex; }}
@@ -419,58 +381,68 @@ def update_interactive_loading(claim, step=1, subclaims=None, evaluations=None, 
     .stepper-line {{ position: absolute; top: 25px; left: 10%; width: 80%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; z-index: 1; }}
     .stepper-progress {{ height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8, #a78bfa, #10b981); border-radius: 2px; transition: width 0.5s ease-in-out; }}
     .stepper-steps {{ display: flex; justify-content: space-between; position: relative; z-index: 2; }}
-    .step {{ display: flex; flex-direction: column; align-items: center; width: 25%; position: relative; }}
+    .step {{ display: flex; flex-direction: column; align-items: center; width: 25%; position: relative; cursor: pointer; }}
+    .step.disabled {{ cursor: not-allowed !important; pointer-events: none !important; opacity: 0.5 !important; }}
+    .step:hover:not(.disabled) {{ opacity: 0.8; }}
     .step-dot {{ width: 30px; height: 30px; border-radius: 50%; background: #0f172a; border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: #64748b; transition: all 0.4s; margin-bottom: 8px; z-index: 2; pointer-events: none; }}
     .step.active .step-dot {{ border-color: {anim_color}; color: #f8fafc; background: #0f172a; }}
     .step-label {{ font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; text-align: center; transition: color 0.3s; margin-top: 5px; pointer-events: none; }}
     .step.active .step-label {{ color: #e2e8f0; }}
-    .step {{ cursor: pointer; }}
-    .step:hover {{ opacity: 0.8; }}
-    #slide-1:checked ~ .stepper-container .step-ui-1 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
-    #slide-2:checked ~ .stepper-container .step-ui-2 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
-    #slide-3:checked ~ .stepper-container .step-ui-3 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
-    #slide-4:checked ~ .stepper-container .step-ui-4 .step-dot {{ background: {anim_color}; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; }}
+    #slide-1:checked ~ .stepper-container .step-ui-1 .step-dot,
+    #slide-2:checked ~ .stepper-container .step-ui-2 .step-dot,
+    #slide-3:checked ~ .stepper-container .step-ui-3 .step-dot,
+    #slide-4:checked ~ .stepper-container .step-ui-4 .step-dot {{
+        background: {anim_color}; color: #0f172a; border-color: {anim_color}; box-shadow: 0 0 15px {anim_color}; transform: scale(1.2);
+    }}
+    #slide-1:checked ~ .stepper-container .step-ui-1 .step-label,
+    #slide-2:checked ~ .stepper-container .step-ui-2 .step-label,
+    #slide-3:checked ~ .stepper-container .step-ui-3 .step-label,
+    #slide-4:checked ~ .stepper-container .step-ui-4 .step-label {{
+        color: {anim_color}; text-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }}
     </style>
     """
     
-    html_structure = f"""{modal_css}
+    html_content = f"""{modal_css}
 {css_content}
-<div class="cyber-overlay" id="main-cyber-overlay">
-    <input type="radio" name="slider" id="slide-1" {slide1_checked} style="display:none;">
-    <input type="radio" name="slider" id="slide-2" {slide2_checked} style="display:none;">
-    <input type="radio" name="slider" id="slide-3" {slide3_checked} style="display:none;">
-    <input type="radio" name="slider" id="slide-4" {slide4_checked} style="display:none;">
-    <div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
-    <div class="stage-title">{central_title}</div>
-    <div class="stage-subtitle">{central_subtitle}</div>
-    <div class="stepper-container">
-        <div class="stepper-line"><div class="stepper-progress" style="width: {progress_percent}%;"></div></div>
-        <div class="stepper-steps">
-            <label for="slide-1" class="step step-ui-1 {'active' if step >= 1 else ''}"><div class="step-dot">1</div><div class="step-label">Input</div></label>
-            <label for="slide-2" class="step step-ui-2 {'active' if step >= 2 else ''}"><div class="step-dot">2</div><div class="step-label">RAG</div></label>
-            <label for="slide-3" class="step step-ui-3 {'active' if step >= 3 else ''}"><div class="step-dot">3</div><div class="step-label">Eval</div></label>
-            <label for="slide-4" class="step step-ui-4 {'active' if step >= 4 else ''}"><div class="step-dot">4</div><div class="step-label">Done</div></label>
-        </div>
+<div class="cyber-overlay">
+    <input type="radio" name="slider" id="slide-1" {'checked' if step == 1 else ''} style="display:none;">
+    <input type="radio" name="slider" id="slide-2" {'checked' if step == 2 else ''} style="display:none;">
+    <input type="radio" name="slider" id="slide-3" {'checked' if step == 3 else ''} style="display:none;">
+    <input type="radio" name="slider" id="slide-4" {'checked' if step == 4 else ''} style="display:none;">
+
+  <div class="pulse-container"><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-core"></div></div>
+  <div class="stage-title">{central_title}</div>
+  <div class="stage-subtitle">{central_subtitle}</div>
+  <div class="stepper-container">
+      <div class="stepper-line"><div class="stepper-progress" style="width: {progress_percent}%;"></div></div>
+      <div class="stepper-steps">
+          <label for="slide-1" class="step step-ui-1 {'active' if step >= 1 else ''}"><div class="step-dot">1</div><div class="step-label">Input</div></label>
+          <label for="slide-2" class="step step-ui-2 {'active' if step >= 2 else ''} {'disabled' if step < 2 else ''}"><div class="step-dot">2</div><div class="step-label">RAG</div></label>
+          <label for="slide-3" class="step step-ui-3 {'active' if step >= 3 else ''} {'disabled' if step < 3 else ''}"><div class="step-dot">3</div><div class="step-label">Eval</div></label>
+          <label for="slide-4" class="step step-ui-4 {'active' if step >= 4 else ''} {'disabled' if step < 4 else ''}"><div class="step-dot">4</div><div class="step-label">Done</div></label>
+      </div>
+  </div>
+
+  <div class="carousel-viewport">
+    <div class="slider-container">
+      <div class="slide"><div class="slide-content">{slide1_content}</div></div>
+      <div class="slide"><div class="slide-content"><div class="slide-header">Document Retrieval Extracts (RAG)</div>{sc_html_p2}</div></div>
+      <div class="slide"><div class="slide-content"><div class="slide-header">Clinical Reasoning Agent Results</div>{sc_html_p3}</div></div>
+      <div class="slide"><div class="slide-content">{slide4_content}</div></div>
     </div>
-    <div class="carousel-viewport">
-        <div class="slider-container">
-            <div class="slide"><div class="slide-content">{slide1_content}</div></div>
-            <div class="slide"><div class="slide-content"><div class="slide-header">Document Retrieval Extracts (RAG)</div>{sc_html_p2}</div></div>
-            <div class="slide"><div class="slide-content"><div class="slide-header">Clinical Reasoning Agent Results</div>{sc_html_p3}</div></div>
-            <div class="slide"><div class="slide-content">{slide4_content}</div></div>
-        </div>
-    </div>
+    <label for="slide-1" class="global-arrow left-arrow show-2">&#10094;</label>
+    <label for="slide-2" class="global-arrow left-arrow show-3">&#10094;</label>
+    <label for="slide-3" class="global-arrow left-arrow show-4">&#10094;</label>
+    
+    <label for="slide-2" class="global-arrow right-arrow show-1 {'disabled' if step < 2 else ''}">&#10095;</label>
+    <label for="slide-3" class="global-arrow right-arrow show-2 {'disabled' if step < 3 else ''}">&#10095;</label>
+    <label for="slide-4" class="global-arrow right-arrow show-3 {'disabled' if step < 4 else ''}">&#10095;</label>
+  </div>
+  {all_modals_html}
 </div>
 """
-    
-    # Remove all blank lines and indentation to force Streamlit to parse it as a single contiguous HTML block.
-    # This prevents both the Markdown code block bug and the max-line-length crash in markdown-it-py.
-    html_content = "\n".join([line.strip() for line in html_structure.split('\n') if line.strip()])
-    
-    try:
-        overlay_placeholder.markdown(html_content, unsafe_allow_html=True)
-    except Exception as e:
-        error_placeholder.error(f"Rendering error: {str(e)}")
+    overlay_placeholder.html(html_content)
 
 
 # 2. CSS Avanzato Originale
@@ -478,9 +450,7 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
     
-    div[data-testid="stTextInput"]:has(input[aria-label="active_slide_input"]) {
-        display: none !important;
-    }
+
     
     [data-testid="stSidebar"] { display: none !important; }
     [data-testid="collapsedControl"] { display: none !important; }
@@ -497,9 +467,7 @@ st.markdown("""
         width: 100% !important; min-height: 100vh !important; position: relative !important;
         box-sizing: border-box !important;
     }
-    div[data-testid="stMainBlockContainer"]:has(.cyber-overlay) div[data-testid="stHorizontalBlock"]:has(.panel-title) {
-        display: none !important;
-    }
+
 
     html, body { font-family: 'Inter', sans-serif; background-color: #0f172a !important; color: #f8fafc; margin: 0 !important; padding: 0 !important; }
 
@@ -569,7 +537,7 @@ st.markdown("""
 st.markdown('<div style="margin-top: 8rem;"></div>', unsafe_allow_html=True)
 
 # 3. WRAPPER PRINCIPALE
-st.text_input("active_slide_input", value=str(st.session_state.get("active_slide_key", "")), label_visibility="collapsed", key="active_slide_key")
+
 overlay_placeholder = st.empty()
 
 _, col_main, _ = st.columns([1, 14, 1])
@@ -800,16 +768,7 @@ with col_main:
                                         
                                     elif "aggregate" in step_data:
                                         current_final = step_data["aggregate"].get("final_verdict", {})
-                                        st.session_state.real_results = {
-                                            "subclaims": st.session_state.current_subclaims,
-                                            "evaluations": st.session_state.current_evaluations,
-                                            "final": current_final,
-                                            "claim": claim
-                                        }
-                                        st.session_state.pdf_filename = f"FactCheck_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-                                        # Do not empty overlay, keep it and update to step 4
-                                        st.session_state.selected_phase = "Done"
-                                        st.session_state.results_just_arrived = False
+                                        st.session_state.current_final = current_final
                                         update_interactive_loading(
                                             claim=claim, 
                                             step=4, 
@@ -819,28 +778,8 @@ with col_main:
                                             total_to_verify=len(st.session_state.current_subclaims),
                                             final_verdict=current_final
                                         )
-                                        st.session_state.keep_overlay_open = True
-                                        st.rerun()
                                 except json.JSONDecodeError:
                                     pass
-                    
-                    if not error_occurred and not st.session_state.get("keep_overlay_open", False):
-                        current_final = {
-                            "label": "not_enough_information",
-                            "confidence": 1.0,
-                            "reasoning": "The input text did not contain any verifiable medical claims."
-                        }
-                        st.session_state.real_results = {
-                            "subclaims": st.session_state.current_subclaims,
-                            "evaluations": st.session_state.current_evaluations,
-                            "final": current_final,
-                            "claim": claim
-                        }
-                        st.session_state.pdf_filename = f"FactCheck_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-                        st.session_state.selected_phase = "Done"
-                        st.session_state.results_just_arrived = False
-                        st.session_state.keep_overlay_open = True
-                        st.rerun()
                 else:
                     overlay_placeholder.empty()
                     error_placeholder.error(f"❌ Backend Connection Error (Status Code: {response.status_code})")
@@ -849,150 +788,134 @@ with col_main:
                 error_placeholder.error(f"❌ Failed to connect to the backend API: {str(e)}")
 
 # ==========================================
-# 5. FINAL BUTTONS E OVERLAY MANTENUTO
+# 5. FINAL BUTTONS (FIXED-POSITION, OVER THE OVERLAY)
 # ==========================================
-if st.session_state.get("keep_overlay_open", False) and st.session_state.real_results:
-    res = st.session_state.real_results
-    update_interactive_loading(
-        claim=res["claim"], 
-        step=4, 
-        subclaims=res["subclaims"], 
-        evaluations=res["evaluations"], 
-        verified_count=len(res["evaluations"]), 
-        total_to_verify=len(res["subclaims"]),
-        final_verdict=res["final"]
-    )
-    
-    # CSS ottimizzato per posizionare i pulsanti in modo statico e pulito sotto i risultati
-    st.markdown("""
-        <style>
-        .slide-content {
-            padding-bottom: 20px !important; 
-        }
-        
-        div[data-testid="stHorizontalBlock"]:has([class*="st-key-new_analysis_btn"]) {
-            position: static !important;
-            transform: none !important;
-            margin: 40px auto 60px auto !important;
-            max-width: 900px !important;
-            z-index: 1000 !important;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            width: 100% !important;
-            display: flex !important;
-            justify-content: center !important;
-            gap: 20px !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # Contenitore vero e proprio
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("← Back to Home", use_container_width=True, key="back_to_home_done"):
-            st.switch_page("app.py")
-
-    with col2:
-        try:
-            from utils.pdf_generator import generate_fact_check_pdf
-            from datetime import datetime
-            pdf_bytes = generate_fact_check_pdf(
-                claim=res['claim'], 
-                final_verdict=res['final'], 
-                subclaims=res['evaluations']
-            )
-            pdf_filename = st.session_state.get("pdf_filename", "FactCheck_Report.pdf")
-            st.download_button(
-                label="📄 Download PDF Report",
-                data=pdf_bytes,
-                file_name=pdf_filename,
-                mime="application/pdf",
-                use_container_width=True,
-                key="pdf_download_done"
-            )
-        except Exception as e:
-            pdf_content = "Med Fact Check Report\n" + "="*40 + "\n\n"
-            pdf_content += "Claim:\n" + res["claim"] + "\n\n"
-            pdf_content += "Verdict: " + res["final"].get("label", "NEI").upper() + "\n"
-            st.download_button("📥 Download Report", data=pdf_content, file_name="fact_check_report.txt", use_container_width=True)
-
-    with col3:
-        if st.button("🔄 New Analysis", use_container_width=True, type="primary", key="new_analysis_btn"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
-
-    # JS Sync component to keep Streamlit in sync with CSS slider changes
-    components.html("""
-    <script>
-        function setupSync() {
-            const parentDoc = window.parent.document;
-            if (!parentDoc) return;
-            
-            let targetInput = parentDoc.querySelector('input[aria-label="active_slide_input"]');
-            if (!targetInput) {
-                const labels = parentDoc.querySelectorAll('label');
-                labels.forEach(label => {
-                    if (label.textContent && label.textContent.includes('active_slide_input')) {
-                        const container = label.closest('div[data-testid="stTextInput"]');
-                        if (container) {
-                            targetInput = container.querySelector('input');
-                        }
-                    }
-                });
-            }
-            
-            if (!targetInput) {
-                setTimeout(setupSync, 50);
-                return;
-            }
-            
-            const radios = parentDoc.querySelectorAll('input[name="slider"]');
-            if (radios.length === 0) {
-                setTimeout(setupSync, 50);
-                return;
-            }
-
-            // Sync immediately on load if client checked state differs from targetInput value
-            const checkedRadio = parentDoc.querySelector('input[name="slider"]:checked');
-            if (checkedRadio) {
-                const activeIndex = checkedRadio.id.split('-')[1];
-                if (targetInput.value !== activeIndex) {
-                    targetInput.value = activeIndex;
-                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    targetInput.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            }
-
-            radios.forEach(radio => {
-                radio.removeEventListener('change', radio._syncHandler);
-                
-                const handler = (e) => {
-                    if (e.target.checked) {
-                        const slideIndex = e.target.id.split('-')[1];
-                        if (targetInput.value !== slideIndex) {
-                            targetInput.value = slideIndex;
-                            targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-                            targetInput.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
-                    }
-                };
-                radio._syncHandler = handler;
-                radio.addEventListener('change', handler);
-            });
-        }
-        
-        setupSync();
-        for (let t of [100, 200, 500, 1000]) {
-            setTimeout(setupSync, t);
-        }
-    </script>
-    """, height=0, width=0)
-
 st.markdown("""
 <div class="footer">
     MedFactCheck Project • Big Data Engineering MSc Unina • Powered by RAG & LLMs
 </div>
 """, unsafe_allow_html=True)
+
+if getattr(st.session_state, "current_final", None):
+    # Re-render the overlay showing Phase 4 (Done) on every rerun
+    update_interactive_loading(
+        claim=st.session_state.get("fact_check_claim", claim),
+        step=4,
+        subclaims=st.session_state.get("current_subclaims", []),
+        evaluations=st.session_state.get("current_evaluations", []),
+        verified_count=len(st.session_state.get("current_evaluations", [])),
+        total_to_verify=len(st.session_state.get("current_subclaims", [])),
+        final_verdict=st.session_state.current_final
+    )
+
+    try:
+        from utils.pdf_generator import generate_fact_check_pdf
+        pdf_bytes = generate_fact_check_pdf(
+            claim=st.session_state.get("fact_check_claim", claim),
+            final_verdict=st.session_state.current_final,
+            subclaims=st.session_state.get("current_evaluations", [])
+        )
+    except Exception:
+        pdf_bytes = b""
+
+    st.markdown("""
+    <style>
+    .element-container:has(.marker-dl-btn) + .element-container,
+    .element-container:has(.marker-new-btn) + .element-container {
+        position: fixed !important;
+        bottom: 40px !important;
+        z-index: 2147483647 !important;
+        pointer-events: auto !important;
+        width: auto !important;
+        height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .element-container:has(.marker-dl-btn) + .element-container {
+        right: 250px !important;
+    }
+    .element-container:has(.marker-new-btn) + .element-container {
+        right: 40px !important;
+    }
+    
+    .element-container:has(.marker-dl-btn) + .element-container a {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        text-decoration: none !important;
+    }
+    
+    .element-container:has(.marker-dl-btn) + .element-container button, 
+    .element-container:has(.marker-new-btn) + .element-container button {
+        height: 48px !important;
+        margin: 0 !important;
+        padding: 0 28px !important;
+        font-size: 15px !important;
+        border-radius: 50px !important;
+        border: none !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+        line-height: 1 !important;
+    }
+    
+    .element-container:has(.marker-dl-btn) + .element-container button:hover, 
+    .element-container:has(.marker-new-btn) + .element-container button:hover {
+        transform: scale(1.04) translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.6) !important;
+    }
+    
+    .element-container:has(.marker-dl-btn) + .element-container button { 
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; 
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4) !important;
+    }
+    .element-container:has(.marker-dl-btn) + .element-container button:hover { 
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.7) !important;
+    }
+    
+    .element-container:has(.marker-new-btn) + .element-container button { 
+        background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important; 
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.4) !important;
+    }
+    .element-container:has(.marker-new-btn) + .element-container button:hover { 
+        box-shadow: 0 0 30px rgba(56, 189, 248, 0.7) !important;
+    }
+    
+    .element-container:has(.marker-dl-btn) + .element-container button p, 
+    .element-container:has(.marker-new-btn) + .element-container button p {
+        color: white !important;
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<span class="marker-dl-btn" style="display:none;"></span>', unsafe_allow_html=True)
+    st.download_button("📄 Download PDF Report", data=pdf_bytes, file_name="FactCheck_Report.pdf", mime="application/pdf", key="pdf_dl")
+
+    st.markdown('<span class="marker-new-btn" style="display:none;"></span>', unsafe_allow_html=True)
+    if st.button("🔄 New Analysis", key="new_analysis"):
+        if "current_final" in st.session_state: del st.session_state["current_final"]
+        if "fact_check_claim" in st.session_state: del st.session_state["fact_check_claim"]
+        if "current_subclaims" in st.session_state: del st.session_state["current_subclaims"]
+        if "current_evaluations" in st.session_state: del st.session_state["current_evaluations"]
+        if "source_selections" in st.session_state: del st.session_state["source_selections"]
+        if "downloader_status" in st.session_state: del st.session_state["downloader_status"]
+        if "retriever_status" in st.session_state: del st.session_state["retriever_status"]
+        st.rerun()
