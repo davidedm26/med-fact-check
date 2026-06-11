@@ -27,8 +27,15 @@ def build_decompose_graph(decomposition_agent, classification_agent):
 
         predicates = structured.get("predicates") if isinstance(structured, dict) else None
 
-        if predicates is None: # if the decomposition agent fails to produce valid output
-            pass # TO DO
+        if not predicates: # if the decomposition agent fails to produce valid output
+            original_claim = _message_text(state["messages"][-1])
+            log.warning("Decomposition failed. Falling back to original claim.")
+            predicates = [{
+                "relation": "N/A",
+                "subject": "Original Claim",
+                "object": "N/A",
+                "search_query": original_claim
+            }]
 
         return Command(
             update={

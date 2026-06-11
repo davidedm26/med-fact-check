@@ -55,16 +55,12 @@ aggregator_schema = {
                 "enum": ["supported", "refuted", "not_enough_information"],
                 "description": "The final aggregate verdict for the main claim.",
             },
-            "confidence": {
-                "type": "number",
-                "description": "Final confidence score (0.0 to 1.0) for the aggregate label.",
-            },
             "justification": {
                 "type": "string",
                 "description": "A fluid medical summary explaining the final verdict without explicitly listing 'subclaim 1, subclaim 2'.",
             },
         },
         "additionalProperties": False,
-        "required": ["logical_relationship", "aggregation_analysis", "label", "confidence", "justification"],
+        "required": ["logical_relationship", "aggregation_analysis", "label", "justification"],
     },
 }
