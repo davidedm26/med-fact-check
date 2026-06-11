@@ -192,6 +192,35 @@ def get_retrieval_nodes(source_selector_llm, base_llm):
             except Exception as exc:
                 log.error(f"Fallback to literature failed: {exc}")
 
+        # Secondary fallback: if we still have fewer than min_chunks, query literature using the raw subclaim text directly
+        if len(all_downloaded_chunks) < min_chunks:
+            log.warning(f"Still only {len(all_downloaded_chunks)} chunks retrieved. Falling back to direct subclaim search.")
+            try:
+                direct_queries = [query]
+                log.info(f"Direct subclaim fallback search on literature: {direct_queries}")
+                result = download_documents.invoke(
+                    {"sub_id": subclaim_id, "search_queries": direct_queries, "target_source": "literature"}
+                )
+                docs = result.get("chunks", [])
+                stats = result.get("stats", {})
+                
+                if docs:
+                    if "literature" in queries_by_source:
+                        queries_by_source["literature"].extend(direct_queries)
+                    else:
+                        queries_by_source["literature"] = direct_queries
+                    all_downloaded_chunks.extend(docs)
+                    
+                    if "literature" in download_stats:
+                        for k, v in stats.items():
+                            if isinstance(v, int):
+                                download_stats["literature"][k] = download_stats["literature"].get(k, 0) + v
+                    else:
+                        download_stats["literature"] = stats
+                    reasonings.append("literature (direct subclaim fallback)")
+            except Exception as exc:
+                log.error(f"Direct subclaim fallback failed: {exc}")
+
         import random
         max_chunks = config.get("retrieval.max_chunks_per_subclaim", 150)
         if len(all_downloaded_chunks) > max_chunks:

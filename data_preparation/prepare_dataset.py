@@ -119,9 +119,9 @@ def prepare_healthfc():
         # Robust check stripping hidden spaces and checking common synonyms
         original_label = str(row['label']).lower().strip()
         
-        if original_label in ["true", "yes", "1", "1.0", "wahr"]:
+        if original_label in ["0", "0.0"]:
             true_label = "supported"
-        elif original_label in ["false", "no", "0", "0.0", "falsch"]:
+        elif original_label in ["2", "2.0"]:
             true_label = "refuted"
         else:
             true_label = "NEI"
