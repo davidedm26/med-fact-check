@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 from utils.text_processing import highlight_quotes
 
 def load_global_css():
@@ -49,7 +49,8 @@ def load_global_css():
         div.stButton > button[kind="secondary"] p { color: #cbd5e1 !important; font-weight: 600 !important; }
         div.stButton > button[kind="secondary"]:hover { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.1) !important; color: #38bdf8 !important; }
         
-        div[data-testid="stRadio"] label[data-testid="stWidgetLabel"] p { color: #94a3b8 !important; }
+        /* Change color of input labels to match subtitle */
+        label[data-testid="stWidgetLabel"] p { color: #94a3b8 !important; }
         div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #94a3b8 !important; }
         
         .footer { width: 100%; text-align: center; padding: 2rem 0; color: #64748b; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); background-color: #0b1120; margin-top: 150px; display: block; }
@@ -166,11 +167,11 @@ def update_interactive_loading(placeholder, claim, step=1, subclaims=None, evalu
         central_subtitle = "Final results are ready for analysis."
     else:
         if step == 1:
-            central_title = "Initializing Medical AI Pipeline"
+            central_title = "Claim Analysis & Decomposition"
             central_subtitle = "Warming up decomposition agents..."
             anim_color = "#38bdf8"
         elif step == 2:
-            central_title = "RAG Database Ingestion"
+            central_title = "Medical Evidence Retrieval"
             source_selections = getattr(st.session_state, "source_selections", {})
             if source_selections:
                 all_selected = set()
@@ -197,8 +198,20 @@ def update_interactive_loading(placeholder, claim, step=1, subclaims=None, evalu
     
     def get_cards_html(target_phase):
         nonlocal all_modals_html
-        if not subclaims: return "<div style='color:#94a3b8; margin-top:20px; font-style:italic;'>⏳ Waiting for pipeline...</div>"
-        html = "<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
+        if not subclaims: 
+            if final_verdict:
+                return "<div style='color:#ef4444; margin-top:20px; font-weight:bold; font-size: 1.1rem;'>⚠️ Pipeline Skipped: Unverifiable Claim</div>"
+            return "<div style='color:#94a3b8; margin-top:20px; font-style:italic;'>⏳ Waiting for pipeline...</div>"
+            
+        hint_html = ""
+        if target_phase == 3 and len(evaluations) == len(subclaims) and len(subclaims) > 0:
+            if len(subclaims) == 1:
+                tip_text = "Click on the evaluated subclaim card below to view the detailed clinical reasoning and supporting evidence."
+            else:
+                tip_text = "Click on any of the evaluated subclaim cards below to view the detailed clinical reasoning and supporting evidence."
+            hint_html = f"<div style='background:rgba(167, 139, 250, 0.15); border:1px solid rgba(167, 139, 250, 0.4); color:#e2e8f0; padding:10px 15px; border-radius:8px; margin-top:10px; font-size:0.95rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width:800px; margin-left:auto; margin-right:auto;'>💡 <strong>Tip:</strong> {tip_text}</div>"
+            
+        html = f"{hint_html}<div style='display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:20px; width:100%; max-width:900px;'>"
         for i, sc in enumerate(subclaims):
             ev_data = next((e for e in evaluations if e.get("subclaim") == sc), None)
             sub_id = f"sub_{i+1:02d}"
@@ -380,9 +393,12 @@ def update_interactive_loading(placeholder, claim, step=1, subclaims=None, evalu
     else:
         slide1_status = ""
         tree_cards = ""
-        for i, sc in enumerate(subclaims):
-            tree_cards += f'<div style="flex:1; min-width:250px; background:rgba(255,255,255,0.03); border:1px solid rgba(129,140,248,0.3); border-top:4px solid #818cf8; border-radius:12px; padding:15px; color:#e2e8f0; font-size:0.95rem; text-align:left; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"><div style="font-size:0.75rem; color:#818cf8; font-weight:bold; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Subclaim {i+1}</div>{sc}</div>'
-        slide1_tree = f'<div style="display:flex; flex-direction:column; align-items:center; margin: 15px 0;"><div style="width:2px; height:40px; background:linear-gradient(to bottom, #38bdf8, #818cf8);"></div><div style="width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:10px solid #818cf8;"></div></div><div style="display:flex; justify-content:center; flex-wrap:wrap; gap:20px; width:100%; max-width:1000px; position:relative;">{tree_cards}</div>'
+        if not subclaims and final_verdict:
+            slide1_tree = "<div style='color:#ef4444; margin-top:20px; font-weight:bold; font-size: 1.1rem;'>⚠️ The claim could not be decomposed into verifiable medical statements. Proceed to Phase 4.</div>"
+        else:
+            for i, sc in enumerate(subclaims):
+                tree_cards += f'<div style="flex:1; min-width:250px; background:rgba(255,255,255,0.03); border:1px solid rgba(129,140,248,0.3); border-top:4px solid #818cf8; border-radius:12px; padding:15px; color:#e2e8f0; font-size:0.95rem; text-align:left; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"><div style="font-size:0.75rem; color:#818cf8; font-weight:bold; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Subclaim {i+1}</div>{sc}</div>'
+            slide1_tree = f'<div style="display:flex; flex-direction:column; align-items:center; margin: 15px 0;"><div style="width:2px; height:40px; background:linear-gradient(to bottom, #38bdf8, #818cf8);"></div><div style="width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:10px solid #818cf8;"></div></div><div style="display:flex; justify-content:center; flex-wrap:wrap; gap:20px; width:100%; max-width:1000px; position:relative;">{tree_cards}</div>'
     
     safe_claim = claim.replace('"', '&quot;')
     slide1_content = f'''
