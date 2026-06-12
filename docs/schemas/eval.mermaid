@@ -1,0 +1,34 @@
+---
+config:
+  layout: fixed
+---
+flowchart TB
+ subgraph SC1["Subclaim 1"]
+        V1["Veracity Agent (NLI)<br>"]
+        R1["Reasoning Agent<br>(Extract &amp; Distill)"]
+  end
+ subgraph SCN["Subclaim N"]
+        VN["Veracity Agent (NLI)<br>"]
+        RN["Reasoning Agent<br>(Extract &amp; Distill)"]
+  end
+ subgraph ParallelEval["Parallel Evaluation Subgraphs (Fan-Out)"]
+        SC1
+        SCN
+  end
+    R1 --> V1
+    RN --> VN
+    SC1 ~~~ SCN
+    V1 == evaluation_results[0] ==> Agg["Aggregator Agent LLM<br>(Boolean AND/OR Logic)"]
+    VN == evaluation_results[n] ==> Agg
+    MainClaim(["Main Complex Claim"]) ==> Agg
+    Agg --> Final[("Final Unified Verdict<br>(Label, Confidence, Medical Summary)")]
+
+     V1:::nli
+     R1:::llm
+     VN:::nli
+     RN:::llm
+     Agg:::llm
+     Final:::final
+    classDef llm fill:#f9f0ff,stroke:#d4b3ff,stroke-width:2px
+    classDef nli fill:#e6f7ff,stroke:#91d5ff,stroke-width:2px
+    classDef final fill:#f6ffed,stroke:#b7eb8f,stroke-width:2px
