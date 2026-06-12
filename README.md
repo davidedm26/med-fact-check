@@ -2,7 +2,7 @@
 
 ![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)
 ![Docker](https://img.shields.io/badge/docker-ready-blue)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](file:///b:/Workspace/Unina-MSc/BIG-DATA/med-fact-check/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
@@ -367,7 +367,7 @@ Once running, access the Streamlit frontend at `http://localhost:8501` and the b
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](file:///b:/Workspace/Unina-MSc/BIG-DATA/med-fact-check/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
