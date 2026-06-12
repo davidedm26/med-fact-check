@@ -240,5 +240,5 @@ def calculate_final_metrics():
         print(f"\nSave complete! Final summary table exported to:\n->  {output_csv}")
 
 if __name__ == "__main__":
-    #run_final_evaluation()
+    run_final_evaluation()
     calculate_final_metrics()
