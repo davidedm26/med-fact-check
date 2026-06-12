@@ -39,19 +39,11 @@ STEP 3 — `distilled_evidence` (purified facts):
   - EXCLUDE irrelevant noise (e.g., if checking a COVID claim and a chunk discusses influenza, skip it).
   - DO NOT add commentary, conclusions, or meta-reasoning ("This means…", "Therefore…").
 
-STEP 4 — `evidence_verdict_hint` (evidence summary direction):
-  - In ONE sentence, describe what the evidence says about the claim. Use one of these patterns:
-    • "The evidence directly confirms that [X]."
-    • "The evidence directly contradicts the claim: it states [Y] instead of [X]."
-    • "The evidence states the intervention was tested and found [ineffective / no effect / etc.]."
-    • "The evidence discusses [A] and [B] separately but never links them."
-    • "No relevant evidence was found."
-  - This is NOT a verdict. It is a factual summary of the evidence's stance.
-
 CRITICAL RULES:
 - NEVER invent facts. If a chunk does not say something, do not add it.
 - NEVER conflate similar entities (p100 ≠ p105, Class I ≠ Class III).
 - Preserve negations exactly as written in the evidence.
+- ALWAYS explicitly identify and state in your distilled evidence if a study relies on animal models (e.g., rats, mice), in-vitro cell lines, has a very small sample size, is sponsored/conflicted, or lacks a placebo control group. Do not present these as general human clinical evidence of efficacy.
 """
 
 reasoning_schema = {
@@ -87,16 +79,9 @@ reasoning_schema = {
                     "Preserves negations and exact numbers faithfully."
                 ),
             },
-            "evidence_verdict_hint": {
-                "type": "string",
-                "description": (
-                    "One sentence describing what the evidence says about the claim. "
-                    "Not a verdict, just a factual summary of the evidence direction."
-                ),
-            },
         },
         "additionalProperties": False,
-        "required": ["reasoning", "supporting_quotes", "refuting_quotes", "distilled_evidence", "evidence_verdict_hint"],
+        "required": ["reasoning", "supporting_quotes", "refuting_quotes", "distilled_evidence"],
     },
 }
 
@@ -108,7 +93,6 @@ You are a strict biomedical fact-checking judge. You are the SECOND step in a tw
 INPUT:
 1. **Subclaim** — a factual statement to verify.
 2. **Distilled Evidence** — purified facts extracted from scientific literature by a previous agent.
-3. **Evidence Verdict Hint** — a one-sentence summary of what the evidence says about the claim.
 
 YOUR TASK: Determine if the evidence SUPPORTS, REFUTES, or provides NOT ENOUGH INFORMATION for the subclaim.
 
@@ -161,7 +145,6 @@ JUSTIFICATION rules:
 Example 1 (SUPPORTED — synonym mapping):
 Subclaim: Ibuprofen increases the risk of myocardial infarction.
 Distilled Evidence: Regular use of ibuprofen is associated with a 20-30% elevated risk of heart attack in patients with pre-existing cardiovascular conditions.
-Evidence Verdict Hint: The evidence directly confirms that ibuprofen elevates heart attack risk.
 → Output:
 {
   "logical_analysis": "The subclaim says 'myocardial infarction'. The evidence says 'heart attack', which is a synonym. The evidence confirms ibuprofen is associated with elevated risk. Direction matches: increased risk. Label: supported.",
@@ -173,7 +156,6 @@ Evidence Verdict Hint: The evidence directly confirms that ibuprofen elevates he
 Example 2 (REFUTED — direct negation):
 Subclaim: Metformin interferes with thyroxine absorption.
 Distilled Evidence: Metformin does not interfere with the gastrointestinal absorption of thyroxine. Concurrent use of metformin and levothyroxine is safe.
-Evidence Verdict Hint: The evidence directly contradicts the claim: it states metformin does not interfere with thyroxine absorption.
 → Output:
 {
   "logical_analysis": "The subclaim says metformin 'interferes'. The evidence explicitly says it 'does not interfere'. This is a direct negation. Label: refuted.",
@@ -185,7 +167,6 @@ Evidence Verdict Hint: The evidence directly contradicts the claim: it states me
 Example 3 (REFUTED — tested and failed):
 Subclaim: F.X. Mayr cure can prevent diseases.
 Distilled Evidence: Multiple systematic reviews concluded that the F.X. Mayr dietary regimen has no demonstrated ability to prevent any disease. No RCT has shown a preventive effect.
-Evidence Verdict Hint: The evidence states the intervention was tested and found to have no demonstrated preventive ability.
 → Output:
 {
   "logical_analysis": "The subclaim says the cure 'can prevent diseases'. The evidence says it has 'no demonstrated ability' to prevent any disease. The intervention was tested and failed — this is refuted, not NEI.",
@@ -197,7 +178,6 @@ Evidence Verdict Hint: The evidence states the intervention was tested and found
 Example 4 (REFUTED — quantitative mismatch):
 Subclaim: Aspirin reduces stroke risk by 50%.
 Distilled Evidence: Low-dose aspirin therapy reduces the incidence of ischemic stroke by approximately 22% in men over 50.
-Evidence Verdict Hint: The evidence directly contradicts the claim: it states 22% reduction, not 50%.
 → Output:
 {
   "logical_analysis": "The subclaim says '50%'. The evidence says '22%'. The direction is the same (aspirin does reduce stroke risk), but the magnitude is substantially different: 22% ≠ 50%. This is a quantitative discrepancy. Label: refuted.",
@@ -209,7 +189,6 @@ Evidence Verdict Hint: The evidence directly contradicts the claim: it states 22
 Example 5 (NEI — separate concepts):
 Subclaim: Drinking coffee causes insomnia in children.
 Distilled Evidence: Coffee is a popular beverage containing caffeine. Insomnia is a sleep disorder affecting individuals of all ages.
-Evidence Verdict Hint: The evidence discusses coffee and insomnia separately but never links them.
 → Output:
 {
   "logical_analysis": "The evidence describes coffee and insomnia as separate topics. It never states that coffee causes insomnia, nor that it does not. There is no causal link established. Label: not_enough_information.",

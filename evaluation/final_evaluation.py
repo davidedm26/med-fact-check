@@ -18,7 +18,7 @@ DATASETS = ["scifact", "bioasq", "healthfc"]
 
 # Custom run folder name (e.g. "final_run_1", "run_2") to avoid overwriting previous results.
 # If empty, saves directly under results/pipeline_predictions/
-RUN_NAME = ""
+RUN_NAME = "final_test_1"
 
 def load_progress(output_json_path):
     if os.path.exists(output_json_path):
@@ -57,15 +57,30 @@ def run_final_evaluation():
         print(f"\nProcessing dataset: {ds_name.upper()}")
         df = pd.read_csv(csv_path)
         
-        # Do NOT exclude claims with true_label == "NEI" before running the pipeline
-        # df = df[df['true_label'].str.upper() != "NEI"].copy()
+        # Perform stratified sampling to select exactly 100 samples
+        total_samples = min(len(df), 100)
+        counts = (df['true_label'].value_counts(normalize=True) * total_samples).round().astype(int)
+        for label in df['true_label'].unique():
+            if counts.get(label, 0) == 0 and len(df[df['true_label'] == label]) > 0:
+                counts[label] = 1
+        difference = total_samples - counts.sum()
+        if difference != 0:
+            largest_class = counts.idxmax()
+            counts[largest_class] = max(1, counts[largest_class] + difference)
+            
+        sampled_dfs = []
+        for label, group in df.groupby('true_label'):
+            n_samples = min(len(group), counts.get(label, 0))
+            if n_samples > 0:
+                sampled_dfs.append(group.sample(n=n_samples, random_state=42))
+        df_sampled = pd.concat(sampled_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
         
         # Load previous progress
         predictions = load_progress(output_json_path)
         processed_claim_ids = {p["claim_id"] for p in predictions}
         
         # Filter claims to process (remove those already evaluated)
-        df_to_process = df[~df['claim_id'].isin(processed_claim_ids)].copy()
+        df_to_process = df_sampled[~df_sampled['claim_id'].isin(processed_claim_ids)].copy()
         
         print(f"Dataset {ds_name}: {len(processed_claim_ids)} claims already processed in previous sessions.")
         print(f"Dataset {ds_name}: {len(df_to_process)} claims remaining to evaluate.")
@@ -163,29 +178,33 @@ def calculate_final_metrics():
             print(f"WARNING: Prediction file '{pred_file}' is empty. Skipping.")
             continue
             
-        # Determine if dataset is natively 3-class (contains NEI true labels)
-        has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        # Determine if dataset is natively 3-class (contains NEI true labels in the original CSV)
+        csv_path = os.path.join(DATASETS_DIR, f"{ds_name}_clean.csv")
+        has_nei_true = False
+        if os.path.exists(csv_path):
+            try:
+                df_full = pd.read_csv(csv_path)
+                has_nei_true = any(standardize_label(val) == "nei" for val in df_full["true_label"].dropna().unique())
+            except Exception as e:
+                print(f"WARNING: Could not check original CSV for 3-class status: {e}")
+                has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        else:
+            has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        
+        filtered_results = results
+        evaluated_claims = len(results)
+        excluded_claims = 0
         
         if has_nei_true:
-            filtered_results = results
-            excluded_claims = 0
-            evaluated_claims = len(results)
             print(f"\nAnalyzing: {ds_name.upper()} (3-class dataset)")
             print("-" * 40)
             print(f"Total claims:     {total_claims}")
             print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted/NEI)")
         else:
-            filtered_results = [
-                item for item in results 
-                if standardize_label(item.get("predicted_label", "")) != "nei"
-            ]
-            evaluated_claims = len(filtered_results)
-            excluded_claims = total_claims - evaluated_claims
-            print(f"\nAnalyzing: {ds_name.upper()} (Binary dataset)")
+            print(f"\nAnalyzing: {ds_name.upper()} (Binary dataset - Strict Evaluation)")
             print("-" * 40)
             print(f"Total claims:     {total_claims}")
-            print(f"Excluded 'NEI':   {excluded_claims} (Predicted NEI removed)")
-            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted)")
+            print(f"Evaluated claims: {evaluated_claims} (Supported/Refuted, NEI counted as error)")
         
         if evaluated_claims == 0:
             continue
@@ -221,5 +240,5 @@ def calculate_final_metrics():
         print(f"\nSave complete! Final summary table exported to:\n->  {output_csv}")
 
 if __name__ == "__main__":
-    # run_final_evaluation()
+    #run_final_evaluation()
     calculate_final_metrics()

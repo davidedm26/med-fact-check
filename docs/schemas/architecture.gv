@@ -1,0 +1,245 @@
+// System Architecture Diagram
+digraph FactCheckWorkflow {
+	newrank=true
+	rankdir=LR
+	compound=true
+	bgcolor=white
+	splines=ortho
+	ranksep=0.22
+	nodesep=0.25
+	fontname="Arial"
+	node [color="#333333" fillcolor=white fontname="Arial" fontsize=11 shape=box style="filled,rounded" penwidth=1.5]
+	edge [fontname="Arial" fontsize=10 penwidth=1.2 color="#444444" fontcolor="#333333"]
+	
+	USER_INPUT [label=<CLAIM<BR/><FONT POINT-SIZE="9" COLOR="#666666">(TEXT)</FONT>> fillcolor="#FFF59D" style="filled,rounded" penwidth=2]
+	SUBCLAIM_1 [label="Sub-claim 1"]
+	SUBCLAIM_2 [label="Sub-claim 2"]
+	SUBCLAIM_3 [label="Sub-claim N"]
+	SPACER_1 [label="" shape=none width=0 height=0.5]
+	SPACER_2 [label="" shape=none width=0 height=0.5]
+	EVIDENCE_PASSAGES [label="Evidence\nPassages\n+\nSub-claim" fillcolor="#F5F5F5" style="filled,rounded" penwidth=1.5]
+	SOURCES_DB [label=<SOURCES<BR/><FONT POINT-SIZE="8.5" COLOR="#444466">(EuropePMC, UniProt, PubMed)</FONT>> color="#444466" fillcolor="#D0E0FF" shape=cylinder style=filled penwidth=1.5]
+	FINAL_DASHBOARD [label=<<B>FINAL OUTPUT &amp;<BR/>DASHBOARD</B><BR/><FONT POINT-SIZE="9.5" COLOR="#555555">- Validate Claims<BR/>- Trace Steps<BR/>- Generate Reports</FONT>> fillcolor="#EEEEEE" shape=rect style="filled,rounded" penwidth=2 color="#333333"]
+	VERDICT_STRUCT [label=<<B>STRUCTURED VERDICT</B>> style="filled,rounded" penwidth=2 color="#333333"]
+	SPLIT_POINT [shape=point width=0.01 height=0.01]
+	subgraph cluster_Phase1 {
+		label=<<FONT POINT-SIZE="15"><B>Phase 1</B></FONT><BR/><FONT POINT-SIZE="12" COLOR="#555555"><B>Decomposition</B></FONT>>
+		color="#B3C7F7" fillcolor="#EEEEFF" fontcolor="#333333" fontname="Arial" style="filled,dashed" penwidth=1.5
+		node [color="#555555" fillcolor=white style="filled,rounded" penwidth=1.2]
+		CLAIM_DECOMP [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="RIGHT" VALIGN="TOP"><FONT FACE="Segoe UI Emoji" POINT-SIZE="11">🧠</FONT>&nbsp;<FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#666666"><B>LLM</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN="2" ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>CLAIM<BR/>DECOMPOSITION</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+		CLAIM_CLASS [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="RIGHT" VALIGN="TOP"><FONT FACE="Segoe UI Emoji" POINT-SIZE="11">🧠</FONT>&nbsp;<FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#666666"><B>LLM</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN="2" ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>CLAIM<BR/>CLASSIFICATION</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+		CLAIM_FILTER [label=<<B>CLAIM<BR/>FILTER</B>>]
+		
+		# Le frecce invisibili di fase 1 sono definite a fondo file per includere USER_INPUT
+	}
+	subgraph cluster_ClaimEvaluation {
+		label=<<FONT POINT-SIZE="17"><B>Sub-Claim Evaluation</B></FONT>>
+		color="#90A4AE" fillcolor="#FAFAFA" fontcolor="#333333" fontname="Arial" style="filled,solid" penwidth=1.5
+		
+		subgraph cluster_Phase2 {
+			label=<<FONT POINT-SIZE="15"><B>Phase 2</B></FONT><BR/><FONT POINT-SIZE="12" COLOR="#555555"><B>Retrieval</B></FONT>>
+			color="#A5D6A7" fillcolor="#EDF5ED" fontcolor="#333333" fontname="Arial" style="filled,dashed" penwidth=1.5
+			node [color="#555555" fillcolor=white style="filled,rounded" penwidth=1.2]
+			
+			SOURCE_SELECTOR [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="RIGHT" VALIGN="TOP"><FONT FACE="Segoe UI Emoji" POINT-SIZE="11">🧠</FONT>&nbsp;<FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#666666"><B>LLM</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN="2" ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>SOURCE<BR/>SELECTOR</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+			DOWNLOADER [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="RIGHT" VALIGN="TOP"><FONT FACE="Segoe UI Emoji" POINT-SIZE="11">🧠</FONT>&nbsp;<FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#666666"><B>LLM</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN="2" ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>DOWNLOADER<BR/>AGENT</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+			HYBRID_RETRIEVER [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>HYBRID RETRIEVER</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD ALIGN="LEFT"><FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#555555"><B>🔍 Sparse (BM25)</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD ALIGN="LEFT"><FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#555555"><B>🌐 Dense (Semantic)</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD ALIGN="LEFT"><FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#555555"><B>🤖 Reranker</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+		}
+		
+		subgraph cluster_Phase3 {
+			label=<<FONT POINT-SIZE="15"><B>Phase 3</B></FONT><BR/><FONT POINT-SIZE="12" COLOR="#555555"><B>Reasoning &amp; Assessment</B></FONT>>
+			color="#FFCC80" fillcolor="#FFF8F0" fontcolor="#333333" fontname="Arial" style="filled,dashed" penwidth=1.5
+			node [color="#555555" fillcolor=white style="filled,rounded" penwidth=1.2]
+			REASONING [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="RIGHT" VALIGN="TOP"><FONT FACE="Segoe UI Emoji" POINT-SIZE="11">🧠</FONT>&nbsp;<FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#666666"><B>LLM</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN="2" ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>REASONING</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+			VERACITY_ASSESS [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="RIGHT" VALIGN="TOP"><FONT FACE="Segoe UI Emoji" POINT-SIZE="11">🤖</FONT>&nbsp;<FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#666666"><B>NLI</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN="2" ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>VERACITY<BR/>AGENT</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+		}
+		
+		# Nodi intermedi all'interno di Claim Evaluation
+		MERGE_POINT [shape=point width=0.01 height=0.01]
+		EVIDENCE_PASSAGES
+	}
+	subgraph cluster_Phase4 {
+		label=<<FONT POINT-SIZE="15"><B>Phase 4</B></FONT><BR/><FONT POINT-SIZE="12" COLOR="#555555"><B>Aggregation</B></FONT>>
+		color="#FF8A80" fillcolor="#FFEBEE" fontcolor="#333333" fontname="Arial" style="filled,dashed" penwidth=1.5
+		node [color="#555555" fillcolor=white style="filled,rounded" penwidth=1.2]
+		AGGREGATOR [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="RIGHT" VALIGN="TOP"><FONT FACE="Segoe UI Emoji" POINT-SIZE="11">🧠</FONT>&nbsp;<FONT FACE="Arial" POINT-SIZE="9.5" COLOR="#666666"><B>LLM</B></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN="2" ALIGN="CENTER"><FONT POINT-SIZE="11.5"><B>AGGREGATOR<BR/>AGENT</B></FONT></TD>
+  </TR>
+</TABLE>
+>]
+	}
+	edge [arrowhead=vee color="#444444"]
+	
+	# Usiamo constraint=false sui collegamenti verticali reali in Phase 1 e Phase 2
+	# in modo che non influenzino il posizionamento verticale (che è dettato interamente dai vincoli invisibili)
+	USER_INPUT -> CLAIM_DECOMP
+	CLAIM_DECOMP -> CLAIM_CLASS [constraint=false]
+	CLAIM_CLASS -> CLAIM_FILTER [constraint=false]
+	
+	CLAIM_FILTER -> SUBCLAIM_1
+	CLAIM_FILTER -> SUBCLAIM_2
+	CLAIM_FILTER -> SUBCLAIM_3
+	
+	SUBCLAIM_1 -> MERGE_POINT [arrowhead=none]
+	SUBCLAIM_2 -> MERGE_POINT [arrowhead=none]
+	SUBCLAIM_3 -> MERGE_POINT [arrowhead=none]
+	MERGE_POINT -> SOURCE_SELECTOR:w
+	
+	SOURCE_SELECTOR -> DOWNLOADER
+	DOWNLOADER -> HYBRID_RETRIEVER
+	
+	HYBRID_RETRIEVER -> EVIDENCE_PASSAGES
+	EVIDENCE_PASSAGES -> REASONING
+	
+	REASONING -> VERACITY_ASSESS
+	VERACITY_ASSESS -> SPLIT_POINT [arrowhead=none label="Sub-claim\nVerdicts"]
+	SPLIT_POINT -> AGGREGATOR:nw
+	SPLIT_POINT -> AGGREGATOR:w
+	SPLIT_POINT -> AGGREGATOR:sw
+	AGGREGATOR -> VERDICT_STRUCT [constraint=false]
+	VERDICT_STRUCT -> FINAL_DASHBOARD [constraint=false]
+	
+	DOWNLOADER -> SOURCES_DB [dir=both label="Fetch Articles" fontname="Arial" fontsize=10 constraint=false]
+	
+	# FORZATURA STRUTTURALE ALLINEAMENTO Y (3 Corsie Complete)
+	
+	# Corsia ALTA (Top Lane): Allinea l'ingresso e la colonna superiore dei sub-claim e i vuoti
+	USER_INPUT -> SUBCLAIM_1 [style=invis]
+	
+	# Corsia MEDIA (Middle Lane): Allinea la pipeline principale in orizzontale
+	CLAIM_CLASS -> SUBCLAIM_2 [style=invis]
+	
+	# Corsia BASSA (Bottom Lane): Allinea il filtro, i sub-claim inferiori e i database/vuoti
+	CLAIM_FILTER -> SUBCLAIM_3 [style=invis]
+	SUBCLAIM_3 -> SOURCES_DB [style=invis]
+	
+	# Allineamento verticale dei database con le fasi della pipeline
+	{
+		rank=same
+		DOWNLOADER
+		SOURCES_DB
+	}
+	DOWNLOADER -> SOURCES_DB [style=invis]
+
+	# Allineamento verticale per la colonna dei sub-claim (Colonna 3)
+	{
+		rank=same
+		SUBCLAIM_1
+		SPACER_1
+		SUBCLAIM_2
+		SPACER_2
+		SUBCLAIM_3
+	}
+	SUBCLAIM_1 -> SPACER_1 [style=invis]
+	SPACER_1 -> SUBCLAIM_2 [style=invis]
+	SUBCLAIM_2 -> SPACER_2 [style=invis]
+	SPACER_2 -> SUBCLAIM_3 [style=invis]
+
+
+
+
+
+	# Allineamento verticale per la Fase 1 e l'ingresso (Colonna 2)
+	{
+		rank=same
+		USER_INPUT
+		CLAIM_DECOMP
+		CLAIM_CLASS
+		CLAIM_FILTER
+	}
+	USER_INPUT -> CLAIM_DECOMP [style=invis]
+	CLAIM_DECOMP -> CLAIM_CLASS [style=invis]
+	CLAIM_CLASS -> CLAIM_FILTER [style=invis]
+
+	# Allineamento verticale per la Fase 4 e l'output (Colonna 10)
+	{
+		rank=same
+		FINAL_DASHBOARD
+		VERDICT_STRUCT
+		AGGREGATOR
+	}
+	FINAL_DASHBOARD -> VERDICT_STRUCT [style=invis]
+	VERDICT_STRUCT -> AGGREGATOR [style=invis]
+}
+
