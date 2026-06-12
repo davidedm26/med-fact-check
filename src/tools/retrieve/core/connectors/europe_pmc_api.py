@@ -23,6 +23,13 @@ def _robust_get(url: str, params: dict = None, timeout: float = 30.0, headers: d
                 continue
             response.raise_for_status()
             return response
+        except requests.exceptions.HTTPError as e:
+            # Non riprovare gli errori client (es. 404 Not Found, 403 Forbidden), tranne i 429 gestiti sopra
+            if e.response is not None and 400 <= e.response.status_code < 500:
+                raise e
+            last_exc = e
+            log.warning(f"HTTP error on attempt {attempt}: {e}. Retrying...")
+            time.sleep(backoff_factor * (2 ** (attempt - 1)))
         except requests.exceptions.RequestException as e:
             last_exc = e
             log.warning(f"Network error on attempt {attempt}: {e}. Retrying...")
@@ -88,8 +95,12 @@ def fetch_full_text_xml(pmcid: str) -> Optional[str]:
 
     url = BASE_URL_FULLTEXT.format(pmcid)
     
+    header = {
+        "User-Agent": "MedFactCheck-UniversityProject/1.0 (tua_email_reale@studenti.unisa.it)"
+    }
+    
     try:
-        response = _robust_get(url, timeout=30)
+        response = _robust_get(url, timeout=30, headers=header)
         return response.text
     except requests.exceptions.HTTPError as e:
         if e.response is not None and e.response.status_code == 404:
