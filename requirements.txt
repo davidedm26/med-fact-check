@@ -13,6 +13,7 @@ tqdm>=4.66.0                   # Per barre di avanzamento e statistiche di inges
 # --- Web Scraping e Retrieval ---
 requests>=2.31.0               # Per fare chiamate API (EuropePMC, UniProt)
 beautifulsoup4>=4.12.0         # Per il parsing dell'HTML/XML
+lxml>=4.9.0                    # Parser XML richiesto da BeautifulSoup per "xml"
 selenium>=4.20.0               # Per il browser invisibile (usato dal Membro 1)
 webdriver-manager>=4.0.0       # Gestisce automaticamente i driver di Chrome per Selenium
 

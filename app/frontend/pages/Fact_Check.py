@@ -288,7 +288,18 @@ with col_main:
                                         inner_data = step_data.get("verify_subclaim", step_data.get("evaluate_subclaim", step_data.get("veracity", step_data.get("reasoning", {}))))
                                         eval_results = inner_data.get("evaluation_results", []) if isinstance(inner_data, dict) else []
                                         for er in eval_results:
-                                            if er not in st.session_state.current_evaluations:
+                                            sub_id = er.get("subclaim_id")
+                                            existing_idx = next((idx for idx, e in enumerate(st.session_state.current_evaluations) if e.get("subclaim_id") == sub_id), None)
+                                            if existing_idx is not None:
+                                                old_er = st.session_state.current_evaluations[existing_idx]
+                                                if len(er.get("retrieved_chunks", [])) > 0 or len(old_er.get("retrieved_chunks", [])) == 0:
+                                                    old_er.update(er)
+                                                else:
+                                                    saved_chunks = old_er.get("retrieved_chunks")
+                                                    old_er.update(er)
+                                                    if saved_chunks is not None:
+                                                        old_er["retrieved_chunks"] = saved_chunks
+                                            else:
                                                 st.session_state.current_evaluations.append(er)
                                         if len(st.session_state.current_evaluations) == len(st.session_state.current_subclaims) and len(st.session_state.current_subclaims) > 0:
                                             st.session_state.max_step = max(st.session_state.get("max_step", 1), 4)
