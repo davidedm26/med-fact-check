@@ -1,6 +1,7 @@
 import json
 import os
 from typing import List
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from tools.retrieve.core.connectors.europe_pmc_api import search_articles, fetch_full_text_xml
 from tools.retrieve.core.connectors.clinical_trials_api import search_trials  # kept for reference
@@ -20,6 +21,72 @@ except ImportError:  # pragma: no cover - optional dependency fallback
         return iterable
 
 log = get_logger("IngestionNode")
+
+
+def _download_and_parse_article(article: dict) -> dict:
+    """
+    Downloads and parses a single EuropePMC article.
+    Handles exceptions to ensure that a single failure doesn't halt the rest.
+    """
+    chunks = []
+    success = False
+    failed = False
+    attempted = True
+
+    pmcid = article.get("pmcid")
+    if not pmcid:
+        return {
+            "chunks": [],
+            "success": False,
+            "failed": True,
+            "attempted": True
+        }
+
+    try:
+        raw_xml = fetch_full_text_xml(pmcid)
+        if raw_xml:
+            paragraphs = clean_europe_pmc_xml(xml_string=raw_xml, article_metadata=article)
+            for p in paragraphs:
+                chunks.append({
+                    "text": p["text"],
+                    "metadata": {
+                        "id": p["metadata"].get("pmid"),
+                        "title": p["metadata"].get("title"),
+                        "type": "Scientific Literature",
+                        "date": p["metadata"].get("date", p["metadata"].get("year")),
+                        "url": f"https://doi.org/{p['metadata'].get('doi')}" if p["metadata"].get("doi") else "",
+                        "extra_info": {"doi": p["metadata"].get("doi")}
+                    }
+                })
+            success = True
+        else:
+            abstract = article.get("abstract")
+            if abstract:
+                chunks.append({
+                    "text": f"ABSTRACT: {abstract}",
+                    "metadata": {
+                        "id": article.get("pmid"),
+                        "title": article.get("title"),
+                        "type": "Scientific Literature Abstract",
+                        "date": article.get("date"),
+                        "url": f"https://doi.org/{article.get('doi')}" if article.get("doi") else "",
+                        "extra_info": {"doi": article.get("doi"), "is_abstract_fallback": True}
+                    }
+                })
+                success = True
+            else:
+                failed = True
+    except Exception as e:
+        log.exception(f"Error downloading/parsing article PMCID {pmcid}: {e}")
+        failed = True
+
+    return {
+        "chunks": chunks,
+        "success": success,
+        "failed": failed,
+        "attempted": attempted
+    }
+
 
 class IngestionNode:
     def __init__(self):
@@ -103,41 +170,37 @@ class IngestionNode:
                     log.info(f"{query_tag} No Open Access articles found. Falling back to abstract-only search.")
                     articles = search_articles(query=single_query, limit=api_limit, max_year=max_year, open_access=False)
                 stats["documents_found"] += len(articles)
-                for article in tqdm(articles, desc=f"[{sub_id} | {target.upper()} | query_{query_index}] articles", unit="article", leave=False):
-                    stats["articles_download_attempted"] += 1
-                    pmcid = article.get("pmcid")
-                    if not pmcid:
-                        stats["articles_download_failed"] += 1
-                        continue
-                    raw_xml = fetch_full_text_xml(pmcid)
-                    if raw_xml:
-                        stats["articles_downloaded_success"] += 1
-                        paragraphs = clean_europe_pmc_xml(xml_string=raw_xml, article_metadata=article)
-                        for p in paragraphs:
-                            raw_chunks.append({
-                                "text": p["text"],
-                                "metadata": {
-                                    "id": p["metadata"].get("pmid"), "title": p["metadata"].get("title"), "type": "Scientific Literature",
-                                    "date": p["metadata"].get("date", p["metadata"].get("year")),
-                                    "url": f"https://doi.org/{p['metadata'].get('doi')}" if p["metadata"].get("doi") else "",
-                                    "extra_info": {"doi": p["metadata"].get("doi")}
-                                }
-                            })
-                    else:
-                        abstract = article.get("abstract")
-                        if abstract:
-                            log.debug(f"XML not found for {pmcid}, falling back to abstract.")
-                            stats["articles_downloaded_success"] += 1
-                            raw_chunks.append({
-                                "text": f"ABSTRACT: {abstract}",
-                                "metadata": {
-                                    "id": article.get("pmid"), "title": article.get("title"), "type": "Scientific Literature Abstract",
-                                    "date": article.get("date"),
-                                    "url": f"https://doi.org/{article.get('doi')}" if article.get("doi") else "",
-                                    "extra_info": {"doi": article.get("doi"), "is_abstract_fallback": True}
-                                }
-                            })
-                        else:
+
+                max_workers = config.get("retrieval.downloader.max_workers", 5)
+                log.info(f"{query_tag} Downloading {len(articles)} articles in parallel with {max_workers} workers.")
+
+                # Use ThreadPoolExecutor to download articles in parallel
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    # Map each article to its future
+                    future_to_article = {executor.submit(_download_and_parse_article, article): article for article in articles}
+                    
+                    # Wrap the future resolution in tqdm to maintain progress bar feedback
+                    for future in tqdm(
+                        as_completed(future_to_article),
+                        total=len(articles),
+                        desc=f"[{sub_id} | {target.upper()} | query_{query_index}] articles",
+                        unit="article",
+                        leave=False
+                    ):
+                        try:
+                            result = future.result()
+                            if result["attempted"]:
+                                stats["articles_download_attempted"] += 1
+                            if result["success"]:
+                                stats["articles_downloaded_success"] += 1
+                            if result["failed"]:
+                                stats["articles_download_failed"] += 1
+                            
+                            raw_chunks.extend(result["chunks"])
+                        except Exception as exc:
+                            article = future_to_article[future]
+                            log.error(f"Article download task raised an exception for PMCID {article.get('pmcid')}: {exc}")
+                            stats["articles_download_attempted"] += 1
                             stats["articles_download_failed"] += 1
             else:
                 log.error(f"Source '{target}' not supported.")

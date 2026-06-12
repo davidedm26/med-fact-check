@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. BACKEND (FastAPI)
+  backend:
+    build: .
+    # 
+    command: uvicorn app.backend.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+    env_file:       
+      - .env
+    volumes:
+      - hf_cache:/root/.cache/huggingface
+
+  # 2. FRONTEND (Streamlit)
+  frontend:
+    build: .
+    command: streamlit run app/frontend/app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend  # Dice a Docker di avviare prima il backend
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db # Salva i dati per non perderli se spegni Docker
+
+volumes:
+  mongo_data:
+  hf_cache:

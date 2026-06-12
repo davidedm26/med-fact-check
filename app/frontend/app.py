@@ -281,7 +281,7 @@ else:
     _, center_col, _ = st.columns([1, 1.2, 1])
     with center_col:
         if st.button("Click to Start Fact Check", type="primary", use_container_width=True):
-            st.switch_page("pages/Fact_check.py")
+            st.switch_page("pages/Fact_Check.py")
 
     # 5. NUOVA SEZIONE INTERATTIVA "WHY"
     st.markdown("""

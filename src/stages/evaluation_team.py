@@ -118,19 +118,16 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
             supporting_quotes = structured.get("supporting_quotes", [])
             refuting_quotes = structured.get("refuting_quotes", [])
             distilled_evidence = structured.get("distilled_evidence", "")
-            evidence_verdict_hint = structured.get("evidence_verdict_hint", "")
         else:
             reasoning_chain = getattr(structured, "reasoning", "")
             supporting_quotes = getattr(structured, "supporting_quotes", [])
             refuting_quotes = getattr(structured, "refuting_quotes", [])
             distilled_evidence = getattr(structured, "distilled_evidence", "")
-            evidence_verdict_hint = getattr(structured, "evidence_verdict_hint", "")
 
         return {
             "distilled_evidence": distilled_evidence,
             "supporting_quotes": supporting_quotes,
             "refuting_quotes": refuting_quotes,
-            "evidence_verdict_hint": evidence_verdict_hint,
             "messages": [
                 HumanMessage(
                     content=str({
@@ -138,7 +135,6 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
                         "supporting_quotes": supporting_quotes,
                         "refuting_quotes": refuting_quotes,
                         "distilled_evidence": distilled_evidence,
-                        "evidence_verdict_hint": evidence_verdict_hint,
                     }),
                     name="reasoning_agent",
                 )
@@ -179,21 +175,39 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
         supp_str = safe_truncate(" ".join(supporting_quotes), 600)
         ref_str = safe_truncate(" ".join(refuting_quotes), 600)
         
-        # Extract hint from reasoning node output for predicted label
-        hint = ""
-        for msg in state.get("messages", []):
-            if getattr(msg, "name", "") == "reasoning_agent":
-                try:
-                    content_dict = eval(msg.content)
-                    hint = content_dict.get("evidence_verdict_hint", "")
-                except Exception:
-                    pass
-
         # Prepare variables for zero-shot classification
         # Combine supporting and refuting quotes if evidence_text is not directly in state
         sentences = safe_truncate(state.get("evidence_text", " ".join(supporting_quotes + refuting_quotes)), 1000)
         justifications = distilled_str
         
+        # Intercept empty evidence / no chunks
+        if not distilled_evidence.strip() or "No evidence chunks available" in sentences:
+            log.info("No evidence chunks available or distilled evidence is empty. Falling back directly to NEI.")
+            evaluation_entry = {
+                "subclaim_id": subclaim_id,
+                "subclaim": subclaim,
+                "justification": "No evidence was found in the retrieved literature to support or refute this claim.",
+                "supporting_quotes": [],
+                "refuting_quotes": [],
+                "label": "nei",
+                "confidence": 1.0,
+            }
+            return {
+                "evaluation_results": [evaluation_entry],
+                "messages": [
+                    HumanMessage(
+                        content=str({
+                            "subclaim_id": subclaim_id,
+                            "logical_analysis": "No evidence chunks available. Hard fallback to NEI.",
+                            "justification": "No evidence was found in the retrieved literature to support or refute this claim.",
+                            "label": "nei",
+                            "confidence": 1.0,
+                        }),
+                        name="veracity_agent",
+                    )
+                ],
+            }
+
         # Premise is the evidence/justification context
         premise = f"Justification: {justifications}\nEvidence: {sentences}"
         premise = safe_truncate(premise, 1000)
@@ -231,7 +245,9 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
                 best_label = result[0].get("label", "")
                 confidence = float(result[0].get("score", 0.0))
                 
-                if best_label == "supported":
+                if best_label in ["supported", "refuted"] and confidence < 0.5:
+                    label = "nei"
+                elif best_label == "supported":
                     label = "supported"
                 elif best_label == "refuted":
                     label = "refuted"
