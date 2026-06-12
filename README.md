@@ -1,7 +1,12 @@
 # 🧬 MedFactCheck
 
 ![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)
+![Orchestrator](https://img.shields.io/badge/Orchestrator-LangGraph-orange?logo=langchain&logoColor=white)
+![Domain](https://img.shields.io/badge/Domain-Biomedical%20RAG-darkred)
 ![Docker](https://img.shields.io/badge/docker-ready-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -34,7 +39,7 @@ The system is orchestrated via **LangGraph** and is built around two core novelt
 
 The pipeline is modelled as a stateful directed graph (Super-Graph) managing a classic Map-Reduce (Fan-out / Fan-in) pattern to process complex medical claims.
 
-![MedFactCheck Architecture Infographic](./docs/schemas/architecture_infographic.png)
+![MedFactCheck Architecture Infographic](./docs/schemas/architecture.png)
 
 ---
 
@@ -63,7 +68,7 @@ The pipeline is modelled as a stateful directed graph (Super-Graph) managing a c
 ### Agent Orchestration
 - Built on **LangGraph** with dynamic fan-out/fan-in for parallel sub-claim verification.
 - Thread-safe state synchronization via algebraic reducers (no locking mechanisms needed).
-- **LLMFactory** pattern ensures full model agnosticism — switch between NVIDIA NIM, Groq, Gemini, or Ollama via `config.json`.
+- **LLMFactory** pattern ensures model agnosticism — switch between **NVIDIA NIM** or local **Ollama** (the currently active and fully supported providers) via `config.json`.
 
 ### Storage
 - **MongoDB** (NoSQL) for node-level telemetry: every LangGraph node is instrumented with a `@log_node` decorator.
@@ -76,6 +81,8 @@ The pipeline is modelled as a stateful directed graph (Super-Graph) managing a c
 - Displays claim decomposition, RAG retrieval status, per-sub-claim reasoning with color-coded verbatim quotes, and the final verdict.
 - Supports PDF report export for Electronic Health Records (EHR).
 
+![MedFactCheck Interactive Dashboard](./img/dashboard.png)
+
 ---
 
 ## Models & Configuration (`config.json`)
@@ -84,7 +91,7 @@ All runtime options are managed via [config.json](file:///b:/Workspace/Unina-MSc
 
 | JSON Key Path | Type | Default Value | Description |
 |---|---|---|---|
-| `llm.provider` | `string` | `"nvidia"` | Selected LLM provider (`"nvidia"`, `"groq"`, `"google"`, `"ollama"`) |
+| `llm.provider` | `string` | `"nvidia"` | Selected LLM provider (currently only `"nvidia"` and `"ollama"` are fully supported) |
 | `llm.temperature` | `number` | `0.2` | Temperature setting for LLM token sampling |
 | `llm.retries` | `integer` | `3` | Maximum retry attempts for transient API errors |
 | `llm.timeout` | `integer` | `60` | Timeout in seconds for remote API model calls |
@@ -137,24 +144,24 @@ MED-FACT-CHECK/
 │
 ├── docs/
 │   ├── reports/                     # Detailed analysis & evaluation reports
-│   │   ├── ablation_report.md
-│   │   ├── aggregator_report.md
-│   │   ├── architecture_report.md
-│   │   ├── benchmarking_report.md
-│   │   ├── decomposing_team_report.md
-│   │   ├── dense_retrieval_report.md
-│   │   ├── evaluation_team_report.md
-│   │   ├── future_works.md
-│   │   ├── retrieval_team_report.md
-│   │   └── sparse_retrieval_report.md
+│   │   ├── [ablation_report.md](docs/reports/ablation_report.md)
+│   │   ├── [aggregator_report.md](docs/reports/aggregator_report.md)
+│   │   ├── [architecture_report.md](docs/reports/architecture_report.md)
+│   │   ├── [benchmarking_report.md](docs/reports/benchmarking_report.md)
+│   │   ├── [decomposing_team_report.md](docs/reports/decomposing_team_report.md)
+│   │   ├── [dense_retrieval_report.md](docs/reports/dense_retrieval_report.md)
+│   │   ├── [evaluation_team_report.md](docs/reports/evaluation_team_report.md)
+│   │   ├── [future_works.md](docs/reports/future_works.md)
+│   │   ├── [retrieval_team_report.md](docs/reports/retrieval_team_report.md)
+│   │   └── [sparse_retrieval_report.md](docs/reports/sparse_retrieval_report.md)
 │   └── schemas/                     # Architecture visualizations (gv, png, mermaid)
-│       ├── architecture.gv
-│       ├── architecture.png
-│       ├── architecture_infographic.gv
-│       ├── architecture_infographic.png
-│       ├── decomposition.mermaid
-│       ├── eval.mermaid
-│       └── retrieval.mermaid
+│       ├── [architecture.gv](docs/schemas/architecture.gv)
+│       ├── [architecture.png](docs/schemas/architecture.png)
+│       ├── [architecture_infographic.gv](docs/schemas/architecture_infographic.gv)
+│       ├── [architecture_infographic.png](docs/schemas/architecture_infographic.png)
+│       ├── [decomposition.mermaid](docs/schemas/decomposition.mermaid)
+│       ├── [eval.mermaid](docs/schemas/eval.mermaid)
+│       └── [retrieval.mermaid](docs/schemas/retrieval.mermaid)
 │
 ├── evaluation/
 │   ├── data_preparation/
@@ -182,7 +189,7 @@ MED-FACT-CHECK/
 │   │   └── retrieval_team.py        # Phase 2 — Evidence Retrieval subgraph
 │   ├── tools/retrieve/
 │   │   ├── core/
-│   │   │   ├── connectors/          # Europe PMC, UniProt, PubMed, and ClinicalTrials REST API connectors
+│   │   │   ├── connectors/          # Europe PMC, UniProt, PubMed REST API connectors
 │   │   │   │   ├── clinical_trials_api.py
 │   │   │   │   ├── europe_pmc_api.py
 │   │   │   │   ├── pubmed_api.py
@@ -209,20 +216,19 @@ MED-FACT-CHECK/
 │   │   ├── evaluation_gold.json
 │   │   └── retrieval_gold.json
 │   ├── reports/                     # Execution reports output (gitignored)
-│   ├── interactive_decompose.py
-│   ├── interactive_retrieval.py
-│   ├── test_aggregator_node.py
-│   ├── test_chunking.py
-│   ├── test_decompose_stage.py
-│   ├── test_evaluation_nodes.py
-│   └── test_retrieval_nodes.py
+│   ├── interactive_decompose.py     # Interactive interface for Decomposer Agent
+│   ├── interactive_retrieval.py     # Interactive interface for Retrieval Team
+│   ├── test_aggregator_node.py      # Test Aggregator Agent
+│   ├── test_chunking.py             # Test Chunking utility
+│   ├── test_decompose_stage.py      # Test Decomposer stage
+│   ├── test_evaluation_nodes.py     # Test Reasoning & Veracity Agents
+│   └── test_retrieval_nodes.py      # Test Retrieval Team
 │
 ├── .env.example                     # Environment variables template
 ├── config.json                      # LLM provider & hyperparameter configuration
 ├── docker-compose.yml               # Multi-container orchestration
 ├── Dockerfile                       # Container definition
-├── requirements.txt                 # Python dependencies
-└── text_example.txt                 # Sample input claim for quick testing
+└── requirements.txt                 # Python dependencies
 ```
 
 ---
@@ -246,10 +252,10 @@ Preliminary results on a stratified sample of 30 claims showed ~80% accuracy on 
 ## Tech Stack
 
 - **Orchestration**: LangGraph, LangChain
-- **LLM Providers**: NVIDIA NIM, Groq (Llama-3), Google Gemini, Ollama
+- **LLM Providers**: NVIDIA NIM, Ollama (fully supported and functional)
 - **Retrieval**: BM25, MedCPT (HuggingFace), PyTorch (INT8 quantization)
 - **NLI Classification**: DeBERTa-v3-large (HuggingFace Inference API)
-- **Data Sources**: Europe PMC REST API, UniProt REST API, NCBI E-Utilities API, ClinicalTrials.gov API
+- **Data Sources**: Europe PMC REST API, UniProt REST API, NCBI E-Utilities API
 - **Storage**: MongoDB (PyMongo)
 - **Backend**: FastAPI (SSE streaming)
 - **Frontend**: Streamlit
@@ -265,7 +271,7 @@ You can run the complete system either using **Docker Compose** (recommended for
 
 1. Clone the repository and navigate inside:
    ```bash
-   git clone https://github.com/davidedm_26/med-fact-check.git
+   git clone https://github.com/davidedm26/med-fact-check.git
    cd med-fact-check
    ```
 2. Copy the environment template to create your `.env` file:
@@ -273,7 +279,7 @@ You can run the complete system either using **Docker Compose** (recommended for
    cp .env.example .env
    ```
 3. Edit the `.env` file and set the required API credentials:
-   - `GOOGLE_API_KEY`, `NVIDIA_API_KEY`, or `GROQ_API_KEY` depending on the active provider chosen in `config.json`.
+   - `NVIDIA_API_KEY` (if using NVIDIA NIM provider) or leave empty if running local models via Ollama.
    - `HF_TOKEN` (Hugging Face token) to download embedding models.
    - `NCBI_API_KEY` (Optional PubMed API Key to increase request limits from 3 to 10 queries/sec).
 
@@ -361,6 +367,77 @@ To let python resolve imports from both `app` and `src`, you must run these comm
   ```
 
 Once running, access the Streamlit frontend at `http://localhost:8501` and the backend Swagger page at `http://localhost:8000/docs`.
+
+---
+
+## 📊 Running Dataset Evaluation
+
+You can run automated benchmark evaluation sessions on the three supported datasets (**SciFact**, **BioASQ**, **HealthFC**) to compute global metrics (Accuracy, Precision, Recall, F1-Score).
+
+All evaluation scripts must be run from the root of the project with the virtual environment activated:
+
+### 1. Rapid Evaluation (Stratified Sample)
+To run a quick evaluation on a small stratified sample (default: 30 claims) to verify pipeline integration:
+- Open [evaluation/rapid_evaluation.py](file:///b:/Workspace/Unina-MSc/BIG-DATA/med-fact-check/evaluation/rapid_evaluation.py) and configure:
+  - `DATASET_TO_EVALUATE`: `"scifact"`, `"bioasq"`, `"healthfc"`, or `"all"`
+  - `MAX_SAMPLES`: number of claims to sample
+  - `RUN_NAME`: folder name under `evaluation/results/pipeline_predictions/` where predictions will be saved
+- Uncomment the call to `run_rapid_evaluation()` at the bottom of the script if you want to rerun predictions from scratch.
+- Execute:
+  ```bash
+  python evaluation/rapid_evaluation.py
+  ```
+
+### 2. Full Benchmark Evaluation (Multi-Session with Auto-Resume)
+To run a comprehensive evaluation session (default: 100 claims per dataset):
+- The script automatically saves progress after **each processed claim**. If the API rate limits or you terminate execution, simply rerun the script to resume exactly where you left off.
+- Execute:
+  ```bash
+  python evaluation/final_evaluation.py
+  ```
+- Detailed predictions are outputted to `evaluation/results/pipeline_predictions/final_test_1/` (gitignored), and a final metrics summary is exported to `evaluation/results/pipeline_predictions/final_evaluation_summary.csv`.
+
+### 3. Plotting Metric Trends
+To generate plots representing model benchmarking and ablation studies:
+- Execute:
+  ```bash
+  python evaluation/plot_results.py
+  ```
+
+---
+
+## 🧪 Running Tests
+
+The repository contains isolated ablation and node-level tests inside the `test/` directory to evaluate specific stages of the pipeline.
+
+### Prerequisites for Tests
+Ensure you have activated your virtual environment and populated the `.env` file (tests invoke active LLM and embedding models).
+
+### Run Test Scripts
+You can run any test script directly from the root of the project:
+
+- **Decompose Stage Ablation Test**:
+  ```bash
+  python test/test_decompose_stage.py
+  ```
+- **Evidence Retrieval Nodes Test**:
+  ```bash
+  python test/test_retrieval_nodes.py
+  ```
+- **Reasoning & Veracity Nodes Test**:
+  ```bash
+  python test/test_evaluation_nodes.py
+  ```
+- **Verdict Aggregator Node Test**:
+  ```bash
+  python test/test_aggregator_node.py
+  ```
+- **Biomedical Chunking Test**:
+  ```bash
+  python test/test_chunking.py
+  ```
+
+After execution, the scripts will output performance metrics and save detailed execution reports under `test/reports/`.
 
 ---
 

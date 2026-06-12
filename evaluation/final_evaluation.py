@@ -178,18 +178,8 @@ def calculate_final_metrics():
             print(f"WARNING: Prediction file '{pred_file}' is empty. Skipping.")
             continue
             
-        # Determine if dataset is natively 3-class (contains NEI true labels in the original CSV)
-        csv_path = os.path.join(DATASETS_DIR, f"{ds_name}_clean.csv")
-        has_nei_true = False
-        if os.path.exists(csv_path):
-            try:
-                df_full = pd.read_csv(csv_path)
-                has_nei_true = any(standardize_label(val) == "nei" for val in df_full["true_label"].dropna().unique())
-            except Exception as e:
-                print(f"WARNING: Could not check original CSV for 3-class status: {e}")
-                has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
-        else:
-            has_nei_true = any(standardize_label(item.get("true_label", "")) == "nei" for item in results)
+        # Determine if dataset is natively 3-class (contains NEI true labels)
+        has_nei_true = ds_name.lower() in ["scifact", "healthfc"]
         
         filtered_results = results
         evaluated_claims = len(results)
