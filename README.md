@@ -50,7 +50,6 @@ The pipeline is modelled as a stateful directed graph (Super-Graph) managing a c
 - **Europe PMC** — full-text Open Access articles via REST API.
 - **UniProt** — structured biological metadata for molecular claims.
 - **PubMed** — systematic reviews and meta-analyses via NCBI E-Utilities API.
-- **Clinical Trials** — status, phase, and summary metadata for trials via ClinicalTrials.gov API.
 - **Two-Stage Hybrid Retrieval**: BM25 sparse search + MedCPT dense search → Cross-Encoder reranking → Top-K diverse chunks.
 
 ### Reasoning & Veracity Assessment
