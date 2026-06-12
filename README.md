@@ -130,17 +130,23 @@ MED-FACT-CHECK/
 │       └── app.py                   # Streamlit entrypoint
 │
 ├── data/
-│   ├── datasets/
-│   │   ├── bioasq_clean.csv
-│   │   ├── healthfc_clean.csv
-│   │   └── scifact_clean.csv
-│   └── raw_datasets/
-│       ├── BioASQ-train-yesno-7b.json
-│       └── healthFC_annotated.csv
+│   └── evaluation/
+│       ├── datasets/
+│       │   ├── bioasq_clean.csv
+│       │   ├── healthfc_clean.csv
+│       │   └── scifact_clean.csv
+│       └── raw_datasets/
+│           ├── BioASQ-train-yesno-7b.json
+│           └── healthFC_annotated.csv
 │
-├── data_preparation/
-│   ├── check_conflicts.py           # Duplicate/conflict detection
-│   └── prepare_dataset.py           # Dataset preprocessing & label normalization
+├── evaluation/
+│   ├── data_preparation/
+│   │   ├── check_conflicts.py       # Duplicate/conflict detection
+│   │   └── prepare_dataset.py       # Dataset preprocessing & label normalization
+│   ├── results/                     # Pipeline prediction outputs (gitignored)
+│   │   └── pipeline_predictions/
+│   ├── final_evaluation.py          # Full-dataset evaluation script
+│   └── rapid_evaluation.py          # Quick stratified-sample evaluation
 │
 ├── docs/
 │   ├── ablation_report.md

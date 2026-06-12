@@ -11,8 +11,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 's
 from main_agent import FactAgent
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATASETS_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "datasets"))
-OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "results", "pipeline_predictions"))
+DATASETS_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "evaluation", "datasets"))
+OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "results", "pipeline_predictions"))
 
 # ==========================================
 # RAPID EVALUATION SETTINGS
