@@ -15,3 +15,5 @@ data/test/*.json
 *.pdf
 test/reports/
 index.html
+
+evaluation/results/pipeline_predictions/

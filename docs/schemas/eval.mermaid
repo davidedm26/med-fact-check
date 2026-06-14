@@ -2,33 +2,43 @@
 config:
   layout: fixed
 ---
+%%{init: {"themeVariables": {"fontSize": "18px", "fontFamily": "arial", "edgeLabelBackground": "#ffffff"}}}%%
 flowchart TB
- subgraph SC1["Subclaim 1"]
-        V1["Veracity Agent (NLI)<br>"]
-        R1["Reasoning Agent<br>(Extract &amp; Distill)"]
-  end
  subgraph SCN["Subclaim N"]
-        VN["Veracity Agent (NLI)<br>"]
-        RN["Reasoning Agent<br>(Extract &amp; Distill)"]
+        direction TB
+        VN["🤖 Veracity Agent (Classifier)"]
+        RN["🧠 Reasoning Agent (LLM)<br>(Extract &amp; Distill)"]
+  end
+ subgraph SC1["Subclaim 1"]
+        direction TB
+        V1["🤖 Veracity Agent (Classifier)"]
+        R1["🧠 Reasoning Agent (LLM)<br>(Extract &amp; Distill)"]
   end
  subgraph ParallelEval["Parallel Evaluation Subgraphs (Fan-Out)"]
-        SC1
+        direction LR
         SCN
+        SC1
   end
-    R1 --> V1
     RN --> VN
-    SC1 ~~~ SCN
-    V1 == evaluation_results[0] ==> Agg["Aggregator Agent LLM<br>(Boolean AND/OR Logic)"]
-    VN == evaluation_results[n] ==> Agg
-    MainClaim(["Main Complex Claim"]) ==> Agg
+    R1 --> V1
+    VN == "evaluation_results[n]" ==> Agg["🧠 Aggregator Agent (LLM)<br>(Boolean AND/OR Logic)"]
+    V1 == "evaluation_results[0]" ==> Agg
+    MainClaim(["Original Claim"]) ==> Agg
     Agg --> Final[("Final Unified Verdict<br>(Label, Confidence, Medical Summary)")]
 
-     V1:::nli
-     R1:::llm
-     VN:::nli
-     RN:::llm
-     Agg:::llm
-     Final:::final
-    classDef llm fill:#f9f0ff,stroke:#d4b3ff,stroke-width:2px
-    classDef nli fill:#e6f7ff,stroke:#91d5ff,stroke-width:2px
-    classDef final fill:#f6ffed,stroke:#b7eb8f,stroke-width:2px
+    %% Stili paper-like (Scala di grigi / B&N per articoli accademici)
+    classDef process fill:#f5f5f5,stroke:#000000,stroke-width:1px,color:#000000,font-size:18px;
+    classDef algorithmic fill:#e0e0e0,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5,color:#000000,font-size:18px;
+    classDef inputNode fill:#ffffff,stroke:#000000,stroke-width:1px,color:#000000,font-size:18px;
+    classDef finalNode fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000,font-size:18px;
+
+    %% Assegnazione degli stili
+    class R1,RN,Agg process;
+    class V1,VN algorithmic;
+    class MainClaim inputNode;
+    class Final finalNode;
+
+    %% Stile dei subgraph (bordo tratteggiato, sfondo trasparente)
+    style SC1 fill:none,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5,color:#000000,font-size:18px
+    style SCN fill:none,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5,color:#000000,font-size:18px
+    style ParallelEval fill:none,stroke:#000000,stroke-width:1px,stroke-dasharray: 3 3,color:#000000,font-size:18px

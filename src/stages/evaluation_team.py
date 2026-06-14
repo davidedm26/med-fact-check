@@ -231,14 +231,27 @@ def build_evaluation_graph(reasoning_agent, veracity_agent):
             
             candidate_labels = ["supported", "refuted", "inconclusive"]
             
-            log.info(f"Running zero-shot classification via InferenceClient...")
+            max_retries = 3
+            backoff_delay = 2.0
+            result = None
             
-            result = client.zero_shot_classification(
-                text=premise,
-                candidate_labels=candidate_labels,
-                hypothesis_template=hypothesis_template,
-                multi_label=False
-            )
+            for attempt in range(max_retries):
+                try:
+                    log.info(f"Running zero-shot classification via InferenceClient (Attempt {attempt+1}/{max_retries})...")
+                    result = client.zero_shot_classification(
+                        text=premise,
+                        candidate_labels=candidate_labels,
+                        hypothesis_template=hypothesis_template,
+                        multi_label=False
+                    )
+                    break
+                except Exception as exc:
+                    if attempt < max_retries - 1:
+                        log.warning(f"InferenceClient call failed (attempt {attempt+1}/{max_retries}): {exc}. Retrying in {backoff_delay}s...")
+                        time.sleep(backoff_delay)
+                        backoff_delay *= 2.0
+                    else:
+                        raise exc
             
             # The result is a list of dicts: [{'label': 'supported', 'score': 0.9}, ...]
             if isinstance(result, list) and len(result) > 0:
